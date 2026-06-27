@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Game Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Screen: Home / Game Selection -->
+  <div id="screen-home" class="screen active">
+    <header class="app-header">
+      <h1 class="app-title">&#127922; Game Tracker</h1>
+      <p class="app-subtitle">Pick a game to get started</p>
+    </header>
+    <div class="game-grid">
+      <button class="game-card" data-game="farkle">
+        <span class="game-icon">&#127922;</span>
+        <span class="game-name">Farkle</span>
+        <span class="game-desc">Running totals &bull; First to 10,000</span>
+      </button>
+      <div class="game-card coming-soon">
+        <span class="game-icon">&#127183;</span>
+        <span class="game-name">More Coming</span>
+        <span class="game-desc">Stay tuned</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen: Player Setup -->
+  <div id="screen-setup" class="screen">
+    <header class="screen-header">
+      <button class="btn-back" id="btn-back-home">&#8592; Back</button>
+      <h2 id="setup-title">Setup</h2>
+      <span class="header-spacer"></span>
+    </header>
+    <div class="setup-body">
+      <div class="setup-section">
+        <label class="section-label">Players</label>
+        <div id="player-inputs"></div>
+        <button class="btn-add-player" id="btn-add-player">+ Add Player</button>
+      </div>
+      <div class="setup-section" id="win-condition-section">
+        <label class="section-label">Win Condition</label>
+        <div class="win-row">
+          <span class="win-label">First to</span>
+          <input type="number" id="win-score" value="10000" min="100" max="999999">
+          <span class="win-label">points</span>
+        </div>
+      </div>
+      <button class="btn-primary full-width" id="btn-start-game">Start Game</button>
+    </div>
+  </div>
+
+  <!-- Screen: Score Tracker -->
+  <div id="screen-tracker" class="screen">
+    <header class="screen-header">
+      <button class="btn-back" id="btn-back-setup">&#8592; Back</button>
+      <h2 id="tracker-title">Score</h2>
+      <button class="btn-rules" id="btn-rules" title="View Rules">?</button>
+    </header>
+
+    <div id="winner-banner" class="winner-banner hidden"></div>
+
+    <div class="table-scroll-wrap">
+      <table id="score-table">
+        <thead>
+          <tr id="player-header-row">
+            <th class="col-round">#</th>
+          </tr>
+        </thead>
+        <tbody id="score-body"></tbody>
+        <tfoot>
+          <tr id="totals-row">
+            <td class="col-round totals-label">Total</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="tracker-actions">
+      <button class="btn-primary" id="btn-add-turn">+ Add Turn</button>
+      <button class="btn-secondary" id="btn-new-game">New Game</button>
+    </div>
+  </div>
+
+  <!-- Modal: Add Turn -->
+  <div id="modal-turn" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="turn-backdrop"></div>
+    <div class="modal-sheet">
+      <h3 class="modal-title">Add Turn Scores</h3>
+      <div id="turn-score-inputs"></div>
+      <p class="modal-hint">Enter 0 for a Farkle (no score this turn)</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-cancel-turn">Cancel</button>
+        <button class="btn-primary" id="btn-save-turn">Save Turn</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Rules -->
+  <div id="modal-rules" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="rules-backdrop"></div>
+    <div class="modal-sheet modal-sheet--rules">
+      <div class="modal-top-bar">
+        <h3 class="modal-title" id="rules-modal-title">Rules</h3>
+        <button class="btn-close" id="btn-close-rules">&#10005;</button>
+      </div>
+      <div class="rules-content" id="rules-built-in"></div>
+      <div class="custom-rules-section">
+        <h4 class="custom-rules-heading">Custom Notes</h4>
+        <ul id="custom-rules-list"></ul>
+        <div class="add-rule-row">
+          <input type="text" id="custom-rule-input" placeholder="Add a house rule or note..." maxlength="120">
+          <button class="btn-primary" id="btn-add-rule">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
