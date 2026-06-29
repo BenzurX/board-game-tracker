@@ -1,16 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="ocean" data-mode="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Game Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script>(function(){var t=localStorage.getItem('theme')||'ocean';var m=localStorage.getItem('mode')||'dark';document.documentElement.dataset.theme=t;document.documentElement.dataset.mode=m;})()</script>
 </head>
 <body>
 
   <!-- Screen: Home / Game Selection -->
   <div id="screen-home" class="screen active">
     <header class="app-header">
+      <button class="btn-settings" id="btn-settings" title="Settings">&#9881;</button>
       <h1 class="app-title">&#127922; Game Tracker</h1>
       <p class="app-subtitle">Pick a game to get started</p>
     </header>
@@ -33,7 +38,7 @@
     <header class="screen-header">
       <button class="btn-back" id="btn-back-home">&#8592; Back</button>
       <h2 id="setup-title">Setup</h2>
-      <span class="header-spacer"></span>
+      <button class="btn-rules" id="btn-rules-setup" title="View Rules">?</button>
     </header>
     <div class="setup-body">
       <div class="setup-section">
@@ -48,6 +53,15 @@
           <input type="number" id="win-score" value="10000" min="100" max="999999">
           <span class="win-label">points</span>
         </div>
+      </div>
+      <div class="setup-section" id="min-score-section">
+        <label class="section-label">Entry Threshold</label>
+        <div class="win-row">
+          <span class="win-label">Must score</span>
+          <input type="number" id="min-score" value="500" min="0" max="99999">
+          <span class="win-label">to get on the board</span>
+        </div>
+        <p class="setup-hint">Set to 0 to disable</p>
       </div>
       <button class="btn-primary full-width" id="btn-start-game">Start Game</button>
     </div>
@@ -85,6 +99,19 @@
     </div>
   </div>
 
+  <!-- Modal: Confirm Leave Game -->
+  <div id="modal-confirm" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="confirm-backdrop"></div>
+    <div class="modal-sheet modal-sheet--confirm">
+      <h3 class="modal-title">Leave game?</h3>
+      <p class="modal-hint">Your current scores will be lost.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-confirm-stay">Stay</button>
+        <button class="btn-danger" id="btn-confirm-leave">Leave</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Add Turn -->
   <div id="modal-turn" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop" id="turn-backdrop"></div>
@@ -114,6 +141,41 @@
         <div class="add-rule-row">
           <input type="text" id="custom-rule-input" placeholder="Add a house rule or note..." maxlength="120">
           <button class="btn-primary" id="btn-add-rule">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Settings -->
+  <div id="modal-settings" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="settings-backdrop"></div>
+    <div class="modal-sheet modal-sheet--settings">
+      <div class="modal-top-bar">
+        <h3 class="modal-title">Settings</h3>
+        <button class="btn-close" id="btn-close-settings">&#10005;</button>
+      </div>
+      <div class="settings-section">
+        <p class="section-label">Color Theme</p>
+        <div class="theme-swatches">
+          <button class="theme-swatch" data-theme="ember">
+            <div class="swatch-preview swatch-ember"></div>
+            <span>Ember</span>
+          </button>
+          <button class="theme-swatch" data-theme="ocean">
+            <div class="swatch-preview swatch-ocean"></div>
+            <span>Ocean</span>
+          </button>
+          <button class="theme-swatch" data-theme="forest">
+            <div class="swatch-preview swatch-forest"></div>
+            <span>Forest</span>
+          </button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <p class="section-label">Display Mode</p>
+        <div class="mode-toggle">
+          <button class="mode-btn" data-mode="dark">&#127769; Dark</button>
+          <button class="mode-btn" data-mode="light">&#9728;&#65039; Light</button>
         </div>
       </div>
     </div>

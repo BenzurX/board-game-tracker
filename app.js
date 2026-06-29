@@ -1,9 +1,56 @@
+// ── Theme Management ─────────────────────────────────────
+function applyTheme(theme, mode) {
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.mode  = mode;
+  localStorage.setItem('theme', theme);
+  localStorage.setItem('mode',  mode);
+  updateSettingsUI(theme, mode);
+}
+
+function updateSettingsUI(theme, mode) {
+  document.querySelectorAll('.theme-swatch').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === theme);
+  });
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+}
+
+// Apply persisted theme on load (also set by inline script in <head> to prevent flash)
+applyTheme(
+  localStorage.getItem('theme') || 'ocean',
+  localStorage.getItem('mode')  || 'dark'
+);
+
+document.getElementById('btn-settings').addEventListener('click', () => {
+  updateSettingsUI(document.documentElement.dataset.theme, document.documentElement.dataset.mode);
+  document.getElementById('modal-settings').classList.remove('hidden');
+});
+document.getElementById('settings-backdrop').addEventListener('click', closeSettingsModal);
+document.getElementById('btn-close-settings').addEventListener('click', closeSettingsModal);
+
+function closeSettingsModal() {
+  document.getElementById('modal-settings').classList.add('hidden');
+}
+
+document.querySelectorAll('.theme-swatch').forEach(btn => {
+  btn.addEventListener('click', () => {
+    applyTheme(btn.dataset.theme, document.documentElement.dataset.mode);
+  });
+});
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    applyTheme(document.documentElement.dataset.theme, btn.dataset.mode);
+  });
+});
+
 // ── Game Definitions ────────────────────────────────────
 const GAMES = {
   farkle: {
     name: 'Farkle',
     icon: '🎲',
     defaultWinScore: 10000,
+    defaultMinScore: 500,
     rules: [
       'Roll all 6 dice. Set aside any scoring dice, then choose to bank your points or keep rolling the remaining dice.',
       'You must set aside at least one scoring die each roll.',
@@ -27,8 +74,10 @@ const PLAYER_COLORS = ['#e8533a', '#3a9ee8', '#5cb85c', '#f0a820', '#a855f7', '#
 const state = {
   gameKey: null,
   players: [],      // [{ name, color }]
-  rounds: [],       // [[score, score, ...], ...]  one entry per player per round
+  rounds: [],       // [[score|null, ...], ...]  null = below entry threshold
   winScore: 10000,
+  minScore: 500,    // 0 = disabled
+  onBoard: [],      // [bool, ...]  true once a player has met minScore in one turn
   customRules: [],
   gameOver: false,
 };
@@ -57,6 +106,7 @@ function buildSetupScreen(key) {
   const game = GAMES[key];
   document.getElementById('setup-title').textContent = game.name;
   document.getElementById('win-score').value = game.defaultWinScore;
+  document.getElementById('min-score').value = game.defaultMinScore ?? 0;
   renderPlayerInputs(2);
 }
 
@@ -104,7 +154,9 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
 
   state.players = names.map((name, i) => ({ name, color: PLAYER_COLORS[i % PLAYER_COLORS.length] }));
   state.winScore = parseInt(document.getElementById('win-score').value) || 10000;
+  state.minScore = parseInt(document.getElementById('min-score').value) || 0;
   state.rounds = [];
+  state.onBoard = state.players.map(() => state.minScore === 0);
   state.customRules = [];
   state.gameOver = false;
 
@@ -113,7 +165,24 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
 });
 
 // ── Tracker Screen ───────────────────────────────────────
-document.getElementById('btn-back-setup').addEventListener('click', () => showScreen('screen-setup'));
+document.getElementById('btn-back-setup').addEventListener('click', () => {
+  if (state.rounds.length > 0) {
+    document.getElementById('modal-confirm').classList.remove('hidden');
+  } else {
+    showScreen('screen-setup');
+  }
+});
+
+document.getElementById('confirm-backdrop').addEventListener('click', closeConfirmModal);
+document.getElementById('btn-confirm-stay').addEventListener('click', closeConfirmModal);
+document.getElementById('btn-confirm-leave').addEventListener('click', () => {
+  closeConfirmModal();
+  showScreen('screen-setup');
+});
+
+function closeConfirmModal() {
+  document.getElementById('modal-confirm').classList.add('hidden');
+}
 
 function buildTrackerScreen() {
   const game = GAMES[state.gameKey];
@@ -128,9 +197,15 @@ function renderTable() {
   // Header
   const headerRow = document.getElementById('player-header-row');
   headerRow.innerHTML = '<th class="col-round">#</th>';
-  players.forEach(p => {
+  players.forEach((p, pi) => {
     const th = document.createElement('th');
-    th.innerHTML = `<span style="color:${p.color}">${escHtml(p.name)}</span>`;
+    const span = document.createElement('span');
+    span.className = 'player-name-label';
+    span.style.color = p.color;
+    span.textContent = p.name;
+    span.title = 'Tap to rename';
+    span.addEventListener('click', () => editPlayerName(th, pi));
+    th.appendChild(span);
     headerRow.appendChild(th);
   });
 
@@ -140,10 +215,22 @@ function renderTable() {
   rounds.forEach((round, ri) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `<td class="col-round">${ri + 1}</td>`;
-    round.forEach(score => {
+    round.forEach((score, pi) => {
       const td = document.createElement('td');
-      td.className = 'score-cell' + (score === 0 ? ' farkle' : '');
-      td.textContent = score === 0 ? '—' : score.toLocaleString();
+      if (score === null) {
+        td.className = 'score-cell not-on-board';
+        td.textContent = '✗';
+        td.title = 'Below entry threshold — tap to edit';
+      } else if (score === 0) {
+        td.className = 'score-cell farkle';
+        td.textContent = '—';
+        td.title = 'Farkle — tap to edit';
+      } else {
+        td.className = 'score-cell';
+        td.textContent = score.toLocaleString();
+        td.title = 'Tap to edit';
+      }
+      td.addEventListener('click', () => editScore(td, ri, pi));
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
@@ -158,6 +245,61 @@ function renderTable() {
     td.style.color = state.players[i].color;
     td.textContent = total.toLocaleString();
     totalsRow.appendChild(td);
+  });
+}
+
+function editPlayerName(th, pi) {
+  const p = state.players[pi];
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = p.name;
+  input.maxLength = 20;
+  input.className = 'name-edit-input';
+  input.style.color = p.color;
+  th.innerHTML = '';
+  th.appendChild(input);
+  input.focus();
+  input.select();
+
+  const commit = () => {
+    state.players[pi].name = input.value.trim() || p.name;
+    renderTable();
+  };
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { input.removeEventListener('blur', commit); renderTable(); }
+  });
+}
+
+function editScore(td, ri, pi) {
+  const current = state.rounds[ri][pi];
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.value = current === null ? 0 : current;
+  input.min = 0;
+  input.max = 99999;
+  input.inputMode = 'numeric';
+  input.className = 'score-edit-input';
+  td.textContent = '';
+  td.className = 'score-cell';
+  td.appendChild(input);
+  input.focus();
+  input.select();
+
+  const commit = () => {
+    const newScore = Math.max(0, parseInt(input.value) || 0);
+    state.rounds[ri][pi] = newScore;
+    if (newScore > 0) state.onBoard[pi] = true;
+    state.gameOver = false;
+    document.getElementById('winner-banner').classList.add('hidden');
+    renderTable();
+    checkWin();
+  };
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { input.removeEventListener('blur', commit); renderTable(); }
   });
 }
 
@@ -217,7 +359,12 @@ function closeTurnModal() {
 
 document.getElementById('btn-save-turn').addEventListener('click', () => {
   const inputs = document.querySelectorAll('.turn-score-input');
-  const scores = Array.from(inputs).map(inp => Math.max(0, parseInt(inp.value) || 0));
+  const scores = Array.from(inputs).map((inp, pi) => {
+    const raw = Math.max(0, parseInt(inp.value) || 0);
+    if (state.onBoard[pi]) return raw;
+    if (raw >= state.minScore) { state.onBoard[pi] = true; return raw; }
+    return null; // below entry threshold — doesn't count yet
+  });
   state.rounds.push(scores);
   closeTurnModal();
   renderTable();
@@ -228,6 +375,7 @@ document.getElementById('btn-save-turn').addEventListener('click', () => {
 const modalRules = document.getElementById('modal-rules');
 
 document.getElementById('btn-rules').addEventListener('click', openRulesModal);
+document.getElementById('btn-rules-setup').addEventListener('click', openRulesModal);
 document.getElementById('rules-backdrop').addEventListener('click', closeRulesModal);
 document.getElementById('btn-close-rules').addEventListener('click', closeRulesModal);
 
