@@ -1,65 +1,48 @@
 # Changelog
 
-All notable changes to this project are documented here.
+Newest entries first. Version scheme: flat decimal starting at 0.01, incrementing by 0.01 per release (0.01, 0.02 … 0.09, 0.10 …). Version 1.0 is not assigned without explicit approval. Minor additions increment by 0.01; significant grouped releases may skip ahead by more at the author's discretion.
 
 ---
 
-## [Unreleased] — 2026-06-27 / 2026-06-28
+## 0.03 — 2026-06-30
 
 ### Added
-- **Color themes + light/dark mode** (Task 9)
-  - Three themes: Ember (gold on dark brown), Ocean (teal on navy), Forest (lime on dark green)
-  - Each theme has a dark and light mode — 6 CSS variable blocks total
-  - Settings gear button in home-screen header opens a bottom-sheet settings modal
-  - Theme and mode selections persist in `localStorage`; inline `<script>` in `<head>` prevents flash on reload
-  - `--on-accent` CSS variable adapts text color on accent-colored surfaces per theme/mode
-
-- **Responsive breakpoints** (Task 10)
-  - Tablet max-width: 700px (≥ 640px viewport)
-  - Desktop max-width: 1080px (≥ 1024px viewport)
-  - Modals remain full-width below breakpoints; constrained above
-
-- **Confirmation modal on back-during-game** (Task 11)
-  - Tapping Back during an active game shows a "Leave game?" bottom-sheet modal
-  - Only triggers when at least one turn has been recorded; bypassed on empty games
-
-- **Rules button on setup screen** (Task 12)
-  - "?" button added to the setup screen header (mirrors the tracker screen button)
-  - Opens the same rules modal populated from the current game's rules array
-
-- **Entry threshold mechanic** (Task 1)
-  - Players must score ≥ threshold (default 500) in a single turn to get on the board
-  - Scores below threshold are stored as `null` and excluded from totals
-  - Configurable "Entry Threshold" field on setup screen; set to 0 to disable
-  - Not-on-board cells render with a `✗` symbol on an accent-tinted background
-
-- **Inline player name editing** (Task 2)
-  - Tapping a player's name in the score table header opens an inline text input
-  - Commits on blur or Enter; cancels on Escape
-
-- **Inline score editing** (Task 3)
-  - Tapping any score cell opens an inline number input
-  - Commits on blur or Enter; recalculates totals and win check immediately; cancels on Escape
-
-- **Custom notes in rules modal** (Task … Rules feature)
-  - Players can add and delete house-rule notes at runtime (stored in memory for the session)
-
-### Changed
-- **Default theme** — Ocean dark is now the default for first-time visitors (previously Ember dark)
-- **Font** (Task 7) — Commissioner (Google Fonts, weights 700/800/900) replaces system sans-serif
-- **Global font size** (Task 4) — base size increased from 16px to 18px; score table scaled proportionally
-- **Player input gap** (Task 5) — added vertical spacing between player name rows on setup screen
-- **Back button style** (Task 6) — now rendered with border + border-radius (pill-style)
-- **App subtitle** (Task 8) — "Pick a game to get started" styled with letter-spacing and lighter weight
-- **Not-on-board cell** — changed indicator from `—` (muted, italic) to `✗` on accent-dim background for clearer visual distinction
+- Service worker (`sw.js`) for PWA offline support and cache-first asset serving; cache version bumped on every push so installed Android PWAs auto-update on next launch
+- Version history page (`snapshots/index.html`) — timeline of milestones with live links to each saved snapshot; snapshots stored in `snapshots/vX.XX/`
 
 ---
 
-## [0.1.0] — Initial scaffold
+## 0.02 — 2026-06-28
 
-- Single-page app: Home → Setup → Tracker screens
-- Farkle implemented with running totals and first-to-10,000 win condition
+### Added
+- Color themes (Ember, Ocean, Forest) × dark/light mode; 6 CSS variable blocks; Ocean dark is the default
+- Settings gear button on home screen opens a bottom-sheet theme/mode picker; preference persists in `localStorage`
+- Anti-flash inline script in `<head>` applies saved theme before first paint
+- Entry threshold mechanic — players must score ≥ 500 in one turn to get on the board; scores below threshold stored as `null` and shown as `✗` on an accent-tinted cell
+- Inline player name editing — tap a column header to rename mid-game
+- Inline score editing — tap any cell to correct a score; totals and win check recalculate immediately
+- Confirmation modal when tapping Back during an active game
+- Rules button on the setup screen (mirrors the tracker screen button)
+- Custom house-rule notes in the rules modal (add/delete at runtime, session-only)
+- Responsive breakpoints: tablet 700px, desktop 1080px
+- Commissioner font (Google Fonts, weights 700/800/900)
+
+### Changed
+- Global base font size increased from 16px to 17px
+- Back button styled with border + border-radius
+- App subtitle styled with letter-spacing, uppercase, and decorative rule lines
+- Player name inputs now have consistent vertical gap
+- Not-on-board indicator changed from muted italic `—` to `✗` on accent-dim background
+- Default theme changed to Ocean dark
+
+---
+
+## 0.01 — 2026-06-27
+
+### Added
+- Single-page app: Home → Setup → Score Tracker screens
+- Farkle with running totals and configurable first-to-10,000 win condition
 - Add Turn bottom-sheet modal with per-player score inputs
 - Rules modal with built-in Farkle rules
-- Six player colors; 2–6 players supported
+- 2–6 players with distinct color-coded columns
 - Winner banner on win condition reached

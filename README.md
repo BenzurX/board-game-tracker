@@ -36,11 +36,17 @@ Open `index.html` in a browser. No build step required.
 ## Project Structure
 
 ```
-index.html   — markup and screen layout
-style.css    — all styling; CSS custom properties for theming
-app.js       — all game logic and DOM interaction
-CLAUDE.md    — instructions for AI-assisted development on this project
-CHANGELOG.md — history of changes
+index.html         — markup and screen layout
+style.css          — all styling; CSS custom properties for theming
+app.js             — all game logic and DOM interaction
+sw.js              — service worker; cache version bumped on every push for PWA auto-update
+snapshots/
+  index.html       — version history timeline with live snapshot links
+  v0.01/           — initial scaffold
+  v0.02/           — full feature release
+  v0.03/           — PWA service worker + version tracking
+CLAUDE.md          — instructions for AI-assisted development on this project
+CHANGELOG.md       — history of changes
 ```
 
 ---
