@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Round closer / next-starter marker — ideas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ── App tokens (Ocean dark) ───────────────────────────── */
+  :root {
+    --bg:#0d1b2a; --surface:#162840; --card:#1d3554;
+    --border:rgba(224,240,245,0.12);
+    --accent:#0e9fa8; --accent-bright:#14c8d4; --accent-dim:rgba(14,159,168,0.2);
+    --on-accent:#0d1b2a; --text:#e0f0f5; --text-muted:#7aacba;
+    --radius:12px; --radius-sm:8px;
+    --p0:#e8533a; --p1:#3a9ee8; --p2:#5cb85c;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:#071019; color:var(--text); padding:32px 20px 64px; line-height:1.4;
+  }
+  .page-head { max-width:960px; margin:0 auto 26px; text-align:center; }
+  .page-head h1 { font-family:'Commissioner',sans-serif; font-weight:900; font-size:1.6rem; color:var(--accent-bright); letter-spacing:-0.5px; }
+  .page-head p { margin-top:8px; color:var(--text-muted); font-size:0.92rem; }
+
+  .grid { display:flex; flex-wrap:wrap; gap:26px; justify-content:center; align-items:flex-start; }
+
+  .variant { width:340px; max-width:100%; }
+  .variant-label { display:flex; align-items:baseline; gap:9px; margin-bottom:4px; }
+  .variant-label .tag { font-family:'Commissioner',sans-serif; font-weight:900; font-size:1.1rem; color:var(--accent-bright); }
+  .variant-label .name { font-weight:700; font-size:0.96rem; }
+  .variant-label.ref .tag, .variant-label.ref .name { color:var(--text-muted); }
+  .variant-note { color:var(--text-muted); font-size:0.82rem; margin-bottom:12px; min-height:3.6em; }
+
+  .frame {
+    background:var(--bg); border:1px solid var(--border); border-radius:18px;
+    overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.45);
+  }
+  .frame-header {
+    display:flex; align-items:center; justify-content:center; padding:13px;
+    background:var(--surface); border-bottom:1px solid var(--border);
+    font-family:'Commissioner',sans-serif; font-weight:800; font-size:1.02rem; color:var(--accent-bright);
+  }
+
+  /* ── Mock score table (mirrors the app) ────────────────── */
+  table.score { width:100%; border-collapse:collapse; font-size:1rem; }
+  table.score th, table.score td { padding:11px 12px; text-align:center; white-space:nowrap; position:relative; }
+  table.score thead th {
+    font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    border-bottom:2px solid var(--border);
+  }
+  table.score tbody td { border-bottom:1px solid var(--border); font-weight:600; }
+  table.score tbody tr:nth-child(even) td { background:rgba(255,255,255,0.02); }
+  .rc { text-align:left; color:var(--text-muted); font-size:0.8rem; padding-left:18px !important; min-width:46px; }
+  table.score tfoot td { font-weight:800; font-size:1.08rem; border-top:2px solid var(--border); padding-top:13px; }
+  .tl { text-align:left; padding-left:18px !important; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:700; }
+  .c0 { color:var(--p0); } .c1 { color:var(--p1); } .c2 { color:var(--p2); }
+
+  .frame-foot {
+    padding:11px 16px; background:var(--surface); border-top:1px solid var(--border);
+    font-size:0.82rem; color:var(--text-muted); display:flex; align-items:center; gap:8px; min-height:44px;
+  }
+
+  /* ── Idea A · flag sits inline right next to the score ─── */
+  .out-badge {
+    margin-left:5px; font-size:1.05rem; line-height:1; vertical-align:middle;
+  }
+
+  /* ── Idea B · starter chevron in the # column of next row + hint ── */
+  .starts { font-weight:900; margin-right:5px; }
+  .cell-hl { background:var(--accent-dim) !important; border-radius:4px; }
+  .next-chip {
+    display:inline-flex; align-items:center; gap:6px; font-weight:700; color:var(--text);
+  }
+  .next-chip .arrow { font-weight:900; }
+
+  /* ── Idea C · colored dot in # column ──────────────────── */
+  .closer-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-left:8px; vertical-align:middle; }
+  .legend-dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--text-muted); margin-right:2px; }
+
+  /* ── Capture mock (Add Turn modal) ─────────────────────── */
+  .capture-wrap { max-width:420px; margin:44px auto 0; }
+  .capture-wrap h2 { text-align:center; font-family:'Commissioner',sans-serif; font-weight:800; font-size:1.05rem; color:var(--accent-bright); margin-bottom:6px; }
+  .capture-wrap > p { text-align:center; color:var(--text-muted); font-size:0.85rem; margin-bottom:16px; }
+  .sheet {
+    background:var(--surface); border:1px solid var(--border); border-top-left-radius:var(--radius); border-top-right-radius:var(--radius);
+    padding:22px 20px; display:flex; flex-direction:column; gap:16px;
+  }
+  .sheet h3 { font-size:1.05rem; font-weight:700; color:var(--accent-bright); }
+  .turn-row { display:flex; align-items:center; gap:12px; }
+  .turn-row .dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+  .turn-row .nm { flex:1; font-weight:600; font-size:0.95rem; }
+  .turn-row input { width:88px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:1.05rem; font-weight:700; padding:9px; text-align:center; }
+  .went-out-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-top:6px; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip {
+    display:inline-flex; align-items:center; gap:7px; padding:9px 14px; border-radius:999px;
+    background:var(--card); border:2px solid transparent; color:var(--text); font-size:0.9rem; font-weight:600; cursor:pointer;
+  }
+  .chip .dot { width:10px; height:10px; border-radius:50%; }
+  .chip.sel { border-color:var(--accent); background:var(--accent-dim); }
+  .chip .out-tag { font-size:0.72rem; color:var(--accent-bright); font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>Marking who "goes out first" each round</h1>
+  <p>In Skyjo the player who empties their cards ends the round and <strong>starts the next one</strong>. Below: a plain reference, then three ways to show that on the sheet. All use the real theme and player colors.</p>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="capture-wrap">
+  <h2>How you'd set it</h2>
+  <p>Add Turn already collects the round's scores — a tap-to-pick row selects who went out. (Shared by every display idea above.)</p>
+  <div class="sheet">
+    <h3>Add Turn — Round 4</h3>
+    <div class="turn-row"><span class="dot" style="background:var(--p0)"></span><span class="nm">Priya</span><input value="0"></div>
+    <div class="turn-row"><span class="dot" style="background:var(--p1)"></span><span class="nm">Sam</span><input value="0"></div>
+    <div class="turn-row"><span class="dot" style="background:var(--p2)"></span><span class="nm">Wei</span><input value="0"></div>
+    <div class="went-out-label">Who went out first?</div>
+    <div class="chips">
+      <span class="chip"><span class="dot" style="background:var(--p0)"></span>Priya</span>
+      <span class="chip sel"><span class="dot" style="background:var(--p1)"></span>Sam <span class="out-tag">✓ out</span></span>
+      <span class="chip"><span class="dot" style="background:var(--p2)"></span>Wei</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Shared data: 3 rounds, a "closer" (player index) per round. */
+const P = [
+  { nm:'Priya', cls:'c0', col:'var(--p0)' },
+  { nm:'Sam',   cls:'c1', col:'var(--p1)' },
+  { nm:'Wei',   cls:'c2', col:'var(--p2)' },
+];
+const ROUNDS = [
+  { scores:[4,18,9],  closer:2 },  // Wei went out
+  { scores:[0,22,11], closer:0 },  // Priya went out
+  { scores:[12,3,7],  closer:1 },  // Sam went out
+];
+const TOTALS = [16,43,27];
+
+function headRow() {
+  return `<tr><th class="rc">#</th>${P.map(p=>`<th class="${p.cls}">${p.nm}</th>`).join('')}</tr>`;
+}
+function totalsRow() {
+  return `<tr><td class="tl">Total</td>${TOTALS.map((t,i)=>`<td class="${P[i].cls}">${t}</td>`).join('')}</tr>`;
+}
+
+/* ── Reference: no marker ──────────────────────────────── */
+function refTable() {
+  const body = ROUNDS.map((r,ri)=>`<tr><td class="rc">${ri+1}</td>${
+    r.scores.map(s=>`<td>${s}</td>`).join('')
+  }</tr>`).join('');
+  return table(body);
+}
+
+/* ── A · corner flag on the closer's cell ──────────────── */
+function tableA() {
+  const body = ROUNDS.map((r,ri)=>`<tr><td class="rc">${ri+1}</td>${
+    r.scores.map((s,pi)=>{
+      const flag = pi===r.closer ? `<span class="out-badge" title="${P[pi].nm} went out — starts next round" style="color:${P[pi].col}">⚑</span>` : '';
+      return `<td>${s}${flag}</td>`;
+    }).join('')
+  }</tr>`).join('');
+  return table(body, `<span>⚑ = went out first (starts next round)</span>`);
+}
+
+/* ── B · starter chevron on the next row + "up next" hint ─ */
+function tableB() {
+  const body = ROUNDS.map((r,ri)=>{
+    // who starts THIS round = closer of previous round
+    const starterOfThis = ri===0 ? null : ROUNDS[ri-1].closer;
+    const rcInner = starterOfThis===null
+      ? `${ri+1}`
+      : `<span class="starts" style="color:${P[starterOfThis].col}" title="${P[starterOfThis].nm} starts this round">▶</span>${ri+1}`;
+    return `<tr><td class="rc">${rcInner}</td>${
+      r.scores.map((s,pi)=> pi===starterOfThis ? `<td><span class="cell-hl">${s}</span></td>` : `<td>${s}</td>`).join('')
+    }</tr>`;
+  }).join('');
+  const nextStarter = ROUNDS[ROUNDS.length-1].closer;
+  const foot = `<span class="next-chip"><span class="arrow" style="color:${P[nextStarter].col}">▶</span> ${P[nextStarter].nm} starts round 4</span>`;
+  return table(body, foot);
+}
+
+/* ── C · colored dot in the # column ───────────────────── */
+function tableC() {
+  const body = ROUNDS.map((r,ri)=>`<tr><td class="rc">${ri+1}<span class="closer-dot" title="${P[r.closer].nm} went out — starts next round" style="background:${P[r.closer].col}"></span></td>${
+    r.scores.map(s=>`<td>${s}</td>`).join('')
+  }</tr>`).join('');
+  return table(body, `<span><span class="legend-dot"></span> = who went out first that round</span>`);
+}
+
+function table(body, foot) {
+  return `
+    <div class="frame">
+      <div class="frame-header">🎲 Skyjo</div>
+      <table class="score">
+        <thead>${headRow()}</thead>
+        <tbody>${body}</tbody>
+        <tfoot>${totalsRow()}</tfoot>
+      </table>
+      ${foot!==undefined ? `<div class="frame-foot">${foot}</div>` : `<div class="frame-foot"></div>`}
+    </div>`;
+}
+
+const VARIANTS = [
+  { tag:'—', name:'Now (no marker)', ref:true, html:refTable,
+    note:'Current sheet. No way to tell who closed a round or who leads off the next one.' },
+  { tag:'A', name:'Corner flag', html:tableA,
+    note:'A small ⚑ in the closer’s score cell for that round, tinted their color. Zero extra rows; the info sits right on their score.' },
+  { tag:'B', name:'Starter chevron', html:tableB,
+    note:'A ▶ points at whoever leads off each round (the previous closer), with their next-round cell highlighted, plus an "up next" line. Most action-oriented.' },
+  { tag:'C', name:'# column dot', html:tableC,
+    note:'A colored dot beside each round number = who went out. The most compact and unobtrusive; needs the little legend to read.' },
+];
+
+const grid = document.getElementById('grid');
+VARIANTS.forEach(v=>{
+  const el = document.createElement('div');
+  el.className = 'variant';
+  el.innerHTML = `
+    <div class="variant-label ${v.ref?'ref':''}"><span class="tag">${v.tag}</span><span class="name">${v.name}</span></div>
+    <div class="variant-note">${v.note}</div>
+    ${v.html()}`;
+  grid.appendChild(el);
+});
+</script>
+
+</body>
+</html>

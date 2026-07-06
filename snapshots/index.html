@@ -188,6 +188,23 @@
       padding: 2px 8px;
       white-space: nowrap;
     }
+    .v-milestone-chip {
+      font-family: 'Commissioner', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--bg);
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-bright) 100%);
+      border-radius: 999px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+    .version-entry.milestone .v-dot {
+      border-color: var(--accent-bright);
+      background: var(--accent);
+      color: var(--bg);
+    }
+
     .v-date {
       font-size: 0.78rem;
       color: var(--text-muted);
@@ -266,18 +283,43 @@
   <div class="page-header">
     <div><a class="back-link" href="../index.html">&#8592; Back to App</a></div>
     <div class="page-title">&#127922; Game Tracker</div>
-    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>3 snapshots</strong> captured</div>
+    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>4 snapshots</strong> captured</div>
   </div>
 
   <div class="timeline">
 
-    <!-- v0.03 — current -->
-    <div class="version-entry current">
+    <!-- v0.04 — current milestone -->
+    <div class="version-entry current milestone">
+      <div class="v-dot">&#9733;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.04</span>
+          <span class="v-current-chip">CURRENT</span>
+          <span class="v-milestone-chip">MILESTONE</span>
+          <span class="v-date">July 6, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Second game type — Custom Game (Skyjo), golf scoring, confetti</div>
+          <ul class="v-bullets">
+            <li>Custom Game tracker — freeform round-by-round score sheet for games like Skyjo, no fixed rules</li>
+            <li>Golf scoring toggle (highest or lowest wins), negative scores, and an optional no-limit target</li>
+            <li>Win confetti burst with a winner-banner pop; honors reduced-motion</li>
+            <li>Opt-in "track who goes out first" — flags the round closer (&#9873;) next to their score</li>
+            <li>Fixed a theme class-name collision that could blank the theme to a white screen</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.04/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.03 -->
+    <div class="version-entry">
       <div class="v-dot">&#9670;</div>
       <div class="v-card">
         <div class="v-card-head">
           <span class="v-badge">v0.03</span>
-          <span class="v-current-chip">CURRENT</span>
           <span class="v-date">June 30, 2026</span>
         </div>
         <div class="v-card-body">

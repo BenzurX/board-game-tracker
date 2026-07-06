@@ -9,10 +9,14 @@ A lightweight score-tracking web app for board games and dice games. No install,
 ## Features
 
 - **Farkle** — running totals, configurable win score, entry threshold ("getting on the board")
+- **Custom Game** — a freeform score sheet for games like Skyjo: name the game, log a score per round, no fixed rules
+  - **Golf scoring toggle** — highest total wins, or lowest wins (golf)
+  - **Negative scores** and an optional **no-limit target** (set to 0 to just track scores)
+  - **"Track who goes out first"** — opt-in per game; flags the round closer (⚑) next to their score
 - **2–6 players** with distinct color-coded columns
 - **Inline editing** — tap any score cell or player name to edit mid-game
 - **Add Turn modal** — enter all players' scores for a round in one step
-- **Winner banner** — automatically detects when a player crosses the win threshold
+- **Winner banner + confetti** — detects the win, then fires a confetti burst (honors `prefers-reduced-motion`)
 - **Rules modal** — built-in rules per game plus custom house-rule notes you can add at runtime
 - **Confirmation modal** — warns before leaving an in-progress game
 - **Color themes** — Ember, Ocean, Forest, each with dark and light mode
@@ -45,6 +49,8 @@ snapshots/
   v0.01/           — initial scaffold
   v0.02/           — full feature release
   v0.03/           — PWA service worker + version tracking
+  v0.04/           — Custom Game (Skyjo), golf scoring, confetti, round-closer flag
+stage/             — standalone design-preview pages (not part of the shipped app)
 CLAUDE.md          — instructions for AI-assisted development on this project
 CHANGELOG.md       — history of changes
 ```
@@ -55,6 +61,7 @@ CHANGELOG.md       — history of changes
 
 Currently implemented:
 - **Farkle** — dice game, first to 10,000 points (configurable), minimum 500 to get on the board (configurable)
+- **Custom Game** — freeform round-by-round score sheet (e.g. Skyjo), with high/low (golf) scoring, negative scores, optional target, and opt-in round-closer tracking
 
 More games planned (round-by-round and category-based scoring).
 

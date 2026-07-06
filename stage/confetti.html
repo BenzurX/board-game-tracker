@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confetti / Win Juice — 4 versions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ── App tokens (Ocean dark — the app default) ─────────── */
+  :root {
+    --bg:           #0d1b2a;
+    --surface:      #162840;
+    --card:         #1d3554;
+    --border:       rgba(224, 240, 245, 0.12);
+    --accent:       #0e9fa8;
+    --accent-bright:#14c8d4;
+    --on-accent:    #0d1b2a;
+    --text:         #e0f0f5;
+    --text-muted:   #7aacba;
+    --radius:       12px;
+    --radius-sm:    8px;
+    /* player accent colors */
+    --p0: #e8533a; --p1: #3a9ee8; --p2: #5cb85c;
+    --p3: #f0a820; --p4: #a855f7; --p5: #14b8a6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #071019;
+    color: var(--text);
+    padding: 32px 20px 64px;
+    line-height: 1.4;
+  }
+
+  .page-head {
+    max-width: 900px;
+    margin: 0 auto 28px;
+    text-align: center;
+  }
+  .page-head h1 {
+    font-family: 'Commissioner', sans-serif;
+    font-weight: 900;
+    font-size: 1.7rem;
+    color: var(--accent-bright);
+    letter-spacing: -0.5px;
+  }
+  .page-head p {
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+  .page-head .hint {
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    opacity: 0.8;
+  }
+
+  .grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .variant {
+    width: 380px;
+    max-width: 100%;
+  }
+
+  .variant-label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .variant-label .tag {
+    font-family: 'Commissioner', sans-serif;
+    font-weight: 900;
+    font-size: 1.15rem;
+    color: var(--accent-bright);
+  }
+  .variant-label .name {
+    font-weight: 700;
+    font-size: 0.98rem;
+  }
+  .variant-note {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-bottom: 12px;
+    min-height: 2.4em;
+  }
+
+  /* ── Phone frame = mock tracker screen ─────────────────── */
+  .frame {
+    position: relative;
+    height: 480px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .frame-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-family: 'Commissioner', sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--accent-bright);
+  }
+
+  .winner-banner {
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-bright) 100%);
+    color: var(--on-accent);
+    font-size: 0.98rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 13px 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Mock score table */
+  .mock-table {
+    flex: 1;
+    padding: 14px 0;
+    font-size: 0.95rem;
+  }
+  .mock-row {
+    display: grid;
+    grid-template-columns: 44px 1fr 1fr 1fr;
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+  .mock-row .rnum { text-align: left; color: var(--text-muted); font-size: 0.82rem; }
+  .mock-row.head { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+  .mock-row.totals {
+    font-weight: 800;
+    font-size: 1.05rem;
+    border-top: 2px solid var(--border);
+    border-bottom: none;
+    margin-top: 4px;
+  }
+  .c0 { color: var(--p0); } .c1 { color: var(--p1); } .c2 { color: var(--p2); }
+
+  .frame-actions {
+    padding: 12px 16px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: center;
+  }
+  .replay-btn {
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 11px 26px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .replay-btn:hover { background: var(--accent-bright); }
+  .replay-btn:active { transform: scale(0.96); }
+
+  /* Confetti canvas overlays the whole frame */
+  .confetti-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* Banner entrance treatments per-variant (added via JS by toggling classes) */
+  .banner-pop.play {
+    animation: bannerPop 0.55s cubic-bezier(.18,.89,.32,1.28);
+  }
+  @keyframes bannerPop {
+    0%   { transform: scale(0.6); opacity: 0; }
+    60%  { transform: scale(1.06); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .banner-glow.play {
+    animation: bannerGlow 1.6s ease-out;
+  }
+  @keyframes bannerGlow {
+    0%   { box-shadow: 0 0 0 0 rgba(20,200,212,0.0); }
+    30%  { box-shadow: 0 0 26px 4px rgba(20,200,212,0.75); }
+    100% { box-shadow: 0 0 0 0 rgba(20,200,212,0.0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>🎉 Win Confetti — four flavors</h1>
+  <p>Each fires over the real winner banner using the app's Ocean-dark theme and player colors. All hand-rolled canvas, zero dependencies (works offline in the PWA).</p>
+  <p class="hint">They auto-play once on load. Tap <strong>Replay win</strong> on any frame to see it again.</p>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+/* ───────────────────────────────────────────────────────────
+   Shared helpers
+─────────────────────────────────────────────────────────── */
+const COLORS = ['#e8533a', '#3a9ee8', '#5cb85c', '#f0a820', '#a855f7', '#14b8a6', '#14c8d4'];
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[(Math.random() * arr.length) | 0];
+
+function setupCanvas(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const r = canvas.getBoundingClientRect();
+  canvas.width  = r.width  * dpr;
+  canvas.height = r.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w: r.width, h: r.height };
+}
+
+/* Each runner returns a cancel() so replay can kill the prior loop. */
+
+/* ── A · Classic burst — confetti rains from the top ─────── */
+function runClassic(canvas) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  const N = 140;
+  const parts = Array.from({ length: N }, () => ({
+    x: rand(0, w),
+    y: rand(-h * 0.5, 0),
+    w: rand(6, 11),
+    h: rand(8, 15),
+    vx: rand(-0.6, 0.6),
+    vy: rand(1.8, 4.2),
+    rot: rand(0, Math.PI * 2),
+    vr: rand(-0.25, 0.25),
+    sway: rand(0.5, 1.6),
+    phase: rand(0, Math.PI * 2),
+    color: pick(COLORS),
+  }));
+  let t = 0, raf;
+  (function frame() {
+    ctx.clearRect(0, 0, w, h);
+    t += 0.016;
+    for (const p of parts) {
+      p.x += p.vx + Math.sin(t * 2 + p.phase) * p.sway;
+      p.y += p.vy;
+      p.rot += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = 0.95;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    }
+    if (t < 5) raf = requestAnimationFrame(frame);
+    else ctx.clearRect(0, 0, w, h);
+  })();
+  return () => cancelAnimationFrame(raf);
+}
+
+/* ── B · Party cannons — twin bursts from bottom corners ── */
+function runCannons(canvas) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  const parts = [];
+  function burst(ox, oy, baseAngle) {
+    for (let i = 0; i < 90; i++) {
+      const a = baseAngle + rand(-0.5, 0.5);
+      const speed = rand(7, 15);
+      parts.push({
+        x: ox, y: oy,
+        vx: Math.cos(a) * speed,
+        vy: Math.sin(a) * speed,
+        w: rand(5, 10), h: rand(7, 13),
+        rot: rand(0, 6.28), vr: rand(-0.4, 0.4),
+        color: pick(COLORS), alpha: 1,
+      });
+    }
+  }
+  // fire from both bottom corners, angled up-and-inward
+  burst(0, h, -Math.PI / 3);
+  burst(w, h, -Math.PI * 2 / 3);
+  let raf, t = 0;
+  (function frame() {
+    ctx.clearRect(0, 0, w, h);
+    t += 0.016;
+    for (const p of parts) {
+      p.vy += 0.28;           // gravity
+      p.vx *= 0.99; p.vy *= 0.99;
+      p.x += p.vx; p.y += p.vy;
+      p.rot += p.vr;
+      if (t > 1.2) p.alpha = Math.max(0, p.alpha - 0.02);
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    }
+    if (t < 3.4) raf = requestAnimationFrame(frame);
+    else ctx.clearRect(0, 0, w, h);
+  })();
+  return () => cancelAnimationFrame(raf);
+}
+
+/* ── C · Streamers — sparse, elegant ribbons drifting down ─ */
+function runStreamers(canvas) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  const parts = [];
+  let raf, t = 0, spawn = 0;
+  (function frame() {
+    ctx.clearRect(0, 0, w, h);
+    t += 0.016;
+    // gentle continuous spawn for the first ~2.2s
+    if (t < 2.2) {
+      spawn += 1;
+      if (spawn % 2 === 0) {
+        parts.push({
+          x: rand(0, w), y: -12,
+          vy: rand(1.1, 2.2), vx: rand(-0.3, 0.3),
+          len: rand(16, 30), thick: rand(3, 5),
+          wobble: rand(1.2, 2.6), phase: rand(0, 6.28),
+          color: pick(COLORS), alpha: 0.9,
+        });
+      }
+    }
+    for (const p of parts) {
+      p.phase += 0.06;
+      p.x += p.vx + Math.sin(p.phase) * p.wobble * 0.4;
+      p.y += p.vy;
+      const bend = Math.sin(p.phase) * 0.5;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(bend);
+      ctx.globalAlpha = p.alpha;
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = p.thick;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(0, -p.len / 2);
+      ctx.lineTo(0, p.len / 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (t < 5) raf = requestAnimationFrame(frame);
+    else ctx.clearRect(0, 0, w, h);
+  })();
+  return () => cancelAnimationFrame(raf);
+}
+
+/* ── D · Fireworks — radial bursts pop in sequence ───────── */
+function runFireworks(canvas) {
+  const { ctx, w, h } = setupCanvas(canvas);
+  const parts = [];
+  function burst(cx, cy) {
+    const hue = pick(COLORS);
+    const n = 44;
+    for (let i = 0; i < n; i++) {
+      const a = (Math.PI * 2 * i) / n + rand(-0.04, 0.04);
+      const speed = rand(2.4, 6.4);
+      parts.push({
+        x: cx, y: cy,
+        vx: Math.cos(a) * speed,
+        vy: Math.sin(a) * speed,
+        r: rand(1.8, 3.4),
+        color: Math.random() < 0.75 ? hue : pick(COLORS),
+        life: 1,
+        decay: rand(0.012, 0.022),
+      });
+    }
+  }
+  const schedule = [
+    { t: 0.00, x: w * 0.30, y: h * 0.30 },
+    { t: 0.45, x: w * 0.68, y: h * 0.24 },
+    { t: 0.90, x: w * 0.50, y: h * 0.38 },
+    { t: 1.35, x: w * 0.22, y: h * 0.44 },
+  ];
+  let raf, t = 0, fired = 0;
+  (function frame() {
+    ctx.clearRect(0, 0, w, h);
+    t += 0.016;
+    while (fired < schedule.length && t >= schedule[fired].t) {
+      burst(schedule[fired].x, schedule[fired].y);
+      fired++;
+    }
+    ctx.globalCompositeOperation = 'lighter';   // additive glow where sparks overlap
+    for (const p of parts) {
+      p.vy += 0.06;            // gravity
+      p.vx *= 0.985; p.vy *= 0.985;
+      p.x += p.vx; p.y += p.vy;
+      p.life -= p.decay;
+      if (p.life <= 0) continue;
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    for (let i = parts.length - 1; i >= 0; i--) if (parts[i].life <= 0) parts.splice(i, 1);
+    if (t < 3.6) raf = requestAnimationFrame(frame);
+    else ctx.clearRect(0, 0, w, h);
+  })();
+  return () => cancelAnimationFrame(raf);
+}
+
+/* ───────────────────────────────────────────────────────────
+   Build the four frames
+─────────────────────────────────────────────────────────── */
+const VARIANTS = [
+  { tag: 'A', name: 'Classic burst', runner: runClassic, banner: 'banner-pop',
+    note: 'Rectangular confetti rains from the top with gravity, spin and sway. The familiar, crowd-pleasing default.' },
+  { tag: 'B', name: 'Party cannons', runner: runCannons, banner: 'banner-pop',
+    note: 'Two poppers fire from the bottom corners up-and-inward, then fade. Punchy and energetic — biggest first impact.' },
+  { tag: 'C', name: 'Streamers', runner: runStreamers, banner: 'banner-glow',
+    note: 'Sparse ribbon streamers drift and curl downward. Understated and classy; pairs with a soft banner glow.' },
+  { tag: 'D', name: 'Fireworks', runner: runFireworks, banner: 'banner-pop',
+    note: 'Radial spark bursts pop in sequence with additive glow, then fade. Celebratory but all lightweight circles (no emoji glyphs) so it stays smooth.' },
+];
+
+const grid = document.getElementById('grid');
+
+VARIANTS.forEach((v, idx) => {
+  const el = document.createElement('div');
+  el.className = 'variant';
+  el.innerHTML = `
+    <div class="variant-label"><span class="tag">${v.tag}</span><span class="name">${v.name}</span></div>
+    <div class="variant-note">${v.note}</div>
+    <div class="frame">
+      <div class="frame-header">🎲 Skyjo</div>
+      <div class="winner-banner ${v.banner}">🎉 Priya wins with 42 points!</div>
+      <div class="mock-table">
+        <div class="mock-row head"><span class="rnum">#</span><span class="c0">Priya</span><span class="c1">Sam</span><span class="c2">Wei</span></div>
+        <div class="mock-row"><span class="rnum">7</span><span>4</span><span>18</span><span>9</span></div>
+        <div class="mock-row"><span class="rnum">8</span><span>0</span><span>22</span><span>11</span></div>
+        <div class="mock-row totals"><span class="rnum">Total</span><span class="c0">👑 42</span><span class="c1">104</span><span class="c2">71</span></div>
+      </div>
+      <div class="frame-actions">
+        <button class="replay-btn">Replay win 🎉</button>
+      </div>
+      <canvas class="confetti-canvas"></canvas>
+    </div>
+  `;
+  grid.appendChild(el);
+
+  const canvas = el.querySelector('.confetti-canvas');
+  const banner = el.querySelector('.winner-banner');
+  let cancel = null;
+
+  function play() {
+    if (cancel) cancel();
+    banner.classList.remove('play');
+    void banner.offsetWidth;        // restart CSS animation
+    banner.classList.add('play');
+    cancel = v.runner(canvas);
+  }
+
+  el.querySelector('.replay-btn').addEventListener('click', play);
+  // stagger the auto-play so they don't all fire at once
+  setTimeout(play, 300 + idx * 450);
+});
+</script>
+
+</body>
+</html>

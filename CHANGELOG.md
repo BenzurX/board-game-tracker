@@ -4,6 +4,24 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.04 — 2026-07-06
+
+Milestone release: second game type, plus win/round-tracking flair.
+
+### Added
+- **Custom Game tracker** — a freeform score sheet for games like Skyjo: name the game, log a score per player per round, no fixed rules. Selectable from a new "Custom Game" card on the home screen
+- **Golf scoring toggle** — per custom game, choose "Highest wins" or "Lowest wins (golf)"; the winner banner and the totals-row 👑 leader marker both respect the direction
+- **Negative round scores** in custom games (Skyjo can go below zero); the Add Turn modal and inline cell editing both accept them
+- **No-limit target** — a custom game's win target can be set to 0 to just track scores with no automatic end
+- **Win confetti** — a classic confetti burst (colored from the player palette) fires when a game is won, with a subtle pop on the winner banner; fires once per win and honors `prefers-reduced-motion`
+- **"Track who goes out first"** — an opt-in per-custom-game toggle. When on, the Add Turn modal shows a tap-to-toggle "Who went out first?" selector, and that round's closer gets a ⚑ flag next to their score
+
+### Fixed
+- Theme class-name collision: the scoring-direction buttons shared the `.mode-btn` class and were triggering the theme handler, which wrote an invalid mode to `localStorage` and blanked the theme (white screen). Scoring buttons now use a dedicated `.dir-btn` class
+- Hardened theme loading — invalid stored `theme`/`mode` values fall back to Ocean/Dark instead of leaving CSS variables unresolved
+
+---
+
 ## 0.03 — 2026-06-30
 
 ### Added
