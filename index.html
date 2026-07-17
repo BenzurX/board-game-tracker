@@ -8,14 +8,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script>(function(){var t=localStorage.getItem('theme');var m=localStorage.getItem('mode');if(['ember','ocean','forest'].indexOf(t)<0)t='ocean';if(['dark','light'].indexOf(m)<0)m='dark';document.documentElement.dataset.theme=t;document.documentElement.dataset.mode=m;})()</script>
+  <script>(function(){var t=localStorage.getItem('theme');var m=localStorage.getItem('mode');if(['ember','ocean','forest'].indexOf(t)<0)t='ocean';if(['dark','light','system'].indexOf(m)<0)m='system';var applied=m;if(m==='system')applied=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.dataset.theme=t;document.documentElement.dataset.mode=applied;})()</script>
 </head>
 <body>
 
   <!-- Screen: Home / Game Selection -->
   <div id="screen-home" class="screen active">
     <header class="app-header">
-      <button class="btn-settings" id="btn-settings" title="Settings">&#9881;</button>
+      <button class="btn-settings" id="btn-settings" title="Settings">&#9881;&#65039;</button>
       <h1 class="app-title">&#127922; Game Tracker</h1>
       <p class="app-subtitle">Pick a game to get started</p>
     </header>
@@ -43,7 +43,10 @@
     <header class="screen-header">
       <button class="btn-back" id="btn-back-home">&#8592; Back</button>
       <h2 id="setup-title">Setup</h2>
-      <button class="btn-rules" id="btn-rules-setup" title="View Rules">?</button>
+      <div class="header-actions">
+        <button class="btn-rules" id="btn-rules-setup" title="View Rules">?</button>
+        <button class="btn-rules btn-settings-header" id="btn-settings-setup" title="Settings">&#9881;&#65039;</button>
+      </div>
     </header>
     <div class="setup-body">
       <div class="setup-section hidden" id="game-name-section">
@@ -61,18 +64,6 @@
           <button class="dir-btn active" data-dir="high">&#9650; Highest wins</button>
           <button class="dir-btn" data-dir="low">&#9660; Lowest wins (golf)</button>
         </div>
-      </div>
-      <div class="setup-section hidden" id="closer-section">
-        <label class="section-label">Round Tracking</label>
-        <label class="toggle-row">
-          <span class="toggle-text">Track who goes out first
-            <span class="toggle-sub">Flags the player who ends each round</span>
-          </span>
-          <span class="switch">
-            <input type="checkbox" id="track-closer-toggle">
-            <span class="switch-track"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
       </div>
       <div class="setup-section" id="win-condition-section">
         <label class="section-label">Win Condition</label>
@@ -101,7 +92,10 @@
     <header class="screen-header">
       <button class="btn-back" id="btn-back-setup">&#8592; Back</button>
       <h2 id="tracker-title">Score</h2>
-      <button class="btn-rules" id="btn-rules" title="View Rules">?</button>
+      <div class="header-actions">
+        <button class="btn-rules" id="btn-rules" title="View Rules">?</button>
+        <button class="btn-rules btn-settings-header" id="btn-settings-tracker" title="Settings">&#9881;&#65039;</button>
+      </div>
     </header>
 
     <div id="winner-banner" class="winner-banner hidden"></div>
@@ -172,7 +166,7 @@
       </div>
       <div class="rules-content" id="rules-built-in"></div>
       <div class="custom-rules-section">
-        <h4 class="custom-rules-heading">Custom Notes</h4>
+        <h4 class="custom-rules-heading">Custom Rules</h4>
         <ul id="custom-rules-list"></ul>
         <div class="add-rule-row">
           <input type="text" id="custom-rule-input" placeholder="Add a house rule or note..." maxlength="120">
@@ -210,10 +204,12 @@
       <div class="settings-section">
         <p class="section-label">Display Mode</p>
         <div class="mode-toggle">
+          <button class="mode-btn" data-mode="system">&#128421;&#65039; System</button>
           <button class="mode-btn" data-mode="dark">&#127769; Dark</button>
           <button class="mode-btn" data-mode="light">&#9728;&#65039; Light</button>
         </div>
       </div>
+      <p class="settings-version" id="settings-version"></p>
     </div>
   </div>
 
