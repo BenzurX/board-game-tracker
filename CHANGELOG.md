@@ -4,6 +4,14 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.11 - 2026-07-19
+
+### Fixed
+- **Qwirkle's home-screen icon rendered as an oversized fallback glyph** - the icon used an unassigned Unicode codepoint (`&#126124;`) instead of the mahjong tile emoji, so browsers rendered it as a tall "tofu" box; swapped in the correct mahjong tile codepoint (`&#126980;`, the mahjong tile emoji)
+- Restored the "More Coming" placeholder card under the Custom Games and More section, which had been dropped from the home screen
+
+---
+
 ## 0.10 - 2026-07-19
 
 ### Added

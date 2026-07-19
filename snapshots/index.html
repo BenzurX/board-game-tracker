@@ -288,13 +288,52 @@
 
   <div class="timeline">
 
-    <!-- v0.09 — current -->
-    <div class="version-entry current">
+    <!-- v0.11 — current, milestone -->
+    <div class="version-entry current milestone">
       <div class="v-dot">&#9733;</div>
       <div class="v-card">
         <div class="v-card-head">
-          <span class="v-badge">v0.09</span>
+          <span class="v-badge">v0.11</span>
           <span class="v-current-chip">CURRENT</span>
+          <span class="v-date">July 19, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Qwirkle icon fix, Custom Games and More section restored</div>
+          <ul class="v-bullets">
+            <li>Qwirkle's home-screen icon used an unassigned Unicode codepoint and rendered as an oversized fallback glyph; swapped in the correct mahjong tile emoji</li>
+            <li>Restored the "More Coming" placeholder card under the Custom Games and More section, which had been dropped from the home screen</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.11/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.10 — no separate snapshot, bundled into the v0.11 commit -->
+    <div class="version-entry">
+      <div class="v-dot">&#9670;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.10</span>
+          <span class="v-date">July 19, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Version-history snapshots backfilled for v0.06 and v0.09</div>
+          <ul class="v-bullets">
+            <li>Added snapshots/v0.06/ and snapshots/v0.09/ covering gaps left since v0.04</li>
+          </ul>
+          <p style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">No standalone snapshot - these changes were committed together with v0.11, so this exact state was never saved on its own.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.09 -->
+    <div class="version-entry">
+      <div class="v-dot">&#9679;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.09</span>
           <span class="v-date">July 19, 2026</span>
         </div>
         <div class="v-card-body">

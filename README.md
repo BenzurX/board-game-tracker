@@ -53,6 +53,9 @@ snapshots/
   v0.02/           - full feature release
   v0.03/           - PWA service worker + version tracking
   v0.04/           - Custom Game (Skyjo), golf scoring, confetti, round-closer flag
+  v0.06/           - forest theme accent color
+  v0.09/           - 10 new built-in games, score-entry rules fix
+  v0.11/           - Qwirkle icon fix, Custom Games and More section restored
 stage/             - standalone design-preview pages (not part of the shipped app)
 CLAUDE.md          - instructions for AI-assisted development on this project
 CHANGELOG.md       - history of changes
