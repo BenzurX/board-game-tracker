@@ -8,18 +8,19 @@ A lightweight score-tracking web app for board games and dice games. No install,
 
 ## Features
 
-- **Farkle** - running totals, configurable win score, entry threshold ("getting on the board")
+- **11 built-in games** - Farkle, Yahtzee, Left Right Center, Liar's Dice, Cribbage, Euchre, Crazy Eights, Poker, Gin Rummy, Solitaire, and Qwirkle, each with its own scoring rules and win condition
 - **Custom Game** - a freeform score sheet for games like Skyjo: name the game, log a score per round, no fixed rules
   - **Golf scoring toggle** - highest total wins, or lowest wins (golf)
   - **Negative scores** and an optional **no-limit target** (set to 0 to just track scores)
   - **"Track who goes out first"** - opt-in per game; flags the round closer (⚑) next to their score
-- **2–6 players** with distinct color-coded columns; tap a player's color dot on setup or mid-game to change it
+- **2–8 players** with distinct color-coded columns; tap a player's color dot on setup or mid-game to change it
 - **Inline editing** - tap any score cell or player name to edit mid-game
 - **Add Turn modal** - enter all players' scores for a round in one step
 - **Winner banner + confetti** - detects the win, then fires a confetti burst (honors `prefers-reduced-motion`)
-- **Rules modal** - built-in game rules (editable) plus custom house rules you can add at runtime
+- **Basic Rules on setup** - picking a game goes straight to setup, with the game's intro shown above the player list and a "See Scoring and Custom Rules" button
+- **Rules modal** - built-in game rules (editable) plus custom house rules you can add at runtime, opened via the ? button
 - **Confirmation modal** - warns before leaving an in-progress game
-- **Auto-save + resume** - the active game persists to `localStorage`; reopening the app resumes an unfinished game right where it left off
+- **Auto-save + resume** - the active game persists to `localStorage` once at least one round is scored; reopening the app resumes an unfinished game right where it left off
 - **Color themes** - Ember, Ocean, Forest, each with dark, light, and system (follows OS) mode
 - **Settings on every screen** - theme, mode, and app version are always one tap away
 - **Responsive** - mobile-first with clean tablet (700px) and desktop (1080px) breakpoints
@@ -31,8 +32,8 @@ A lightweight score-tracking web app for board games and dice games. No install,
 
 Open `index.html` in a browser. No build step required.
 
-1. Pick a game on the home screen
-2. Add 2–6 players, set the win score and entry threshold
+1. Pick a game on the home screen - the Custom Game catch-all sits above the category groups (e.g. "Dice Games")
+2. On setup, read the Basic Rules panel (or tap "See Scoring and Custom Rules" for the full list), then add 2–8 players and set the win score and entry threshold
 3. Tap **+ Add Turn** after each round to log scores
 4. Tap any cell to correct a score; tap a player name to rename them
 5. Change theme/mode anytime via the gear icon (⚙) on the home screen
@@ -85,4 +86,4 @@ GAMES.mygame = {
 };
 ```
 
-Then add a game card button in `index.html` with `data-game="mygame"`.
+Then add a game card button in `index.html` with `data-game="mygame"`, placed under the appropriate `.category-divider` in the `.game-grid` (or add a new divider for a new category).

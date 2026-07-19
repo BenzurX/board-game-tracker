@@ -20,21 +20,73 @@
       <p class="app-subtitle">Pick a game to get started</p>
     </header>
     <div class="game-grid">
+      <div class="category-divider"><span>Dice Games</span></div>
       <button class="game-card" data-game="farkle">
         <span class="game-icon">&#127922;</span>
         <span class="game-name">Farkle</span>
         <span class="game-desc">Running totals &bull; First to 10,000</span>
       </button>
+      <button class="game-card" data-game="yahtzee">
+        <span class="game-icon">&#127922;</span>
+        <span class="game-name">Yahtzee</span>
+        <span class="game-desc">13 rounds &bull; Highest score wins</span>
+      </button>
+      <button class="game-card" data-game="lrc">
+        <span class="game-icon">&#129689;</span>
+        <span class="game-name">Left Right Center</span>
+        <span class="game-desc">Elimination &bull; Last chip wins</span>
+      </button>
+      <button class="game-card" data-game="liarsdice">
+        <span class="game-icon">&#129320;</span>
+        <span class="game-name">Liar's Dice</span>
+        <span class="game-desc">Bluffing &bull; Last player standing</span>
+      </button>
+
+      <div class="category-divider"><span>Card Games</span></div>
+      <button class="game-card" data-game="cribbage">
+        <span class="game-icon">&#128204;</span>
+        <span class="game-name">Cribbage</span>
+        <span class="game-desc">Pegging &amp; hands &bull; First to 121</span>
+      </button>
+      <button class="game-card" data-game="euchre">
+        <span class="game-icon">&#9824;&#65039;</span>
+        <span class="game-name">Euchre</span>
+        <span class="game-desc">Partners, 4 players &bull; First to 10</span>
+      </button>
+      <button class="game-card" data-game="crazyeights">
+        <span class="game-icon">8&#65039;&#8419;</span>
+        <span class="game-name">Crazy Eights</span>
+        <span class="game-desc">Shed your hand &bull; Lowest score wins</span>
+      </button>
+      <button class="game-card" data-game="poker">
+        <span class="game-icon">&#9827;&#65039;</span>
+        <span class="game-name">Poker</span>
+        <span class="game-desc">Hand rankings &bull; Track chip totals</span>
+      </button>
+      <button class="game-card" data-game="ginrummy">
+        <span class="game-icon">&#9829;&#65039;</span>
+        <span class="game-name">Gin Rummy</span>
+        <span class="game-desc">Knock or Gin &bull; First to 100</span>
+      </button>
+      <button class="game-card" data-game="solitaire">
+        <span class="game-icon">&#127180;</span>
+        <span class="game-name">Solitaire</span>
+        <span class="game-desc">Solo play &bull; Track your best score</span>
+      </button>
+
+      <div class="category-divider"><span>Tile Games</span></div>
+      <button class="game-card" data-game="qwirkle">
+        <span class="game-icon">&#126124;</span>
+        <span class="game-name">Qwirkle</span>
+        <span class="game-desc">Tile-laying &bull; Highest score wins</span>
+      </button>
+
+      <div class="category-divider"><span>Custom Games and More</span></div>
       <button class="game-card" data-game="generic">
         <span class="game-icon">&#128221;</span>
         <span class="game-name">Custom Game</span>
         <span class="game-desc">Simple score sheet &bull; Skyjo &amp; more</span>
       </button>
-      <div class="game-card coming-soon">
-        <span class="game-icon">&#127183;</span>
-        <span class="game-name">More Coming</span>
-        <span class="game-desc">Stay tuned</span>
-      </div>
     </div>
   </div>
 
@@ -49,6 +101,11 @@
       </div>
     </header>
     <div class="setup-body">
+      <div class="setup-section hidden" id="basic-rules-section">
+        <label class="section-label">Basic Rules</label>
+        <div class="basic-rules-text" id="setup-basic-rules-intro"></div>
+        <button class="btn-secondary" id="btn-see-full-rules">See Scoring and Custom Rules</button>
+      </div>
       <div class="setup-section hidden" id="game-name-section">
         <label class="section-label">Game Name</label>
         <input type="text" id="game-name-input" class="game-name-input" placeholder="e.g. Skyjo" maxlength="30">
@@ -56,7 +113,10 @@
       <div class="setup-section">
         <label class="section-label">Players</label>
         <div id="player-inputs"></div>
-        <button class="btn-add-player" id="btn-add-player">+ Add Player</button>
+        <div class="add-player-wrap">
+          <button class="btn-add-player" id="btn-add-player">+ Add Player</button>
+          <span class="add-player-tooltip" id="add-player-tooltip">Maximum of 8 players</span>
+        </div>
       </div>
       <div class="setup-section hidden" id="scoring-section">
         <label class="section-label">Scoring</label>
@@ -165,7 +225,7 @@
         <button class="btn-close" id="btn-close-rules">&#10005;</button>
       </div>
       <div class="rules-content" id="rules-built-in"></div>
-      <div class="custom-rules-section">
+      <div class="custom-rules-section" id="custom-rules-section">
         <h4 class="custom-rules-heading">Custom Rules</h4>
         <ul id="custom-rules-list"></ul>
         <div class="add-rule-row">

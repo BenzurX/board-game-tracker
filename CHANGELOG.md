@@ -4,6 +4,42 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.09 - 2026-07-19
+
+### Added
+- **10 new built-in games** - Yahtzee, Qwirkle, Cribbage, Euchre, Crazy Eights, Left Right Center, Poker, Gin Rummy, Liar's Dice, and Solitaire, each with a full intro and scoring-rules reference, joining Farkle on the home screen under new Dice/Card/Tile Game category dividers
+- **Per-game score entry rules** - fixed (non-Custom) games now declare their own score step, whether negative scores are allowed, and win direction (highest or lowest total wins), instead of every non-Custom game reusing Farkle's rounding-to-50 and floor-at-zero behavior
+
+### Fixed
+- **Score entry silently corrupted non-Farkle fixed games** - the Add Turn modal and inline score editor rounded every non-Custom game's scores to the nearest 50 and blocked negative values, which is only correct for Farkle's dice combinations; other fixed games would have had small scores (e.g. Euchre's 1-4 point hands) rounded down to 0
+- **Fixed games with no natural win target defaulted to a bogus 10,000-point target** - leaving the win-score field at 0 (intended as "no target," same as Custom Game supports) fell through to a hardcoded fallback instead of being honored
+
+---
+
+## 0.08 - 2026-07-19
+
+### Added
+- **Up to 8 players per game** (was 6) - the player color palette already had 8 colors defined but the setup screen capped adding players at 6
+- **Basic Rules on the setup screen** - picking a game now goes straight to setup, with a Basic Rules panel (the game's intro) shown above the player list and a "See Scoring and Custom Rules" button that opens the full Rules modal (the ? button) for individual scoring lines and house rules. No more pop-up between the tile and setup
+- **Home screen category grouping** - the Custom Game catch-all is now pinned above all category sections; Farkle sits under a new "Dice Games" divider, with a "More Coming" divider above the placeholder tile
+
+### Changed
+- **Elaborated Farkle rules** - rewrote the intro as three paragraphs covering turn order, the "still rolling!" (hot dice) mechanic, and a full worked example turn; added "still rolling" as its own rule line
+- Bumped the in-app version string (Settings) to match CHANGELOG, which had drifted a release behind
+
+### Fixed
+- **System display mode didn't stick** - the Settings sheet was reading the resolved dark/light value instead of the stored preference, so the System button never showed as selected on reopen, and switching color themes while in System mode silently pinned the mode to whichever it currently resolved to. Both now read/write the actual `system` preference
+- **Hard refresh resumed a game with no scores** - the auto-save resume check only looked at player count, so a brand-new game (0 rounds logged) auto-resumed on reload instead of returning to the home screen. Resume now requires at least one scored round
+
+---
+
+## 0.07 - 2026-07-19
+
+### Changed
+- **Forest dark theme accent color** - swapped the neon lime accent (#5ca832/#78cc44) for a muted sage green (#6b9c52/#85b869) that reads calmer against the dark background; Forest light mode is unchanged
+
+---
+
 ## 0.06 - 2026-07-16
 
 ### Added
