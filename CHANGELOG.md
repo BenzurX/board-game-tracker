@@ -4,6 +4,13 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.10 - 2026-07-19
+
+### Added
+- **Version-history snapshots for v0.06 and v0.09** - `snapshots/v0.06/` and `snapshots/v0.09/` now hold live copies of the app at those releases, filling gaps left since v0.04. v0.05, v0.07, and v0.08 were never committed as standalone states (each got folded into the following version's commit before it was pushed), so there's no accurate code to snapshot for them - the version-history timeline still lists them with their changelog summary, but says so instead of linking to a snapshot that doesn't exist
+
+---
+
 ## 0.09 - 2026-07-19
 
 ### Added
