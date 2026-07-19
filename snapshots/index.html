@@ -283,18 +283,120 @@
   <div class="page-header">
     <div><a class="back-link" href="../index.html">&#8592; Back to App</a></div>
     <div class="page-title">&#127922; Game Tracker</div>
-    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>4 snapshots</strong> captured</div>
+    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>6 snapshots</strong> captured</div>
   </div>
 
   <div class="timeline">
 
-    <!-- v0.04 — current milestone -->
-    <div class="version-entry current milestone">
+    <!-- v0.09 — current -->
+    <div class="version-entry current">
+      <div class="v-dot">&#9733;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.09</span>
+          <span class="v-current-chip">CURRENT</span>
+          <span class="v-date">July 19, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">10 new built-in games, plus a score-entry rules fix</div>
+          <ul class="v-bullets">
+            <li>Yahtzee, Qwirkle, Cribbage, Euchre, Crazy Eights, Left Right Center, Poker, Gin Rummy, Liar's Dice, and Solitaire join Farkle on the home screen, grouped under Dice/Card/Tile Game dividers</li>
+            <li>Fixed (non-Custom) games now declare their own score step, negative-score allowance, and win direction, instead of every fixed game reusing Farkle's round-to-50/floor-at-zero score handling</li>
+            <li>Fixed a bug where a fixed game left at "no target" (0) fell back to a bogus 10,000-point win target</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.09/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.08 — no separate snapshot, bundled into the v0.09 commit -->
+    <div class="version-entry">
+      <div class="v-dot">&#9670;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.08</span>
+          <span class="v-date">July 19, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Up to 8 players, Basic Rules on setup, home screen categories</div>
+          <ul class="v-bullets">
+            <li>Up to 8 players per game (was 6)</li>
+            <li>Basic Rules panel shown on the setup screen, with a button through to the full Rules modal</li>
+            <li>Home screen now groups games under category dividers</li>
+            <li>Fixed System display mode not sticking, and hard refresh resuming an empty game</li>
+          </ul>
+          <p style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">No standalone snapshot - these changes were committed together with v0.09, so this exact state was never saved on its own.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.07 — no separate snapshot, bundled into the v0.09 commit -->
+    <div class="version-entry">
+      <div class="v-dot">&#9670;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.07</span>
+          <span class="v-date">July 19, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Forest dark theme accent color</div>
+          <ul class="v-bullets">
+            <li>Swapped the neon lime accent for a muted sage green that reads calmer against the dark background</li>
+          </ul>
+          <p style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">No standalone snapshot - these changes were committed together with v0.09, so this exact state was never saved on its own.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.06 -->
+    <div class="version-entry">
+      <div class="v-dot">&#9679;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.06</span>
+          <span class="v-date">July 16, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Player color customization, Settings everywhere, System mode</div>
+          <ul class="v-bullets">
+            <li>Tap a player's color dot on setup or mid-game to change it via a palette popover</li>
+            <li>Settings gear now on every screen, with the app version shown at the bottom of the sheet</li>
+            <li>System display mode added (follows OS light/dark), now the default for new visitors</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.06/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.05 — no separate snapshot, bundled into the v0.06 commit -->
+    <div class="version-entry">
+      <div class="v-dot">&#9670;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.05</span>
+          <span class="v-date">July 9, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Auto-save + resume</div>
+          <ul class="v-bullets">
+            <li>The active game now saves to localStorage on every change; reopening the app resumes an unfinished game directly on the tracker screen</li>
+            <li>Fixed inline score editing to apply the same entry-threshold rule as the Add Turn modal</li>
+          </ul>
+          <p style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">No standalone snapshot - these changes were committed together with v0.06, so this exact state was never saved on its own.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.04 — milestone -->
+    <div class="version-entry milestone">
       <div class="v-dot">&#9733;</div>
       <div class="v-card">
         <div class="v-card-head">
           <span class="v-badge">v0.04</span>
-          <span class="v-current-chip">CURRENT</span>
           <span class="v-milestone-chip">MILESTONE</span>
           <span class="v-date">July 6, 2026</span>
         </div>

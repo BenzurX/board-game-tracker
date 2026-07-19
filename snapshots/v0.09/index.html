@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="ocean" data-mode="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Game Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>(function(){var t=localStorage.getItem('theme');var m=localStorage.getItem('mode');if(['ember','ocean','forest'].indexOf(t)<0)t='ocean';if(['dark','light','system'].indexOf(m)<0)m='system';var applied=m;if(m==='system')applied=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.dataset.theme=t;document.documentElement.dataset.mode=applied;})()</script>
+</head>
+<body>
+
+  <!-- Screen: Home / Game Selection -->
+  <div id="screen-home" class="screen active">
+    <header class="app-header">
+      <button class="btn-settings" id="btn-settings" title="Settings">&#9881;&#65039;</button>
+      <h1 class="app-title">&#127922; Game Tracker</h1>
+      <p class="app-subtitle">Pick a game to get started</p>
+    </header>
+    <div class="game-grid">
+      <div class="category-divider"><span>Dice Games</span></div>
+      <button class="game-card" data-game="farkle">
+        <span class="game-icon">&#127922;</span>
+        <span class="game-name">Farkle</span>
+        <span class="game-desc">Running totals &bull; First to 10,000</span>
+      </button>
+      <button class="game-card" data-game="yahtzee">
+        <span class="game-icon">&#127922;</span>
+        <span class="game-name">Yahtzee</span>
+        <span class="game-desc">13 rounds &bull; Highest score wins</span>
+      </button>
+      <button class="game-card" data-game="lrc">
+        <span class="game-icon">&#129689;</span>
+        <span class="game-name">Left Right Center</span>
+        <span class="game-desc">Elimination &bull; Last chip wins</span>
+      </button>
+      <button class="game-card" data-game="liarsdice">
+        <span class="game-icon">&#129320;</span>
+        <span class="game-name">Liar's Dice</span>
+        <span class="game-desc">Bluffing &bull; Last player standing</span>
+      </button>
+
+      <div class="category-divider"><span>Card Games</span></div>
+      <button class="game-card" data-game="cribbage">
+        <span class="game-icon">&#128204;</span>
+        <span class="game-name">Cribbage</span>
+        <span class="game-desc">Pegging &amp; hands &bull; First to 121</span>
+      </button>
+      <button class="game-card" data-game="euchre">
+        <span class="game-icon">&#9824;&#65039;</span>
+        <span class="game-name">Euchre</span>
+        <span class="game-desc">Partners, 4 players &bull; First to 10</span>
+      </button>
+      <button class="game-card" data-game="crazyeights">
+        <span class="game-icon">8&#65039;&#8419;</span>
+        <span class="game-name">Crazy Eights</span>
+        <span class="game-desc">Shed your hand &bull; Lowest score wins</span>
+      </button>
+      <button class="game-card" data-game="poker">
+        <span class="game-icon">&#9827;&#65039;</span>
+        <span class="game-name">Poker</span>
+        <span class="game-desc">Hand rankings &bull; Track chip totals</span>
+      </button>
+      <button class="game-card" data-game="ginrummy">
+        <span class="game-icon">&#9829;&#65039;</span>
+        <span class="game-name">Gin Rummy</span>
+        <span class="game-desc">Knock or Gin &bull; First to 100</span>
+      </button>
+      <button class="game-card" data-game="solitaire">
+        <span class="game-icon">&#127180;</span>
+        <span class="game-name">Solitaire</span>
+        <span class="game-desc">Solo play &bull; Track your best score</span>
+      </button>
+
+      <div class="category-divider"><span>Tile Games</span></div>
+      <button class="game-card" data-game="qwirkle">
+        <span class="game-icon">&#126124;</span>
+        <span class="game-name">Qwirkle</span>
+        <span class="game-desc">Tile-laying &bull; Highest score wins</span>
+      </button>
+
+      <div class="category-divider"><span>Custom Games and More</span></div>
+      <button class="game-card" data-game="generic">
+        <span class="game-icon">&#128221;</span>
+        <span class="game-name">Custom Game</span>
+        <span class="game-desc">Simple score sheet &bull; Skyjo &amp; more</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Screen: Player Setup -->
+  <div id="screen-setup" class="screen">
+    <header class="screen-header">
+      <button class="btn-back" id="btn-back-home">&#8592; Back</button>
+      <h2 id="setup-title">Setup</h2>
+      <div class="header-actions">
+        <button class="btn-rules" id="btn-rules-setup" title="View Rules">?</button>
+        <button class="btn-rules btn-settings-header" id="btn-settings-setup" title="Settings">&#9881;&#65039;</button>
+      </div>
+    </header>
+    <div class="setup-body">
+      <div class="setup-section hidden" id="basic-rules-section">
+        <label class="section-label">Basic Rules</label>
+        <div class="basic-rules-text" id="setup-basic-rules-intro"></div>
+        <button class="btn-secondary" id="btn-see-full-rules">See Scoring and Custom Rules</button>
+      </div>
+      <div class="setup-section hidden" id="game-name-section">
+        <label class="section-label">Game Name</label>
+        <input type="text" id="game-name-input" class="game-name-input" placeholder="e.g. Skyjo" maxlength="30">
+      </div>
+      <div class="setup-section">
+        <label class="section-label">Players</label>
+        <div id="player-inputs"></div>
+        <div class="add-player-wrap">
+          <button class="btn-add-player" id="btn-add-player">+ Add Player</button>
+          <span class="add-player-tooltip" id="add-player-tooltip">Maximum of 8 players</span>
+        </div>
+      </div>
+      <div class="setup-section hidden" id="scoring-section">
+        <label class="section-label">Scoring</label>
+        <div class="mode-toggle">
+          <button class="dir-btn active" data-dir="high">&#9650; Highest wins</button>
+          <button class="dir-btn" data-dir="low">&#9660; Lowest wins (golf)</button>
+        </div>
+      </div>
+      <div class="setup-section" id="win-condition-section">
+        <label class="section-label">Win Condition</label>
+        <div class="win-row">
+          <span class="win-label" id="win-lead-label">First to</span>
+          <input type="number" id="win-score" value="10000" min="0" max="999999">
+          <span class="win-label" id="win-trail-label">points</span>
+        </div>
+        <p class="setup-hint hidden" id="win-hint">Set to 0 for no limit, just track scores.</p>
+      </div>
+      <div class="setup-section" id="min-score-section">
+        <label class="section-label">Entry Threshold</label>
+        <div class="win-row">
+          <span class="win-label">Must score</span>
+          <input type="number" id="min-score" value="500" min="0" max="99999">
+          <span class="win-label">to get on the board</span>
+        </div>
+        <p class="setup-hint">Set to 0 to disable</p>
+      </div>
+      <button class="btn-primary full-width" id="btn-start-game">Start Game</button>
+    </div>
+  </div>
+
+  <!-- Screen: Score Tracker -->
+  <div id="screen-tracker" class="screen">
+    <header class="screen-header">
+      <button class="btn-back" id="btn-back-setup">&#8592; Back</button>
+      <h2 id="tracker-title">Score</h2>
+      <div class="header-actions">
+        <button class="btn-rules" id="btn-rules" title="View Rules">?</button>
+        <button class="btn-rules btn-settings-header" id="btn-settings-tracker" title="Settings">&#9881;&#65039;</button>
+      </div>
+    </header>
+
+    <div id="winner-banner" class="winner-banner hidden"></div>
+
+    <div class="table-scroll-wrap">
+      <table id="score-table">
+        <thead>
+          <tr id="player-header-row">
+            <th class="col-round">#</th>
+          </tr>
+        </thead>
+        <tbody id="score-body"></tbody>
+        <tfoot>
+          <tr id="totals-row">
+            <td class="col-round totals-label">Total</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="tracker-actions">
+      <button class="btn-primary" id="btn-add-turn">+ Add Turn</button>
+      <button class="btn-secondary" id="btn-new-game">New Game</button>
+    </div>
+  </div>
+
+  <!-- Confetti overlay (win celebration) -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Modal: Confirm Leave Game -->
+  <div id="modal-confirm" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="confirm-backdrop"></div>
+    <div class="modal-sheet modal-sheet--confirm">
+      <h3 class="modal-title">Leave game?</h3>
+      <p class="modal-hint">Your current scores will be lost.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-confirm-stay">Stay</button>
+        <button class="btn-danger" id="btn-confirm-leave">Leave</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add Turn -->
+  <div id="modal-turn" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="turn-backdrop"></div>
+    <div class="modal-sheet">
+      <h3 class="modal-title">Add Turn Scores</h3>
+      <div id="turn-score-inputs"></div>
+      <div id="turn-closer" class="turn-closer hidden">
+        <span class="went-out-label">Who went out first?</span>
+        <div class="chips" id="turn-closer-chips"></div>
+      </div>
+      <p class="modal-hint" id="turn-hint">Enter 0 for a Farkle (no score this turn)</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="btn-cancel-turn">Cancel</button>
+        <button class="btn-primary" id="btn-save-turn">Save Turn</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Rules -->
+  <div id="modal-rules" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="rules-backdrop"></div>
+    <div class="modal-sheet modal-sheet--rules">
+      <div class="modal-top-bar">
+        <h3 class="modal-title" id="rules-modal-title">Rules</h3>
+        <button class="btn-close" id="btn-close-rules">&#10005;</button>
+      </div>
+      <div class="rules-content" id="rules-built-in"></div>
+      <div class="custom-rules-section" id="custom-rules-section">
+        <h4 class="custom-rules-heading">Custom Rules</h4>
+        <ul id="custom-rules-list"></ul>
+        <div class="add-rule-row">
+          <input type="text" id="custom-rule-input" placeholder="Add a house rule or note..." maxlength="120">
+          <button class="btn-primary" id="btn-add-rule">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Settings -->
+  <div id="modal-settings" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="settings-backdrop"></div>
+    <div class="modal-sheet modal-sheet--settings">
+      <div class="modal-top-bar">
+        <h3 class="modal-title">Settings</h3>
+        <button class="btn-close" id="btn-close-settings">&#10005;</button>
+      </div>
+      <div class="settings-section">
+        <p class="section-label">Color Theme</p>
+        <div class="theme-swatches">
+          <button class="theme-swatch" data-theme="ember">
+            <div class="swatch-preview swatch-ember"></div>
+            <span>Ember</span>
+          </button>
+          <button class="theme-swatch" data-theme="ocean">
+            <div class="swatch-preview swatch-ocean"></div>
+            <span>Ocean</span>
+          </button>
+          <button class="theme-swatch" data-theme="forest">
+            <div class="swatch-preview swatch-forest"></div>
+            <span>Forest</span>
+          </button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <p class="section-label">Display Mode</p>
+        <div class="mode-toggle">
+          <button class="mode-btn" data-mode="system">&#128421;&#65039; System</button>
+          <button class="mode-btn" data-mode="dark">&#127769; Dark</button>
+          <button class="mode-btn" data-mode="light">&#9728;&#65039; Light</button>
+        </div>
+      </div>
+      <p class="settings-version" id="settings-version"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
+</body>
+</html>
