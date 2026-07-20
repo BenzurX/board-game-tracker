@@ -25,6 +25,7 @@ A lightweight score-tracking web app for board games and dice games. No install,
 - **Settings on every screen** - theme, mode, and app version are always one tap away
 - **Responsive** - mobile-first with clean tablet (700px) and desktop (1080px) breakpoints
 - **No flash** - theme is applied before first paint via an inline script; persists across sessions
+- **Installable PWA** - `manifest.json` and app icons let the app be added to a home screen or installed as a desktop app, on top of the existing offline service-worker caching
 
 ---
 
@@ -47,6 +48,8 @@ index.html         - markup and screen layout
 style.css          - all styling; CSS custom properties for theming
 app.js             - all game logic and DOM interaction
 sw.js              - service worker; cache version bumped on every push for PWA auto-update
+manifest.json      - PWA manifest (name, icons, theme color, install behavior)
+icons/             - app icons (192, 512, apple-touch-icon)
 snapshots/
   index.html       - version history timeline with live snapshot links
   v0.01/           - initial scaffold
@@ -56,6 +59,7 @@ snapshots/
   v0.06/           - forest theme accent color
   v0.09/           - 10 new built-in games, score-entry rules fix
   v0.11/           - Qwirkle icon fix, Custom Games and More section restored
+  v0.12/           - installable PWA (manifest.json, icons)
 stage/             - standalone design-preview pages (not part of the shipped app)
 CLAUDE.md          - instructions for AI-assisted development on this project
 CHANGELOG.md       - history of changes

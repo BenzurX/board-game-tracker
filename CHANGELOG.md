@@ -4,6 +4,13 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.12 - 2026-07-20
+
+### Added
+- **Installable as a PWA** - added `manifest.json`, app icons (`icons/icon-192.png`, `icons/icon-512.png`, `icons/apple-touch-icon.png`), and manifest/icon/theme-color links in `index.html` so the app can be installed to a home screen or desktop; service worker cache list now includes the new assets
+
+---
+
 ## 0.11 - 2026-07-19
 
 ### Fixed
