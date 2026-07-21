@@ -13,11 +13,12 @@ A lightweight score-tracking web app for board games and dice games. No install,
   - **Golf scoring toggle** - highest total wins, or lowest wins (golf)
   - **Negative scores** and an optional **no-limit target** (set to 0 to just track scores)
   - **"Track who goes out first"** - opt-in per game; flags the round closer (⚑) next to their score
-- **2–8 players** with distinct color-coded columns; tap a player's color dot on setup or mid-game to change it
+- **2–8 players** (1 for single-player games like Solitaire) with distinct color-coded columns; tap a player's color dot on setup or mid-game to change it
 - **Inline editing** - tap any score cell or player name to edit mid-game
 - **Add Turn modal** - enter all players' scores for a round in one step
 - **Winner banner + confetti** - detects the win, then fires a confetti burst (honors `prefers-reduced-motion`)
-- **Basic Rules on setup** - picking a game goes straight to setup, with the game's intro shown above the player list and a "See Scoring and Custom Rules" button
+- **Basic Rules on setup** - picking a game goes straight to setup, with the game's intro shown above the player list (clamped to 4 lines with a "Show more/less" toggle) and a "See Scoring and Custom Rules" button
+- **Device back-button support** - hardware/gesture back navigates the same screen stack as the in-app back buttons, with the same in-progress-game confirmation guard
 - **Rules modal** - built-in game rules (editable) plus custom house rules you can add at runtime, opened via the ? button
 - **Confirmation modal** - warns before leaving an in-progress game
 - **Auto-save + resume** - the active game persists to `localStorage` once at least one round is scored; reopening the app resumes an unfinished game right where it left off
@@ -60,6 +61,7 @@ snapshots/
   v0.09/           - 10 new built-in games, score-entry rules fix
   v0.11/           - Qwirkle icon fix, Custom Games and More section restored
   v0.12/           - installable PWA (manifest.json, icons)
+  v0.13/           - device back-button support, collapsible rules text, per-game player defaults
 stage/             - standalone design-preview pages (not part of the shipped app)
 CLAUDE.md          - instructions for AI-assisted development on this project
 CHANGELOG.md       - history of changes

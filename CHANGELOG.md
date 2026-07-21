@@ -4,6 +4,18 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.13 - 2026-07-21
+
+### Added
+- **Device back-button support** - screen changes now push into browser/PWA history, so the hardware/gesture back button navigates the same screen stack as the in-app back buttons instead of closing the app; leaving an in-progress tracker still triggers the confirmation modal
+- **Collapsible Basic Rules text** - long game intros on the setup screen clamp to 4 lines with a "Show more/less" toggle
+- **Per-game default player count** - each built-in game now sets its own default player count instead of always defaulting to 4
+- **Solitaire single-player support** - games with `defaultPlayers: 1` (Solitaire) allow starting and playing with a single player instead of requiring a minimum of 2
+- Replaced emoji gear/back icons with inline SVG icons for consistent rendering across platforms
+
+### Fixed
+- **Crazy Eights round-closer tracking** - `trackCloser` is now actually read from the game definition instead of being hardcoded to `false`, so "went out first" is flagged as intended
+
 ## 0.12 - 2026-07-20
 
 ### Added
