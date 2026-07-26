@@ -1570,7 +1570,7 @@ function mpRenderRoomBar() {
   const bar = document.getElementById('mp-room-bar');
   if (!state.multiplayer) { bar.classList.add('hidden'); return; }
   bar.classList.remove('hidden');
-  document.getElementById('mp-room-code-label').textContent = `Room Code: ${state.mpRoomCode}`;
+  document.getElementById('mp-room-code-label').innerHTML = `<span class="room-code-prefix">Room Code:</span> ${state.mpRoomCode}`;
 }
 
 document.getElementById('btn-host-left-home').addEventListener('click', () => {
@@ -1662,7 +1662,7 @@ document.getElementById('btn-close-qr').addEventListener('click', closeQrModal);
 
 function openQrModal() {
   const url = `${location.origin}${location.pathname}?room=${state.mpRoomCode}`;
-  document.getElementById('qr-room-code-hint').textContent = `Room Code: ${state.mpRoomCode}`;
+  document.getElementById('qr-room-code-hint').innerHTML = `<span class="room-code-prefix">Room Code:</span> ${state.mpRoomCode}`;
   const wrap = document.getElementById('qr-canvas-wrap');
   wrap.innerHTML = '';
   const qr = qrcode(0, 'M');
@@ -1781,7 +1781,8 @@ function openRulesModal() {
       const resetBtn = document.createElement('button');
       resetBtn.className = 'btn-reset-rules';
       resetBtn.type = 'button';
-      resetBtn.innerHTML = '&#8635; Reset rules to default';
+      resetBtn.title = 'Reset rules to default';
+      resetBtn.innerHTML = '&#8635;';
       resetBtn.classList.toggle('hidden', !hasOverrides);
       resetBtn.addEventListener('click', () => {
         persistRuleOverrides({});

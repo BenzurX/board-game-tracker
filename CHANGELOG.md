@@ -4,6 +4,15 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.15 - 2026-07-26
+
+### Added
+- **Live-synced house rules for multiplayer rooms** - guests now see the host's edited rule text and house-rule list for the duration of the room instead of their own saved rules; a callout banner at the top of the rules sheet tells the host their rules are shared, and tells guests whose rules they're viewing. Guests get a read-only view (no edit/delete controls); everything reverts to their own saved rules on leaving the room.
+
+### Changed
+- Room code display now visually distinguishes the "Room Code:" label from the code itself, both in the room bar and the QR modal
+- Rules modal's "Reset to default" button redesigned as an icon-only control
+
 ## 0.14 - 2026-07-24
 
 ### Added

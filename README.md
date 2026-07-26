@@ -27,7 +27,7 @@ A lightweight score-tracking web app for board games and dice games. No install,
 - **Responsive** - mobile-first with clean tablet (700px) and desktop (1080px) breakpoints
 - **No flash** - theme is applied before first paint via an inline script; persists across sessions
 - **Installable PWA** - `manifest.json` and app icons let the app be added to a home screen or installed as a desktop app, on top of the existing offline service-worker caching
-- **Multiplayer Rooms** - host or join a 4-letter-code room to track scores together remotely; QR-code join, live roster, per-player or host-only scoring, own-score-only editing, host can remove players, reconnect-safe. Backed by a separate Cloudflare Worker (`worker/`) - see its README for deploy steps
+- **Multiplayer Rooms** - host or join a 4-letter-code room to track scores together remotely; QR-code join, live roster, per-player or host-only scoring, own-score-only editing, host can remove players, reconnect-safe. Guests see the host's edited rules and house-rule list live for the duration of the room (read-only, reverts to their own on leaving). Backed by a separate Cloudflare Worker (`worker/`) - see its README for deploy steps
 
 ---
 

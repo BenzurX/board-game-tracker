@@ -904,6 +904,7 @@ html, body {
   font-size: 1.05rem;
   color: var(--accent);
 }
+.mp-room-code .room-code-prefix { color: var(--text-muted); font-weight: 600; }
 
 .mp-disconnected-col { opacity: 0.7; }
 .player-name-label.mp-disconnected-name { text-decoration: line-through; }
@@ -989,6 +990,7 @@ html, body {
   color: var(--accent);
   margin-top: 4px;
 }
+.qr-room-code-display .room-code-prefix { color: var(--text-muted); font-weight: 600; }
 
 .mp-locked { opacity: 0.5; cursor: not-allowed; }
 
@@ -1178,16 +1180,22 @@ html, body {
 
 .btn-reset-rules {
   align-self: flex-start;
-  background: none;
-  border: 1px solid var(--border);
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: none;
   color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  padding: 0;
   cursor: pointer;
-  font-size: 0.82rem;
-  padding: 6px 12px;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
-.btn-reset-rules:hover { color: var(--accent); border-color: var(--accent); }
+.btn-reset-rules:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
 
 .custom-rules-section { display: flex; flex-direction: column; gap: 10px; }
 .custom-rules-heading {
