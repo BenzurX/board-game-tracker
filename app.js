@@ -822,7 +822,17 @@ function renderTable() {
     tr.innerHTML = `<td class="col-round">${ri + 1}</td>`;
     round.forEach((score, pi) => {
       const td = document.createElement('td');
-      if (score === null) {
+      // A null in the current multiplayer round can mean two different things:
+      // the player hasn't submitted yet (unscored - the round is still open),
+      // or they submitted and missed the entry threshold. Only the latter
+      // should read as the ✗ "below threshold" mark.
+      const isUnscored = score === null && state.multiplayer &&
+        ri === rounds.length - 1 && mpRoundSubmitted[pi] === false;
+      if (isUnscored) {
+        td.className = 'score-cell unscored';
+        td.textContent = '·';
+        td.title = 'Not yet entered';
+      } else if (score === null) {
         td.className = 'score-cell not-on-board';
         td.textContent = '✗';
         td.title = 'Below entry threshold - tap to edit';
@@ -859,8 +869,9 @@ function renderTable() {
       td.addEventListener('click', () => {
         if (state.multiplayer) {
           if (state.mpScoringMode === 'host') {
-            // Host authority - can correct any already-recorded round, not just the current one.
-            if (!state.mpIsHost || state.rounds[ri][pi] === null) return;
+            // Host authority - can correct any already-recorded round, not just the current
+            // one, including a cell currently below the entry threshold (✗).
+            if (!state.mpIsHost) return;
           } else {
             // Each player can correct their own score in any round, current or
             // past - needed to fix a round they missed while disconnected.
@@ -985,14 +996,14 @@ function editScore(td, ri, pi) {
 
     // Same entry-threshold rule as Add Turn: a player not yet on the board needs
     // minScore in a single turn - an edit below that stays off the board (null).
-    if (state.onBoard[pi]) {
-      state.rounds[ri][pi] = newScore;
-    } else if (newScore >= state.minScore) {
-      state.onBoard[pi] = true;
-      state.rounds[ri][pi] = newScore;
-    } else {
-      state.rounds[ri][pi] = null;
-    }
+    // Whether they were already on board is judged from rounds *before* this
+    // one, not the global onBoard flag - that flag reflects the latest round,
+    // so editing an earlier still-off-board round after a later round put the
+    // player on board would otherwise skip the threshold check entirely.
+    const onBoardBeforeThisRound = state.minScore === 0 ||
+      state.rounds.slice(0, ri).some(r => r[pi] !== null);
+    state.rounds[ri][pi] = (onBoardBeforeThisRound || newScore >= state.minScore) ? newScore : null;
+    state.onBoard[pi] = state.minScore === 0 || state.rounds.some(r => r[pi] !== null);
     state.gameOver = false;
     document.getElementById('winner-banner').classList.add('hidden');
     renderTable();
@@ -1528,9 +1539,9 @@ function mpOnGameOver() {
 
 function mpOnPlayerRemoved(playerId) {
   if (playerId === state.mpPlayerId) {
-    alert('You were removed from the room by the host.');
     mpLeaveMultiplayer();
     navigateTo('screen-home');
+    showToast('The host has removed you from the game.', { closable: true });
   }
 }
 
@@ -1999,17 +2010,33 @@ function escHtml(str) {
 
 let toastTimer = null;
 let toastHideTimer = null;
-function showToast(text) {
+const TOAST_DURATION_MS = 8000; // standard toast duration
+function showToast(text, { closable = false } = {}) {
   const el = document.getElementById('toast');
-  el.textContent = text;
   clearTimeout(toastTimer);
   clearTimeout(toastHideTimer); // a pending hide from a prior fast-repeated tap must not cut this one short
+  el.innerHTML = '';
+  const span = document.createElement('span');
+  span.textContent = text;
+  el.appendChild(span);
+  el.classList.toggle('closable', closable);
+  if (closable) {
+    const btn = document.createElement('button');
+    btn.className = 'toast-close';
+    btn.setAttribute('aria-label', 'Dismiss');
+    btn.textContent = '✕';
+    btn.addEventListener('click', hideToast);
+    el.appendChild(btn);
+  }
   el.classList.remove('hidden');
   el.classList.add('visible');
-  toastTimer = setTimeout(() => {
-    el.classList.remove('visible');
-    toastHideTimer = setTimeout(() => el.classList.add('hidden'), 200);
-  }, 2500);
+  toastTimer = setTimeout(hideToast, TOAST_DURATION_MS);
+}
+function hideToast() {
+  const el = document.getElementById('toast');
+  clearTimeout(toastTimer);
+  el.classList.remove('visible');
+  toastHideTimer = setTimeout(() => el.classList.add('hidden'), 200);
 }
 
 // Resume an unfinished game straight into the tracker (all handlers are wired above).

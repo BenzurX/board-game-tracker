@@ -4,6 +4,18 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.16 - 2026-07-26
+
+### Added
+- Removed guest now sees a dismissable toast on the home screen ("The host has removed you from the game.") instead of a blocking alert
+- Standardized toast duration to 8 seconds, with optional close button
+
+### Changed
+- Static site now hosted on Cloudflare (Workers static-assets deploy) instead of GitHub Pages
+
+### Fixed
+- Editing an earlier still-off-board round after a later round already put the player on board no longer skips the entry-threshold check
+
 ## 0.15 - 2026-07-26
 
 ### Added

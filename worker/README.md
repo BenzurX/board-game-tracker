@@ -46,7 +46,7 @@ WebSocket connections:
 - Connect with `wss://<worker-host>/room/<ROOM_CODE>/ws`.
 
 The Worker allows cross-origin requests so it can be called by the
-GitHub Pages-hosted PWA.
+Cloudflare-hosted PWA.
 
 ## Known limitation: no host reassignment
 

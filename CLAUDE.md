@@ -22,7 +22,7 @@ Example: `add touch drag-to-reorder for pinned actions on mobile`
 
 ## Project stack
 - Pure HTML / CSS / JS - no build step, no framework, no bundler
-- Hosted on GitHub Pages (serve from `main` branch root)
+- Hosted on Cloudflare (Workers static-assets deploy, `wrangler deploy` from repo root using `wrangler.jsonc`) - deploy manually after pushing, git push alone does not update the live site
 - Single file per layer: `index.html`, `style.css`, `app.js`
 - PWA service worker in `sw.js` - caches static assets for offline use
 

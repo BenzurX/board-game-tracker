@@ -612,7 +612,22 @@ export class Room extends DurableObject<Env> {
 
     const targetRound = this.room.rounds[targetIndex];
 
-    targetRound[playerIndex] = this.applyEntryThreshold(playerIndex, value);
+    // Judge "already on board" from rounds before this one, not the global
+    // onBoard flag - that flag reflects the latest round, so editing an
+    // earlier still-off-board round after a later round put the player on
+    // board would otherwise skip the threshold check entirely.
+    const onBoardBeforeThisRound =
+      this.room.minScore === 0 ||
+      this.room.rounds
+        .slice(0, targetIndex)
+        .some((round) => round[playerIndex] !== null);
+
+    targetRound[playerIndex] =
+      onBoardBeforeThisRound || value >= this.room.minScore ? value : null;
+    this.room.onBoard[playerIndex] =
+      this.room.minScore === 0 ||
+      this.room.rounds.some((round) => round[playerIndex] !== null);
+
     await this.persist();
 
     this.broadcast({
