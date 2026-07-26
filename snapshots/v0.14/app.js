@@ -81,18 +81,6 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   });
 });
 
-// ── Volume (persisted for future sound effects) ──────────
-const VOLUME_KEY = 'bgt-volume';
-const volumeSlider = document.getElementById('volume-slider');
-const volumeValue = document.getElementById('volume-value');
-const savedVolume = parseInt(localStorage.getItem(VOLUME_KEY));
-volumeSlider.value = isNaN(savedVolume) ? 80 : Math.min(100, Math.max(0, savedVolume));
-volumeValue.textContent = `${volumeSlider.value}%`;
-volumeSlider.addEventListener('input', () => {
-  volumeValue.textContent = `${volumeSlider.value}%`;
-  localStorage.setItem(VOLUME_KEY, volumeSlider.value);
-});
-
 // ── Game Definitions ────────────────────────────────────
 const GAMES = {
   farkle: {
@@ -127,7 +115,7 @@ Example turn: you roll 1, 1, 5, 3, 3, 4. You set aside both 1s (100 each) and th
     defaultPlayers: 4,
     intro: `Each turn, roll 5 dice up to three times (re-rolling any you want to keep aside), then write your result into one of 13 scoring categories - each category is used exactly once across the game. After all 13 categories are filled for every player, whoever has the highest total wins.
 
-Use "Add Score" to log the score each player wrote down for that round's category (enter 0 for a category they scratched). The Upper Section (Ones through Sixes) earns a 35-point bonus if those six categories add up to 63 or more - add that bonus in as its own turn once it's earned.
+Use "Add Turn" to log the score each player wrote down for that round's category (enter 0 for a category they scratched). The Upper Section (Ones through Sixes) earns a 35-point bonus if those six categories add up to 63 or more - add that bonus in as its own turn once it's earned.
 
 Example: rolling 4, 4, 4, 2, 6 - you could score it as three 4s in the "Fours" category (12 pts) or as 28 in "Chance" (sum of all 5 dice).`,
     rules: [
@@ -170,7 +158,7 @@ Example: placing a tile that extends one line to 3 tiles and completes a second 
     defaultPlayers: 2,
     intro: `Deal 6 cards each (2-player); each player discards down to 4, with the extra 2 going into the dealer's "crib." Players take turns playing cards face-up while counting the running total out loud (never exceeding 31), scoring points for 15s, pairs, and runs formed during play - then each hand (plus the crib) is counted again against the starter card for its own points.
 
-Use "Add Score" to log each player's total pegged for that hand (play + hand + crib, if applicable). First to 121 wins - Score board points as they're won.
+Use "Add Turn" to log each player's total pegged for that hand (play + hand + crib, if applicable). First to 121 wins - Score board points as they're won.
 
 Example hand: 5, 5, 5, J against a starter of 5 scores 12 for four 5s (six different combinations of two summing to 15) plus 12 for four-of-a-kind = 24 total, plus 2 for "his heels" if the starter itself was a Jack.`,
     rules: [
@@ -194,7 +182,7 @@ Example hand: 5, 5, 5, J against a starter of 5 scores 12 for four 5s (six diffe
 
 The team that named trump must take at least 3 of the 5 tricks to score; taking all 5 ("a march") scores extra. Failing to take 3 tricks ("getting euchred") hands the points to the other team instead.
 
-Use "Add Score" to log each team's points after a hand is scored (usually one team gets 0 and the other gets 1-4). First team to 10 points wins.`,
+Use "Add Turn" to log each team's points after a hand is scored (usually one team gets 0 and the other gets 1-4). First team to 10 points wins.`,
     rules: [
       'Only 9, 10, J, Q, K, A are in the deck (24 cards total)',
       'Jack of trump ("right bower") is the highest card; same-color Jack ("left bower") is second-highest and counts as trump',
@@ -235,7 +223,7 @@ Card values: 8s = 50 pts, face cards (K/Q/J) = 10 pts, Aces = 1 pt, everything e
 
 Once you're out of chips you're out of active rolling, but stay in - a chip passed to you brings you back in. The last player still holding any chips wins the whole center pot.
 
-Use "Add Score" to log each player's chip count after a round of passing, so you can see who's still in.`,
+Use "Add Turn" to log each player's chip count after a round of passing, so you can see who's still in.`,
     rules: [
       'Everyone starts with 3 chips',
       'Roll one die per chip you hold (max 3 dice)',
@@ -251,7 +239,7 @@ Use "Add Score" to log each player's chip count after a round of passing, so you
     defaultMinScore: 0,
     allowNegative: true, // per-hand chip swings can be a loss
     defaultPlayers: 4,
-    intro: `Standard hand rankings apply across most poker variants (Texas Hold'em, 7-Card Stud, etc.) - best 5-card hand wins the pot at showdown, or the last player left after everyone else folds. This tracker isn't tied to a specific variant - use "Add Score" to log each player's net chip change (wins as positive, losses as negative) after each hand or at cash-out, so you can see who's up or down for the session.`,
+    intro: `Standard hand rankings apply across most poker variants (Texas Hold'em, 7-Card Stud, etc.) - best 5-card hand wins the pot at showdown, or the last player left after everyone else folds. This tracker isn't tied to a specific variant - use "Add Turn" to log each player's net chip change (wins as positive, losses as negative) after each hand or at cash-out, so you can see who's up or down for the session.`,
     rules: [
       'Hand ranking, highest to lowest: Royal Flush, Straight Flush, Four of a Kind, Full House, Flush, Straight, Three of a Kind, Two Pair, One Pair, High Card',
       'Best 5-card hand at showdown wins the pot',
@@ -269,7 +257,7 @@ Use "Add Score" to log each player's chip count after a round of passing, so you
 
 Knocking with 0 deadwood is "Gin," worth a 25-point bonus on top of the deadwood difference. If your opponent's deadwood is actually lower than yours when you knock, they "undercut" you and score the difference plus a 25-point bonus instead.
 
-Use "Add Score" to log each player's points from the hand. First to 100 wins.`,
+Use "Add Turn" to log each player's points from the hand. First to 100 wins.`,
     rules: [
       'Sets = 3-4 cards of the same rank; Runs = 3+ sequential cards in the same suit',
       'Knock once your unmatched ("deadwood") card total is 10 or less, ending the hand',
@@ -277,30 +265,6 @@ Use "Add Score" to log each player's points from the hand. First to 100 wins.`,
       'Knocking with 0 deadwood ("Gin") adds a 25-pt bonus',
       'If your opponent\'s deadwood is lower than yours when you knock, they "undercut" you: they score the difference plus a 25-pt bonus instead',
       'First to 100 points wins',
-    ],
-  },
-  threethirteen: {
-    name: 'Three Thirteen',
-    icon: '🎴',
-    defaultWinScore: 0, // no running target - 11 fixed hands, lowest total when complete wins
-    defaultMinScore: 0,
-    scoreDirection: 'low', // penalty scoring - lowest total across all 11 hands wins
-    trackCloser: true, // going out ends the hand and scores 0, same as Crazy Eights
-    defaultPlayers: 4,
-    intro: `Eleven hands are dealt, growing by one card each time: hand 1 deals 3 cards per player, hand 2 deals 4, up through hand 11 dealing 13. Each hand's wild rank matches its number - 3s are wild in the hand of three, all the way up to Kings wild in the hand of thirteen.
-
-Draw and discard each turn, melding your hand into sets (3+ of the same rank) and runs (3+ sequential cards, same suit), using wilds to fill gaps. Once your whole hand is melded except one card, discard it to "go out" and end the hand immediately.
-
-Use "Add Score" to log each player's points after a hand: the player who went out scores 0, everyone else totals the value of the cards still in their hand. Play all 11 hands - lowest running total when the last hand ends wins.
-
-Card values: 2-10 = face value, J/Q/K = 10 pts, Ace = 15 pts, that hand's wild rank = 20 pts.`,
-    rules: [
-      'Eleven hands are dealt, hand sizes increasing from 3 cards up to 13',
-      "Each hand's wild rank matches its number - 3s wild in the hand of three, up to Kings wild in the hand of thirteen",
-      'Meld cards into sets (3+ of the same rank) or runs (3+ sequential, same suit), using wilds to fill gaps',
-      'Going out (melding everything but one discarded card) ends the hand immediately and scores 0 for that player',
-      'Everyone else scores unmelded cards left in hand: 2-10 = face value, J/Q/K = 10, Ace = 15, that hand\'s wild rank = 20',
-      'Lowest running total after all 11 hands wins',
     ],
   },
   liarsdice: {
@@ -313,7 +277,7 @@ Card values: 2-10 = face value, J/Q/K = 10 pts, Ace = 15 pts, that hand's wild r
 
 If challenged, all dice are revealed: if the bid was true (that many dice of that face really exist), the challenger loses a die; if it was false, the bidder loses a die. Losing all your dice eliminates you. Last player with any dice left wins.
 
-Use "Add Score" to log each player's dice remaining after a round, so you can track who's still in.`,
+Use "Add Turn" to log each player's dice remaining after a round, so you can track who's still in.`,
     rules: [
       'Everyone rolls 5 dice in secret, hidden from other players',
       'Bids claim how many of a face value exist across all hidden dice combined',
@@ -323,8 +287,27 @@ Use "Add Score" to log each player's dice remaining after a round, so you can tr
       'Losing all your dice eliminates you; last player with dice left wins',
     ],
   },
+  solitaire: {
+    name: 'Solitaire',
+    icon: '🎴',
+    defaultWinScore: 0, // no target - track a best score across attempts
+    defaultMinScore: 0,
+    defaultPlayers: 1,
+    intro: `Classic single-player Klondike: deal a tableau of 7 piles (1-7 cards, only the top card face-up), build descending alternating-color sequences on the tableau, and build the four foundation piles up by suit from Ace to King. Deal from the stock in draws of 1 or 3, per your table's house rule.
+
+Use standard Vegas-style scoring to compare attempts: +10 for every card played to a foundation pile.
+
+Use "Add Turn" to log each attempt's score - great for tracking your best game over time, or a running leaderboard if multiple people are playing separate solitaire games side by side.`,
+    rules: [
+      'Foundations build up by suit, Ace to King; tableau builds down, alternating colors',
+      '+10 points for every card moved to a foundation pile',
+      '-2 points for every card drawn from stock to waste (optional scoring rule)',
+      'A fully cleared foundation (all 52 cards up) is a win',
+      'Track each attempt as its own "turn" to build a running best-score log',
+    ],
+  },
   generic: {
-    name: 'Generic Game',
+    name: 'Custom Game',
     icon: '📝',
     generic: true,        // freeform score sheet, no built-in scoring rules
     defaultWinScore: 100, // starting target; set to 0 for no limit, just track
@@ -400,7 +383,6 @@ const state = {
   minScore: 500,    // 0 = disabled
   onBoard: [],      // [bool, ...]  true once a player has met minScore in one turn
   customRules: [],
-  mpHostRuleOverrides: null, // guest-only, in-memory: host's rule overrides synced live for a multiplayer room
   gameOver: false,
   celebrated: false, // true once the win confetti has fired for the current win
   trackCloser: false, // track who "goes out first" each round (custom games)
@@ -466,9 +448,7 @@ function saveRuleOverrides(gameKey, overrides) {
 // Baseline rule text merged with any per-line overrides for this game type.
 function getEffectiveRules(gameKey) {
   const game = GAMES[gameKey];
-  const overrides = (state.multiplayer && !state.mpIsHost && state.mpHostRuleOverrides)
-    ? state.mpHostRuleOverrides
-    : loadRuleOverrides(gameKey);
+  const overrides = loadRuleOverrides(gameKey);
   const intro = overrides.intro != null ? overrides.intro : (game.intro || '');
   const rules = (game.rules || []).map((r, i) =>
     (overrides.rules && overrides.rules[i] != null) ? overrides.rules[i] : r);
@@ -531,7 +511,6 @@ window.addEventListener('popstate', e => {
   // whether triggered by the on-screen back button or the device back button -
   // both route through this same popstate handler via history.back().
   if (activeScreen === 'screen-tracker' && state.rounds.length > 0 && target !== 'screen-tracker') {
-    confirmLeaveAction = 'back';
     history.pushState({ screen: 'screen-tracker' }, '', '#screen-tracker'); // cancel the back nav visually
     document.getElementById('modal-confirm').classList.remove('hidden');
     return;
@@ -559,9 +538,9 @@ function buildSetupScreen(key) {
   state.generic = generic;
   state.customRules = loadCustomRules(key); // house rules persist per game type, not per session
 
-  document.getElementById('setup-title').textContent = `${generic ? 'Generic Game' : game.name} - Setup`;
+  document.getElementById('setup-title').textContent = `${generic ? 'Custom Game' : game.name} - Setup`;
 
-  // Basic Rules panel (games with an intro only - Generic Game has no fixed rules)
+  // Basic Rules panel (games with an intro only - Custom Game has no fixed rules)
   const { intro } = getEffectiveRules(key);
   document.getElementById('basic-rules-section').classList.toggle('hidden', !intro);
   const rulesTextEl = document.getElementById('setup-basic-rules-intro');
@@ -612,12 +591,12 @@ function setupBasicRulesToggle() {
 }
 
 function setScoringDirectionUI(dir) {
-  document.querySelectorAll('#scoring-section .dir-btn').forEach(btn => {
+  document.querySelectorAll('.dir-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.dir === dir);
   });
 }
 
-document.querySelectorAll('#scoring-section .dir-btn').forEach(btn => {
+document.querySelectorAll('.dir-btn').forEach(btn => {
   btn.addEventListener('click', () => setScoringDirectionUI(btn.dataset.dir));
 });
 
@@ -693,7 +672,7 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
   }));
 
   if (state.generic) {
-    state.gameName = document.getElementById('game-name-input').value.trim() || 'Generic Game';
+    state.gameName = document.getElementById('game-name-input').value.trim() || 'Custom Game';
     state.scoreDirection = document.querySelector('.dir-btn.active')?.dataset.dir || 'high';
     const rawWin = parseInt(document.getElementById('win-score').value);
     state.winScore = isNaN(rawWin) ? 0 : Math.max(0, rawWin); // 0 = no target
@@ -724,29 +703,14 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
 // Routes through history.back() so this shares the same popstate guard as the device back button.
 document.getElementById('btn-back-setup').addEventListener('click', () => history.back());
 
-// Which flow opened modal-confirm: the popstate back-guard, or the New Game
-// button - decides what btn-confirm-leave does once the user confirms.
-let confirmLeaveAction = 'back';
-
 document.getElementById('confirm-backdrop').addEventListener('click', closeConfirmModal);
 document.getElementById('btn-confirm-stay').addEventListener('click', closeConfirmModal);
 document.getElementById('btn-confirm-leave').addEventListener('click', () => {
   closeConfirmModal();
   clearSavedGame(); // leaving is deliberate - don't offer this game for resume
-  if (state.multiplayer) {
-    if (state.mpIsHost) { mpLeavingSelf = true; mpSend({ type: 'host-leave' }); }
-    else mpSend({ type: 'leave-self' }); // frees the player's name/slot for a later rejoin
-    mpLeaveMultiplayer();
-  }
-  if (confirmLeaveAction === 'newgame') {
-    // Replace, not push - otherwise a later Back from setup can walk back into
-    // the tracker screen for the game just abandoned.
-    history.replaceState({ screen: 'screen-setup' }, '', '#screen-setup');
-    showScreen('screen-setup');
-  } else {
-    awaitingConfirmedLeave = true;
-    history.back(); // pop past the guard entry pushed by the popstate handler
-  }
+  if (state.multiplayer) mpLeaveMultiplayer();
+  awaitingConfirmedLeave = true;
+  history.back(); // pop past the guard entry pushed by the popstate handler
 });
 
 function closeConfirmModal() {
@@ -787,13 +751,10 @@ function renderTable() {
 
     const span = document.createElement('span');
     span.className = 'player-name-label';
-    span.classList.toggle('mp-disconnected-name', state.multiplayer && p.connected === false);
     span.style.color = p.color;
     span.title = state.multiplayer ? p.name : `${p.name} - tap to rename`;
     span.addEventListener('click', () => {
       if (state.multiplayer) {
-        const isSelf = p.id === state.mpPlayerId;
-        if (isSelf) { mpEditOwnName(th, pi); return; }
         if (state.mpIsHost) mpOpenPlayerOptions(pi);
         return;
       }
@@ -802,15 +763,14 @@ function renderTable() {
 
     const shortName = document.createElement('span');
     shortName.className = 'player-name-short';
-    shortName.textContent = p.name.slice(0, 3) + (state.multiplayer && p.isHost ? ' ★' : '');
+    shortName.textContent = p.name.slice(0, 3);
     const fullName = document.createElement('span');
     fullName.className = 'player-name-full';
-    fullName.textContent = p.name + (state.multiplayer && p.isHost ? ' ★' : '');
+    fullName.textContent = p.name;
     span.append(shortName, fullName);
 
     wrap.append(dot, span);
     th.appendChild(wrap);
-    th.classList.toggle('mp-disconnected-col', state.multiplayer && p.connected === false);
     headerRow.appendChild(th);
   });
 
@@ -858,17 +818,10 @@ function renderTable() {
       }
       td.addEventListener('click', () => {
         if (state.multiplayer) {
-          if (state.mpScoringMode === 'host') {
-            // Host authority - can correct any already-recorded round, not just the current one.
-            if (!state.mpIsHost || state.rounds[ri][pi] === null) return;
-          } else {
-            // Each player can correct their own score in any round, current or
-            // past - needed to fix a round they missed while disconnected.
-            const isOwn = state.players[pi] && state.players[pi].id === state.mpPlayerId;
-            const isCurrentRound = ri === state.rounds.length - 1;
-            const alreadySubmitted = !isCurrentRound || (state.rounds[ri] && state.rounds[ri][pi] !== null);
-            if (!isOwn || !alreadySubmitted) return;
-          }
+          const isCurrentRound = ri === state.rounds.length - 1;
+          const canEdit = state.mpScoringMode === 'host' ? state.mpIsHost : (state.players[pi] && state.players[pi].id === state.mpPlayerId);
+          const alreadySubmitted = isCurrentRound && state.rounds[ri] && state.rounds[ri][pi] !== null;
+          if (!canEdit || !isCurrentRound || !alreadySubmitted) return;
         }
         editScore(td, ri, pi);
       });
@@ -917,34 +870,6 @@ function editPlayerName(th, pi) {
   });
 }
 
-// Multiplayer name edit for the local player's own column - sends the change
-// to the server for validation/uniqueness instead of writing state directly;
-// the roster-update broadcast (or a name-taken error) reconciles the render.
-function mpEditOwnName(th, pi) {
-  const p = state.players[pi];
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.value = p.name;
-  input.maxLength = 20;
-  input.className = 'name-edit-input';
-  input.style.color = p.color;
-  th.innerHTML = '';
-  th.appendChild(input);
-  input.focus();
-  input.select();
-
-  const commit = () => {
-    const newName = input.value.trim();
-    if (newName && newName !== p.name) mpSend({ type: 'rename-self', name: newName });
-    renderTable();
-  };
-  input.addEventListener('blur', commit);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') input.blur();
-    if (e.key === 'Escape') { input.removeEventListener('blur', commit); renderTable(); }
-  });
-}
-
 function editScore(td, ri, pi) {
   const current = state.rounds[ri][pi];
   const game = GAMES[state.gameKey];
@@ -975,9 +900,9 @@ function editScore(td, ri, pi) {
       // cells this device is allowed to touch (own column, or any if host-scoring).
       if (state.mpScoringMode === 'host') {
         const values = state.players.map((pl, i) => (i === pi ? newScore : state.rounds[ri][i]));
-        mpSend({ type: 'host-submit-scores', values, roundIndex: ri });
+        mpSend({ type: 'host-submit-scores', values });
       } else {
-        mpSend({ type: 'edit-score', value: newScore, roundIndex: ri });
+        mpSend({ type: 'edit-score', value: newScore });
       }
       renderTable(); // optimistic; the server's round-update broadcast will reconcile
       return;
@@ -1108,21 +1033,8 @@ function fireConfetti() {
 }
 
 document.getElementById('btn-new-game').addEventListener('click', () => {
-  if (state.rounds.length > 0) {
-    confirmLeaveAction = 'newgame';
-    document.getElementById('modal-confirm').classList.remove('hidden');
-    return;
-  }
-  if (state.multiplayer) {
-    if (state.mpIsHost) { mpLeavingSelf = true; mpSend({ type: 'host-leave' }); }
-    else mpSend({ type: 'leave-self' }); // frees the player's name/slot for a later rejoin
-    mpLeaveMultiplayer();
-  }
-  clearSavedGame();
-  // Replace, not push - otherwise a later Back from setup can walk back into
-  // the tracker screen for the game just abandoned.
-  history.replaceState({ screen: 'screen-setup' }, '', '#screen-setup');
-  showScreen('screen-setup');
+  if (state.multiplayer) { mpLeaveMultiplayer(); clearSavedGame(); }
+  navigateTo('screen-setup');
 });
 
 // ── Add Turn Modal ───────────────────────────────────────
@@ -1130,20 +1042,9 @@ const modalTurn = document.getElementById('modal-turn');
 
 document.getElementById('btn-add-turn').addEventListener('click', () => {
   if (state.gameOver) return;
-  if (state.multiplayer && state.mpScoringMode === 'host' && !state.mpIsHost) {
-    showToast('The host will mark down the score in this game.');
-    return;
-  }
-  if (state.multiplayer && state.mpScoringMode === 'each') {
-    const myIndex = state.players.findIndex(p => p.id === state.mpPlayerId);
-    if (myIndex >= 0 && mpRoundSubmitted[myIndex]) {
-      showToast('You must wait for all players to enter their score for the round.');
-      return;
-    }
-  }
   const game = GAMES[state.gameKey];
   const mpEach = state.multiplayer && state.mpScoringMode === 'each';
-  document.getElementById('turn-modal-title').textContent = mpEach ? 'Enter Your Score' : 'Add Scores';
+  document.getElementById('turn-modal-title').textContent = mpEach ? 'Enter Your Score' : 'Add Turn Scores';
   document.getElementById('turn-hint').textContent = mpEach
     ? 'Enter your score for this round'
     : (state.generic
@@ -1283,13 +1184,14 @@ function resetMultiplayerSetupUI() {
   document.querySelectorAll('#multiplayer-section .dir-btn[data-mpmode]').forEach(b =>
     b.classList.toggle('active', b.dataset.mpmode === 'each'));
   document.getElementById('mp-scoring-mode-row').classList.add('hidden');
-  document.getElementById('mp-scoring-mode-label').classList.add('hidden');
   document.getElementById('mp-setup-error').classList.add('hidden');
   applySetupModeVisibility();
 }
 
 function applySetupModeVisibility() {
   document.getElementById('players-section').classList.toggle('hidden', mpToggleOn);
+  document.getElementById('win-condition-section').classList.toggle('hidden', mpToggleOn);
+  if (!state.generic) document.getElementById('min-score-section').classList.toggle('hidden', mpToggleOn);
   document.getElementById('mp-settings-hint').classList.toggle('hidden', !mpToggleOn);
   document.getElementById('btn-start-game').textContent = mpToggleOn ? 'Create Room' : 'Start Game';
 }
@@ -1299,7 +1201,6 @@ document.querySelectorAll('#multiplayer-section .dir-btn[data-mp]').forEach(btn 
     mpToggleOn = btn.dataset.mp === 'multiplayer';
     document.querySelectorAll('#multiplayer-section .dir-btn[data-mp]').forEach(b => b.classList.toggle('active', b === btn));
     document.getElementById('mp-scoring-mode-row').classList.toggle('hidden', !mpToggleOn);
-    document.getElementById('mp-scoring-mode-label').classList.toggle('hidden', !mpToggleOn);
     applySetupModeVisibility();
   });
 });
@@ -1320,23 +1221,12 @@ function mpStartHostFlow() {
   const startBtn = document.getElementById('btn-start-game');
   startBtn.disabled = true;
   document.getElementById('mp-setup-error').classList.add('hidden');
-  const rawWin = parseInt(document.getElementById('win-score').value);
-  const winScore = isNaN(rawWin) ? (GAMES[state.gameKey]?.defaultWinScore || 0) : Math.max(0, rawWin);
-  const minScore = parseInt(document.getElementById('min-score').value) || 0;
   fetch(`${MP_WORKER_URL}/room/create`, { method: 'POST' })
     .then(r => r.json())
     .then(data => {
       startBtn.disabled = false;
       if (!data || !data.roomCode) throw new Error('no room code');
-      mpPendingJoin = {
-        roomCode: data.roomCode,
-        scoringMode: mpSetupScoringMode,
-        gameKey: state.gameKey,
-        winScore,
-        minScore,
-        ruleOverrides: loadRuleOverrides(state.gameKey),
-        customRules: state.customRules,
-      };
+      mpPendingJoin = { roomCode: data.roomCode, scoringMode: mpSetupScoringMode, gameKey: state.gameKey };
       openPlayerNameModal();
     })
     .catch(() => {
@@ -1361,10 +1251,6 @@ function mpConnect(join) {
       scoringMode: join.scoringMode,
       gameKey: join.gameKey,
       rejoinId: join.rejoinId,
-      winScore: join.winScore,
-      minScore: join.minScore,
-      ruleOverrides: join.ruleOverrides,
-      customRules: join.customRules,
     }));
   });
   ws.addEventListener('message', e => {
@@ -1399,18 +1285,7 @@ function mpHandleMessage(msg) {
     case 'round-advance': mpApplyRounds(msg.rounds, msg.roundSubmitted); break;
     case 'game-over': mpOnGameOver(); break;
     case 'player-removed': mpOnPlayerRemoved(msg.playerId); break;
-    case 'room-closed': mpOnRoomClosed(); break;
-    case 'rules-update': mpApplyRules(msg.ruleOverrides, msg.customRules); break;
   }
-}
-
-// The host's rules panel (edited baseline text + house rules) is mirrored to
-// every guest for the room's duration - in memory only, never written to the
-// guest's own saved rules for this game.
-function mpApplyRules(ruleOverrides, customRules) {
-  state.mpHostRuleOverrides = ruleOverrides || {};
-  state.customRules = Array.isArray(customRules) ? customRules : [];
-  if (!modalRules.classList.contains('hidden')) openRulesModal();
 }
 
 function mpOnJoined(msg) {
@@ -1424,10 +1299,8 @@ function mpOnJoined(msg) {
   state.gameName = game.name || 'Game';
   state.generic = false;
   state.scoreDirection = game.scoreDirection || 'high';
-  state.winScore = typeof msg.winScore === 'number' ? msg.winScore : (game.defaultWinScore || 0);
-  state.minScore = typeof msg.minScore === 'number' ? msg.minScore : 0;
-  state.mpHostRuleOverrides = msg.ruleOverrides || {};
-  state.customRules = Array.isArray(msg.customRules) ? msg.customRules : [];
+  state.winScore = game.defaultWinScore || 0;
+  state.minScore = 0; // multiplayer doesn't sync per-player on-board status - see room.ts limitation notes
   state.trackCloser = false; // trackCloser games are excluded from multiplayer eligibility
   state.closers = [];
   state.gameOver = false;
@@ -1480,28 +1353,14 @@ function mpUpdateEnterScoreButtonState() {
   if (!state.multiplayer) return;
   const btn = document.getElementById('btn-add-turn');
   if (state.mpScoringMode === 'host') {
-    btn.textContent = 'Enter Score';
-    if (state.mpIsHost) {
-      btn.disabled = state.gameOver;
-      btn.classList.remove('mp-locked');
-    } else {
-      // Stays clickable (so tapping surfaces the toast below) but reads as disabled.
-      btn.disabled = false;
-      btn.classList.toggle('mp-locked', !state.gameOver);
-    }
+    btn.textContent = '+ Add Turn';
+    btn.disabled = !state.mpIsHost || state.gameOver;
     return;
   }
   btn.textContent = 'Enter Score';
   const myIndex = state.players.findIndex(p => p.id === state.mpPlayerId);
   const alreadySubmitted = myIndex >= 0 && !!mpRoundSubmitted[myIndex];
-  if (state.gameOver) {
-    btn.disabled = true;
-    btn.classList.remove('mp-locked');
-  } else {
-    // Stays clickable (so tapping surfaces the toast below) but reads as disabled.
-    btn.disabled = false;
-    btn.classList.toggle('mp-locked', alreadySubmitted);
-  }
+  btn.disabled = state.gameOver || alreadySubmitted;
 }
 
 function mpOnError(msg) {
@@ -1512,12 +1371,7 @@ function mpOnError(msg) {
       mpShowJoinRoomError('This room already has 8 players.');
     }
   } else if (msg.code === 'name-taken') {
-    if (!document.getElementById('modal-player-name').classList.contains('hidden')) {
-      mpShowPlayerNameError('Someone in this room already has that name.');
-    } else {
-      showToast('Someone in this room already has that name.');
-      renderTable();
-    }
+    mpShowPlayerNameError('Someone in this room already has that name.');
   }
 }
 
@@ -1534,18 +1388,6 @@ function mpOnPlayerRemoved(playerId) {
   }
 }
 
-// True right before the host's own leave/new-game flow closes the room, so
-// this device's own broadcasted room-closed doesn't pop the "host left" modal
-// on top of the navigation it's already doing.
-let mpLeavingSelf = false;
-
-function mpOnRoomClosed() {
-  if (mpLeavingSelf) return;
-  mpLeaveMultiplayer();
-  clearSavedGame();
-  document.getElementById('modal-host-left').classList.remove('hidden');
-}
-
 function mpLeaveMultiplayer() {
   mpClearSession();
   if (mpSocket) { try { mpSocket.close(); } catch (e) { /* already closing */ } mpSocket = null; }
@@ -1553,7 +1395,6 @@ function mpLeaveMultiplayer() {
   state.mpRoomCode = null;
   state.mpPlayerId = null;
   state.mpIsHost = false;
-  mpLeavingSelf = false;
 }
 
 function mpSaveSession(roomCode, playerId, name) {
@@ -1570,14 +1411,17 @@ function mpRenderRoomBar() {
   const bar = document.getElementById('mp-room-bar');
   if (!state.multiplayer) { bar.classList.add('hidden'); return; }
   bar.classList.remove('hidden');
-  document.getElementById('mp-room-code-label').textContent = `Room Code: ${state.mpRoomCode}`;
+  document.getElementById('mp-room-code-label').textContent = `Room ${state.mpRoomCode}`;
+  document.getElementById('btn-mp-show-qr').classList.toggle('hidden', !state.mpIsHost);
+  const chipBox = document.getElementById('mp-roster-chips');
+  chipBox.innerHTML = '';
+  state.players.forEach(p => {
+    const chip = document.createElement('span');
+    chip.className = 'closer-chip' + (p.connected === false ? ' mp-disconnected' : '');
+    chip.innerHTML = `<span class="chip-dot" style="background:${p.color}"></span>${escHtml(p.name)}${p.isHost ? ' ★' : ''}`;
+    chipBox.appendChild(chip);
+  });
 }
-
-document.getElementById('btn-host-left-home').addEventListener('click', () => {
-  document.getElementById('modal-host-left').classList.add('hidden');
-  history.replaceState({ screen: 'screen-home' }, '', '#screen-home');
-  showScreen('screen-home');
-});
 
 // ── Join Room Modal ──────────────────────────────────────
 document.getElementById('btn-join-room').addEventListener('click', () => openJoinRoomModal());
@@ -1589,21 +1433,8 @@ document.getElementById('join-room-code-input').addEventListener('input', e => {
 document.getElementById('btn-submit-join-room').addEventListener('click', () => {
   const code = document.getElementById('join-room-code-input').value.trim().toUpperCase();
   if (!/^[A-Z]{4}$/.test(code)) { mpShowJoinRoomError('Enter a valid 4-letter code.'); return; }
-  document.getElementById('join-room-error').classList.add('hidden');
-  const submitBtn = document.getElementById('btn-submit-join-room');
-  submitBtn.disabled = true;
-  fetch(`${MP_WORKER_URL}/room/${code}/exists`)
-    .then(r => r.json())
-    .then(data => {
-      submitBtn.disabled = false;
-      if (!data || !data.exists) { mpShowJoinRoomError('That room code doesn\'t exist. Check the code and try again.'); return; }
-      mpPendingJoin = { roomCode: code };
-      openPlayerNameModal();
-    })
-    .catch(() => {
-      submitBtn.disabled = false;
-      mpShowJoinRoomError('Could not check that room code. Check your connection and try again.');
-    });
+  mpPendingJoin = { roomCode: code };
+  openPlayerNameModal();
 });
 
 function openJoinRoomModal() {
@@ -1662,7 +1493,7 @@ document.getElementById('btn-close-qr').addEventListener('click', closeQrModal);
 
 function openQrModal() {
   const url = `${location.origin}${location.pathname}?room=${state.mpRoomCode}`;
-  document.getElementById('qr-room-code-hint').textContent = `Room Code: ${state.mpRoomCode}`;
+  document.getElementById('qr-room-code-hint').textContent = `Room code: ${state.mpRoomCode}`;
   const wrap = document.getElementById('qr-canvas-wrap');
   wrap.innerHTML = '';
   const qr = qrcode(0, 'M');
@@ -1734,40 +1565,9 @@ document.getElementById('btn-see-full-rules').addEventListener('click', () => op
 document.getElementById('rules-backdrop').addEventListener('click', closeRulesModal);
 document.getElementById('btn-close-rules').addEventListener('click', closeRulesModal);
 
-// Host edits to rule text persist locally like any other saved rule, and are
-// also pushed live to the room so every connected guest sees them right away.
-function persistRuleOverrides(ov) {
-  saveRuleOverrides(state.gameKey, ov);
-  mpBroadcastRulesIfHost();
-}
-
-function mpBroadcastRulesIfHost() {
-  if (!state.multiplayer || !state.mpIsHost) return;
-  mpSend({
-    type: 'update-rules',
-    ruleOverrides: loadRuleOverrides(state.gameKey),
-    customRules: state.customRules,
-  });
-}
-
-function renderRulesModalCallout() {
-  const el = document.getElementById('rules-mp-callout');
-  if (state.multiplayer && state.mpIsHost) {
-    el.textContent = "Your rules are shared live with everyone in your room.";
-    el.classList.remove('hidden');
-  } else if (state.multiplayer && !state.mpIsHost) {
-    el.textContent = "You're viewing the host's rules for this room.";
-    el.classList.remove('hidden');
-  } else {
-    el.classList.add('hidden');
-  }
-}
-
 function openRulesModal() {
   const { intro, rules, overrides } = getEffectiveRules(state.gameKey);
   document.getElementById('rules-modal-title').textContent = 'Game Rules';
-  renderRulesModalCallout();
-  const isMpGuest = state.multiplayer && !state.mpIsHost;
 
   const builtIn = document.getElementById('rules-built-in');
   const hasBuiltIn = rules.length > 0 || !!intro;
@@ -1777,35 +1577,32 @@ function openRulesModal() {
   if (hasBuiltIn) {
     const hasOverrides = overrides.intro != null ||
       (overrides.rules && Object.keys(overrides.rules).length > 0);
-    if (!isMpGuest) {
-      const resetBtn = document.createElement('button');
-      resetBtn.className = 'btn-reset-rules';
-      resetBtn.type = 'button';
-      resetBtn.innerHTML = '&#8635; Reset rules to default';
-      resetBtn.classList.toggle('hidden', !hasOverrides);
-      resetBtn.addEventListener('click', () => {
-        persistRuleOverrides({});
-        openRulesModal();
-      });
-      builtIn.appendChild(resetBtn);
-    }
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'btn-reset-rules';
+    resetBtn.type = 'button';
+    resetBtn.innerHTML = '&#8635; Reset rules to default';
+    resetBtn.classList.toggle('hidden', !hasOverrides);
+    resetBtn.addEventListener('click', () => {
+      saveRuleOverrides(state.gameKey, {});
+      openRulesModal();
+    });
+    builtIn.appendChild(resetBtn);
 
     if (intro) {
       builtIn.appendChild(buildEditableRuleBlock({
         text: intro,
         isCustomized: overrides.intro != null,
         className: 'rule-intro',
-        readOnly: isMpGuest,
         onCommit: newText => {
           const ov = loadRuleOverrides(state.gameKey);
           ov.intro = newText;
-          persistRuleOverrides(ov);
+          saveRuleOverrides(state.gameKey, ov);
           openRulesModal();
         },
         onRevert: () => {
           const ov = loadRuleOverrides(state.gameKey);
           delete ov.intro;
-          persistRuleOverrides(ov);
+          saveRuleOverrides(state.gameKey, ov);
           openRulesModal();
         },
       }));
@@ -1816,18 +1613,17 @@ function openRulesModal() {
         text,
         isCustomized: !!(overrides.rules && overrides.rules[i] != null),
         className: 'rule-item',
-        readOnly: isMpGuest,
         onCommit: newText => {
           const ov = loadRuleOverrides(state.gameKey);
           ov.rules = ov.rules || {};
           ov.rules[i] = newText;
-          persistRuleOverrides(ov);
+          saveRuleOverrides(state.gameKey, ov);
           openRulesModal();
         },
         onRevert: () => {
           const ov = loadRuleOverrides(state.gameKey);
           if (ov.rules) delete ov.rules[i];
-          persistRuleOverrides(ov);
+          saveRuleOverrides(state.gameKey, ov);
           openRulesModal();
         },
       }));
@@ -1841,17 +1637,9 @@ function openRulesModal() {
 // Builds one editable baseline-rule row (intro paragraph or a single scoring line).
 // Clicking the pencil swaps the text for a textarea; committing re-renders the
 // whole modal via onCommit/onRevert since that's already how rule edits persist.
-function buildEditableRuleBlock({ text, isCustomized, className, onCommit, onRevert, readOnly }) {
+function buildEditableRuleBlock({ text, isCustomized, className, onCommit, onRevert }) {
   const wrap = document.createElement('div');
   wrap.className = className + (isCustomized ? ' customized' : '');
-
-  if (readOnly) {
-    const textSpan = document.createElement('span');
-    textSpan.className = 'rule-text';
-    textSpan.textContent = text;
-    wrap.appendChild(textSpan);
-    return wrap;
-  }
 
   const editBtn = document.createElement('button');
   editBtn.className = 'btn-rule-edit';
@@ -1912,68 +1700,59 @@ function renderCustomRules() {
   state.customRules.forEach((rule, i) => {
     const li = document.createElement('li');
     li.className = 'custom-rule-item';
-    const isMpGuest = state.multiplayer && !state.mpIsHost;
 
-    if (!isMpGuest) {
-      const editBtn = document.createElement('button');
-      editBtn.className = 'btn-rule-edit';
-      editBtn.type = 'button';
-      editBtn.title = 'Edit rule';
-      editBtn.innerHTML = '&#9998;';
-      li.appendChild(editBtn);
-
-      editBtn.addEventListener('click', () => {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'rule-edit-input';
-        input.value = rule;
-        input.maxLength = 120;
-        li.innerHTML = '';
-        li.appendChild(input);
-        input.focus();
-        input.select();
-        const commit = () => {
-          const val = input.value.trim();
-          state.customRules[i] = val || rule;
-          persistCustomRules();
-          renderCustomRules();
-        };
-        input.addEventListener('blur', commit);
-        input.addEventListener('keydown', e => {
-          if (e.key === 'Enter') input.blur();
-          if (e.key === 'Escape') { input.removeEventListener('blur', commit); renderCustomRules(); }
-        });
-      });
-    }
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-rule-edit';
+    editBtn.type = 'button';
+    editBtn.title = 'Edit rule';
+    editBtn.innerHTML = '&#9998;';
+    li.appendChild(editBtn);
 
     const span = document.createElement('span');
     span.textContent = rule;
     li.appendChild(span);
 
-    if (!isMpGuest) {
-      const delBtn = document.createElement('button');
-      delBtn.className = 'btn-delete-rule';
-      delBtn.setAttribute('aria-label', 'Delete rule');
-      delBtn.innerHTML = '&#10005;';
-      delBtn.addEventListener('click', () => {
-        state.customRules.splice(i, 1);
+    editBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'rule-edit-input';
+      input.value = rule;
+      input.maxLength = 120;
+      li.innerHTML = '';
+      li.appendChild(input);
+      input.focus();
+      input.select();
+      const commit = () => {
+        const val = input.value.trim();
+        state.customRules[i] = val || rule;
         persistCustomRules();
         renderCustomRules();
+      };
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') input.blur();
+        if (e.key === 'Escape') { input.removeEventListener('blur', commit); renderCustomRules(); }
       });
-      li.appendChild(delBtn);
-    }
+    });
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'btn-delete-rule';
+    delBtn.setAttribute('aria-label', 'Delete rule');
+    delBtn.innerHTML = '&#10005;';
+    delBtn.addEventListener('click', () => {
+      state.customRules.splice(i, 1);
+      persistCustomRules();
+      renderCustomRules();
+    });
+    li.appendChild(delBtn);
 
     list.appendChild(li);
   });
-  document.getElementById('add-rule-row').classList.toggle('hidden', state.multiplayer && !state.mpIsHost);
   saveGame(); // also part of the active-game snapshot, for mid-game resume
 }
 
-// Host edits persist locally and broadcast to the room; a guest's copy is
-// in-memory only (set via mpApplyRules/mpOnJoined), so this never runs for one.
 function persistCustomRules() {
   if (state.gameKey) saveCustomRules(state.gameKey, state.customRules);
-  mpBroadcastRulesIfHost();
 }
 
 document.getElementById('btn-add-rule').addEventListener('click', addCustomRule);
@@ -1994,21 +1773,6 @@ function addCustomRule() {
 // ── Utility ──────────────────────────────────────────────
 function escHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-let toastTimer = null;
-let toastHideTimer = null;
-function showToast(text) {
-  const el = document.getElementById('toast');
-  el.textContent = text;
-  clearTimeout(toastTimer);
-  clearTimeout(toastHideTimer); // a pending hide from a prior fast-repeated tap must not cut this one short
-  el.classList.remove('hidden');
-  el.classList.add('visible');
-  toastTimer = setTimeout(() => {
-    el.classList.remove('visible');
-    toastHideTimer = setTimeout(() => el.classList.add('hidden'), 200);
-  }, 2500);
 }
 
 // Resume an unfinished game straight into the tracker (all handlers are wired above).

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en" data-theme="ember" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<title>Feedback form — Settings mockup</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --success:    #5cb85c;
+  --danger:     #d9534f;
+  --shadow:     0 4px 24px rgba(0, 0, 0, 0.5);
+  --radius:     12px;
+  --radius-sm:  8px;
+}
+[data-theme="ember"][data-mode="dark"] {
+  --bg:           #1c1410;
+  --surface:      #2a1f18;
+  --card:         #3a2d25;
+  --card-hover:   #4a3d35;
+  --border:       rgba(242, 232, 217, 0.12);
+  --accent:       #d4870a;
+  --accent-bright:#f0a820;
+  --accent-dim:   rgba(212, 135, 10, 0.2);
+  --on-accent:    #1c1410;
+  --text:         #f2e8d9;
+  --text-muted:   #a89880;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 17px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.stage-note {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  z-index: 5;
+}
+
+/* ── copied from style.css ── */
+.modal { position: fixed; inset: 0; display: flex; align-items: flex-end; justify-content: center; z-index: 10; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.65); }
+.modal-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-top: 1px solid var(--border);
+  padding: 24px 20px;
+  padding-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+.modal-top-bar { display: flex; align-items: center; justify-content: space-between; }
+.modal-title { font-size: 1.1rem; font-weight: 700; color: var(--accent-bright); }
+.modal-hint { font-size: 1rem; color: var(--text-muted); margin-top: -4px; }
+.btn-close {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 1.1rem; cursor: pointer; padding: 4px 8px; transition: color 0.15s;
+}
+.btn-close:hover { color: var(--text); }
+
+.settings-section { display: flex; flex-direction: column; gap: 10px; }
+.settings-version { text-align: center; color: var(--text-muted); font-size: 0.78rem; letter-spacing: 0.03em; margin-top: 4px; }
+.section-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+
+.theme-swatches { display: flex; gap: 12px; }
+.theme-swatch {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: var(--card); border: 2px solid transparent; border-radius: var(--radius-sm);
+  padding: 12px 8px; cursor: pointer; color: var(--text); font-size: 0.85rem; font-weight: 600;
+}
+.theme-swatch.active { border-color: var(--accent); background: var(--accent-dim); }
+.swatch-preview { width: 48px; height: 30px; border-radius: 6px; }
+.swatch-ember { background: linear-gradient(135deg, #1c1410 50%, #d4870a 50%); }
+
+.mode-toggle { display: flex; gap: 8px; }
+.mode-btn {
+  flex: 1; padding: 12px; border-radius: var(--radius-sm); border: 2px solid transparent;
+  background: var(--card); color: var(--text); font-size: 0.95rem; font-weight: 600; cursor: pointer;
+}
+.mode-btn.active { border-color: var(--accent); background: var(--accent-dim); }
+
+/* ── settings row that opens Feedback (new) ── */
+.settings-row-btn {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; background: var(--card); border: none; border-radius: var(--radius-sm);
+  padding: 14px 16px; color: var(--text); font-size: 0.95rem; font-weight: 600;
+  cursor: pointer; text-align: left; transition: background 0.15s;
+}
+.settings-row-btn:hover { background: var(--card-hover); }
+.settings-row-btn .row-icon { font-size: 1.1rem; }
+.settings-row-btn .row-label { flex: 1; }
+.settings-row-btn .row-chevron { color: var(--text-muted); }
+
+/* ── feedback form (new) ── */
+.type-toggle { display: flex; gap: 8px; }
+.type-btn {
+  flex: 1; padding: 12px; border-radius: var(--radius-sm); border: 2px solid transparent;
+  background: var(--card); color: var(--text); font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.type-btn.active { border-color: var(--accent); background: var(--accent-dim); }
+
+.feedback-textarea {
+  width: 100%;
+  min-height: 140px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.feedback-textarea:focus { border-color: var(--accent); }
+.feedback-textarea::placeholder { color: var(--text-muted); }
+
+.feedback-status {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  min-height: 1.2em;
+}
+.feedback-status.success { color: var(--success); }
+.feedback-status.error { color: var(--danger); }
+
+.modal-actions { display: flex; gap: 12px; }
+.modal-actions .btn-secondary { flex: 1; }
+.modal-actions .btn-primary { flex: 2; }
+.btn-primary {
+  background: var(--accent); color: var(--on-accent); border: none; border-radius: var(--radius-sm);
+  font-size: 1rem; font-weight: 700; padding: 14px 24px; cursor: pointer;
+}
+.btn-secondary {
+  background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: 1rem; font-weight: 600; padding: 14px 24px; cursor: pointer;
+}
+
+/* honeypot: real field, visually hidden, matches Foothold's bot trap */
+.fh-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+/* toggle between the two mockup screens */
+.screen { display: none; }
+.screen.active { display: flex; }
+.switch-bar { position: fixed; top: 44px; left: 12px; right: 12px; display: flex; gap: 8px; justify-content: center; z-index: 5; }
+.switch-bar button {
+  background: var(--card); color: var(--text); border: 1px solid var(--border);
+  border-radius: 999px; padding: 6px 14px; font-size: 0.8rem; cursor: pointer;
+}
+.switch-bar button.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent-bright); }
+</style>
+</head>
+<body>
+
+<p class="stage-note">Mockup — Settings ▸ Feedback, styled to match Foothold's Bug/Feature form using this app's existing modal tokens.</p>
+<div class="switch-bar">
+  <button data-target="screen-settings" class="active">Settings</button>
+  <button data-target="screen-feedback">Feedback form</button>
+</div>
+
+<div class="modal screen active" id="screen-settings">
+  <div class="modal-backdrop"></div>
+  <div class="modal-sheet modal-sheet--settings">
+    <div class="modal-top-bar">
+      <h3 class="modal-title">Settings</h3>
+      <button class="btn-close">&#10005;</button>
+    </div>
+    <div class="settings-section">
+      <p class="section-label">Color Theme</p>
+      <div class="theme-swatches">
+        <button class="theme-swatch active">
+          <div class="swatch-preview swatch-ember"></div>
+          <span>Ember</span>
+        </button>
+        <button class="theme-swatch">
+          <div class="swatch-preview" style="background: linear-gradient(135deg, #0d1b2a 50%, #0e9fa8 50%);"></div>
+          <span>Ocean</span>
+        </button>
+        <button class="theme-swatch">
+          <div class="swatch-preview" style="background: linear-gradient(135deg, #0f1f10 50%, #6b9c52 50%);"></div>
+          <span>Forest</span>
+        </button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <p class="section-label">Display Mode</p>
+      <div class="mode-toggle">
+        <button class="mode-btn active">&#128421;&#65039; System</button>
+        <button class="mode-btn">&#127769; Dark</button>
+        <button class="mode-btn">&#9728;&#65039; Light</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <p class="section-label">Support</p>
+      <button class="settings-row-btn" onclick="document.querySelector('[data-target=screen-feedback]').click()">
+        <span class="row-icon">&#128172;</span>
+        <span class="row-label">Feedback</span>
+        <span class="row-chevron">&#8250;</span>
+      </button>
+    </div>
+    <p class="settings-version">v0.13</p>
+  </div>
+</div>
+
+<div class="modal screen" id="screen-feedback">
+  <div class="modal-backdrop"></div>
+  <div class="modal-sheet modal-sheet--feedback">
+    <div class="modal-top-bar">
+      <h3 class="modal-title">Feedback</h3>
+      <button class="btn-close">&#10005;</button>
+    </div>
+    <p class="modal-hint">Found a bug or have an idea? Let us know below.</p>
+
+    <div class="settings-section">
+      <p class="section-label">Type</p>
+      <div class="type-toggle">
+        <button class="type-btn active">&#128027; Bug</button>
+        <button class="type-btn">&#10024; Suggestion</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <p class="section-label">Message</p>
+      <textarea class="feedback-textarea" maxlength="2000" placeholder="What happened, or what would you like to see?"></textarea>
+    </div>
+
+    <!-- honeypot, mirrors foothold/src/lib/ui.js: real input, off-screen, name="website" -->
+    <input type="text" name="website" tabindex="-1" autocomplete="off" class="fh-hp">
+
+    <p class="feedback-status"></p>
+
+    <div class="modal-actions">
+      <button class="btn-secondary">Cancel</button>
+      <button class="btn-primary">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.switch-bar button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.switch-bar button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(b.dataset.target).classList.add('active');
+}));
+document.querySelectorAll('.type-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.type-btn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+}));
+</script>
+</body>
+</html>

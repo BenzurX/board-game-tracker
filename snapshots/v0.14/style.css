@@ -888,6 +888,8 @@ html, body {
 }
 .closer-chip .chip-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .closer-chip.sel { border-color: var(--accent); background: var(--accent-dim); }
+.closer-chip.mp-disconnected { opacity: 0.5; }
+
 /* ── Multiplayer ─────────────────────────────────────────── */
 .home-join-row { padding: 0 20px 4px; }
 
@@ -900,13 +902,10 @@ html, body {
 }
 .mp-room-code {
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   font-size: 1.05rem;
   color: var(--accent);
 }
-
-.mp-disconnected-col { opacity: 0.7; }
-.player-name-label.mp-disconnected-name { text-decoration: line-through; }
 
 .join-room-code-input {
   width: 100%;
@@ -922,56 +921,9 @@ html, body {
   border: 2px solid var(--border);
   background: var(--card);
   color: var(--text);
-  -webkit-appearance: none;
-  appearance: none;
 }
-
-.player-name-modal-input {
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 10px;
-  padding: 14px;
-  font-size: 1.25rem;
-  font-weight: 600;
-  border-radius: 12px;
-  border: 2px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  outline: none;
-  transition: border-color 0.15s;
-  -webkit-appearance: none;
-  appearance: none;
-}
-.player-name-modal-input:focus { border-color: var(--accent); }
 
 .mp-error { color: var(--danger, #e8533a); }
-
-.btn-text {
-  background: none;
-  border: 1.5px solid var(--accent);
-  color: var(--accent);
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.btn-text:hover { background: var(--accent-dim); }
-
-.btn-qr {
-  background: var(--accent-dim);
-  border: 1.5px solid var(--accent);
-  color: var(--accent);
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 7px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-}
-.btn-qr:hover { background: var(--accent); color: var(--bg, #fff); }
-.btn-qr:active { transform: scale(0.96); }
 
 .qr-canvas-wrap {
   display: flex;
@@ -979,40 +931,6 @@ html, body {
   padding: 16px 0;
 }
 .qr-canvas-wrap svg { width: 100%; max-width: 260px; height: auto; }
-
-.qr-room-code-display {
-  font-family: 'Commissioner', sans-serif;
-  font-size: 2rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-align: center;
-  color: var(--accent);
-  margin-top: 4px;
-}
-
-.mp-locked { opacity: 0.5; cursor: not-allowed; }
-
-.toast {
-  position: fixed;
-  left: 50%;
-  bottom: max(24px, env(safe-area-inset-bottom));
-  transform: translateX(-50%) translateY(12px);
-  background: var(--card);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px 20px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-  max-width: min(90vw, 380px);
-  text-align: center;
-  z-index: 1000;
-  opacity: 0;
-  transition: opacity 0.2s, transform 0.2s;
-  pointer-events: none;
-}
-.toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 .modal-actions {
   display: flex;
@@ -1076,25 +994,6 @@ html, body {
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-}
-
-.mp-rules-callout {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--accent-dim);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  margin-bottom: 14px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--accent-bright);
-  line-height: 1.4;
-}
-.mp-rules-callout::before {
-  content: '\1F465';
-  font-size: 1rem;
 }
 
 .rule-item {
@@ -1289,23 +1188,6 @@ html, body {
   font-size: 0.78rem;
   letter-spacing: 0.03em;
   margin-top: 4px;
-}
-
-.volume-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.volume-row input[type="range"] {
-  flex: 1;
-  accent-color: var(--accent);
-}
-.volume-value {
-  min-width: 2.6em;
-  text-align: right;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
 }
 
 .theme-swatches {

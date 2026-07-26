@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Forest Dark — Accent Color Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #05100a;
+    color: #e4f2de;
+    padding: 32px;
+  }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .sub { color: #8aa080; margin-bottom: 28px; font-size: 0.9rem; }
+  .panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  .panel {
+    --bg:           #0f1f10;
+    --surface:      #162d17;
+    --card:         #1e3d20;
+    --card-hover:   #264d28;
+    --border:       rgba(228, 242, 222, 0.12);
+    --on-accent:    #0f1f10;
+    --text:         #e4f2de;
+    --text-muted:   #7a9e72;
+
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .panel-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-bright);
+    margin-bottom: 2px;
+  }
+  .panel-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .swatches { display: flex; gap: 6px; margin-bottom: 16px; }
+  .swatch { width: 28px; height: 28px; border-radius: 6px; }
+
+  /* --- replicated real components --- */
+  .card-demo {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-tab {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    cursor: default;
+  }
+  .nav-tab.active {
+    border-bottom: 2px solid var(--accent);
+    color: var(--accent-bright);
+    font-weight: 600;
+  }
+  .btn-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex: 2;
+  }
+  .btn-secondary {
+    background: var(--card);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    flex: 1;
+  }
+  .btn-back {
+    display: inline-block;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    margin-bottom: 14px;
+  }
+  .badge-chip {
+    display: inline-block;
+    border: 1px solid var(--accent);
+    background: var(--accent-dim);
+    color: var(--accent-bright);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    margin-right: 6px;
+  }
+  .progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--card);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 62%;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-bright) 100%);
+  }
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .score-row .name { color: var(--text); }
+  .score-row .val { color: var(--accent-bright); font-weight: 700; }
+  .link-text { color: var(--accent-bright); font-size: 0.8rem; text-decoration: underline; cursor: default; }
+</style>
+</head>
+<body>
+<h1>Forest Dark — Accent Color Options</h1>
+<div class="sub">Trello: current lime accent (#5ca832 / #78cc44) reads too bright/intrusive against #0f1f10 bg. Light mode unaffected.</div>
+
+<div class="panels">
+
+  <div class="panel" style="--accent:#5ca832; --accent-bright:#78cc44; --accent-dim: rgba(92,168,50,0.2);">
+    <div class="panel-label">Current</div>
+    <div class="panel-note">Baseline — neon lime, high contrast, feels intrusive</div>
+    <div class="swatches"><div class="swatch" style="background:#5ca832"></div><div class="swatch" style="background:#78cc44"></div></div>
+
+    <div class="nav-tabs">
+      <div class="nav-tab active">Scores</div>
+      <div class="nav-tab">Rules</div>
+      <div class="nav-tab">History</div>
+    </div>
+    <div class="card-demo">
+      <div class="score-row"><span class="name">Ben</span><span class="val">42</span></div>
+      <div class="score-row"><span class="name">Alex</span><span class="val">37</span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <div class="btn-row">
+      <button class="btn-primary">Next Round</button>
+      <button class="btn-secondary">Undo</button>
+    </div>
+    <div class="btn-back">← Back</div>
+    <div style="margin-bottom:10px;"><span class="badge-chip">Round 4</span><span class="link-text">Edit rules</span></div>
+  </div>
+
+  <div class="panel" style="--accent:#6b9c52; --accent-bright:#85b869; --accent-dim: rgba(107,156,82,0.2);">
+    <div class="panel-label">A — Muted Sage</div>
+    <div class="panel-note">Desaturated green, same hue family, calmer</div>
+    <div class="swatches"><div class="swatch" style="background:#6b9c52"></div><div class="swatch" style="background:#85b869"></div></div>
+
+    <div class="nav-tabs">
+      <div class="nav-tab active">Scores</div>
+      <div class="nav-tab">Rules</div>
+      <div class="nav-tab">History</div>
+    </div>
+    <div class="card-demo">
+      <div class="score-row"><span class="name">Ben</span><span class="val">42</span></div>
+      <div class="score-row"><span class="name">Alex</span><span class="val">37</span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <div class="btn-row">
+      <button class="btn-primary">Next Round</button>
+      <button class="btn-secondary">Undo</button>
+    </div>
+    <div class="btn-back">← Back</div>
+    <div style="margin-bottom:10px;"><span class="badge-chip">Round 4</span><span class="link-text">Edit rules</span></div>
+  </div>
+
+  <div class="panel" style="--accent:#2f9e6e; --accent-bright:#3dc086; --accent-dim: rgba(47,158,110,0.2);">
+    <div class="panel-label">B — Forest Teal-Green</div>
+    <div class="panel-note">Shifts toward teal, cooler and more distinct from bg</div>
+    <div class="swatches"><div class="swatch" style="background:#2f9e6e"></div><div class="swatch" style="background:#3dc086"></div></div>
+
+    <div class="nav-tabs">
+      <div class="nav-tab active">Scores</div>
+      <div class="nav-tab">Rules</div>
+      <div class="nav-tab">History</div>
+    </div>
+    <div class="card-demo">
+      <div class="score-row"><span class="name">Ben</span><span class="val">42</span></div>
+      <div class="score-row"><span class="name">Alex</span><span class="val">37</span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <div class="btn-row">
+      <button class="btn-primary">Next Round</button>
+      <button class="btn-secondary">Undo</button>
+    </div>
+    <div class="btn-back">← Back</div>
+    <div style="margin-bottom:10px;"><span class="badge-chip">Round 4</span><span class="link-text">Edit rules</span></div>
+  </div>
+
+  <div class="panel" style="--accent:#d4a017; --accent-bright:#e8b93a; --accent-dim: rgba(212,160,23,0.2);">
+    <div class="panel-label">C — Warm Amber (complementary)</div>
+    <div class="panel-note">Gold against green bg, high pop, most "intrusive" of the group but different character than lime</div>
+    <div class="swatches"><div class="swatch" style="background:#d4a017"></div><div class="swatch" style="background:#e8b93a"></div></div>
+
+    <div class="nav-tabs">
+      <div class="nav-tab active">Scores</div>
+      <div class="nav-tab">Rules</div>
+      <div class="nav-tab">History</div>
+    </div>
+    <div class="card-demo">
+      <div class="score-row"><span class="name">Ben</span><span class="val">42</span></div>
+      <div class="score-row"><span class="name">Alex</span><span class="val">37</span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <div class="btn-row">
+      <button class="btn-primary">Next Round</button>
+      <button class="btn-secondary">Undo</button>
+    </div>
+    <div class="btn-back">← Back</div>
+    <div style="margin-bottom:10px;"><span class="badge-chip">Round 4</span><span class="link-text">Edit rules</span></div>
+  </div>
+
+  <div class="panel" style="--accent:#b8923a; --accent-bright:#d4ab52; --accent-dim: rgba(184,146,58,0.2);">
+    <div class="panel-label">D — Muted Olive-Gold</div>
+    <div class="panel-note">Softer amber, earthy, low intrusion, reads as "warm neutral" accent</div>
+    <div class="swatches"><div class="swatch" style="background:#b8923a"></div><div class="swatch" style="background:#d4ab52"></div></div>
+
+    <div class="nav-tabs">
+      <div class="nav-tab active">Scores</div>
+      <div class="nav-tab">Rules</div>
+      <div class="nav-tab">History</div>
+    </div>
+    <div class="card-demo">
+      <div class="score-row"><span class="name">Ben</span><span class="val">42</span></div>
+      <div class="score-row"><span class="name">Alex</span><span class="val">37</span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+    <div class="btn-row">
+      <button class="btn-primary">Next Round</button>
+      <button class="btn-secondary">Undo</button>
+    </div>
+    <div class="btn-back">← Back</div>
+    <div style="margin-bottom:10px;"><span class="badge-chip">Round 4</span><span class="link-text">Edit rules</span></div>
+  </div>
+
+</div>
+</body>
+</html>

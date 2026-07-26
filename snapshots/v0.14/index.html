@@ -27,7 +27,7 @@
       <p class="app-subtitle">Pick a game to get started</p>
     </header>
     <div class="home-join-row">
-      <button class="btn-secondary full-width" id="btn-join-room">&#128101; Join a Multiplayer Room</button>
+      <button class="btn-secondary full-width" id="btn-join-room">&#128279; Join a Multiplayer Room</button>
     </div>
     <div class="game-grid">
       <div class="category-divider"><span>Dice Games</span></div>
@@ -78,10 +78,10 @@
         <span class="game-name">Gin Rummy</span>
         <span class="game-desc">Knock or Gin &bull; First to 100</span>
       </button>
-      <button class="game-card" data-game="threethirteen">
-        <span class="game-icon">&#127183;</span>
-        <span class="game-name">Three Thirteen</span>
-        <span class="game-desc">11 hands &bull; Lowest score wins</span>
+      <button class="game-card" data-game="solitaire">
+        <span class="game-icon">&#127180;</span>
+        <span class="game-name">Solitaire</span>
+        <span class="game-desc">Solo play &bull; Track your best score</span>
       </button>
 
       <div class="category-divider"><span>Tile Games</span></div>
@@ -94,7 +94,7 @@
       <div class="category-divider"><span>Custom Games and More</span></div>
       <button class="game-card" data-game="generic">
         <span class="game-icon">&#128221;</span>
-        <span class="game-name">Generic Game</span>
+        <span class="game-name">Custom Game</span>
         <span class="game-desc">Simple score sheet &bull; Skyjo &amp; more</span>
       </button>
       <div class="game-card coming-soon">
@@ -129,20 +129,6 @@
         <label class="section-label">Game Name</label>
         <input type="text" id="game-name-input" class="game-name-input" placeholder="e.g. Skyjo" maxlength="30">
       </div>
-      <div class="setup-section" id="multiplayer-section">
-        <label class="section-label">Play Mode</label>
-        <div class="mode-toggle">
-          <button class="dir-btn active" data-mp="solo">Solo / Same Device</button>
-          <button class="dir-btn" data-mp="multiplayer">Multiplayer Room</button>
-        </div>
-        <label class="section-label mp-scoring-mode-label hidden" id="mp-scoring-mode-label">Who Keeps Score</label>
-        <div class="mode-toggle hidden" id="mp-scoring-mode-row">
-          <button class="dir-btn active" data-mpmode="each">Each Player Enters Score</button>
-          <button class="dir-btn" data-mpmode="host">Host Enters Scores</button>
-        </div>
-        <p class="setup-hint hidden" id="mp-settings-hint">Everyone in the room shares this game's win condition and entry threshold.</p>
-        <p class="modal-hint mp-error hidden" id="mp-setup-error"></p>
-      </div>
       <div class="setup-section" id="players-section">
         <label class="section-label">Players</label>
         <div id="player-inputs"></div>
@@ -150,6 +136,19 @@
           <button class="btn-add-player" id="btn-add-player">+ Add Player</button>
           <span class="add-player-tooltip" id="add-player-tooltip">Maximum of 8 players</span>
         </div>
+      </div>
+      <div class="setup-section" id="multiplayer-section">
+        <label class="section-label">Play Mode</label>
+        <div class="mode-toggle">
+          <button class="dir-btn active" data-mp="solo">Solo / Same Device</button>
+          <button class="dir-btn" data-mp="multiplayer">Multiplayer Room</button>
+        </div>
+        <div class="mode-toggle hidden" id="mp-scoring-mode-row">
+          <button class="dir-btn active" data-mpmode="each">Each Player Enters Own</button>
+          <button class="dir-btn" data-mpmode="host">I'll Score for Everyone</button>
+        </div>
+        <p class="setup-hint hidden" id="mp-settings-hint">Multiplayer rooms use this game's standard win condition and entry threshold.</p>
+        <p class="modal-hint mp-error hidden" id="mp-setup-error"></p>
       </div>
       <div class="setup-section hidden" id="scoring-section">
         <label class="section-label">Scoring</label>
@@ -196,7 +195,8 @@
 
     <div id="mp-room-bar" class="mp-room-bar hidden">
       <span class="mp-room-code" id="mp-room-code-label"></span>
-      <button class="btn-qr" id="btn-mp-show-qr">&#128241; Show QR</button>
+      <button class="btn-text" id="btn-mp-show-qr">Show QR</button>
+      <div class="chips" id="mp-roster-chips"></div>
     </div>
 
     <div id="winner-banner" class="winner-banner hidden"></div>
@@ -218,7 +218,7 @@
     </div>
 
     <div class="tracker-actions">
-      <button class="btn-primary" id="btn-add-turn">Enter Score</button>
+      <button class="btn-primary" id="btn-add-turn">+ Add Turn</button>
       <button class="btn-secondary" id="btn-new-game">New Game</button>
     </div>
   </div>
@@ -243,7 +243,7 @@
   <div id="modal-turn" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop" id="turn-backdrop"></div>
     <div class="modal-sheet">
-      <h3 class="modal-title" id="turn-modal-title">Add Scores</h3>
+      <h3 class="modal-title" id="turn-modal-title">Add Turn Scores</h3>
       <div id="turn-score-inputs"></div>
       <div id="turn-closer" class="turn-closer hidden">
         <span class="went-out-label">Who went out first?</span>
@@ -278,7 +278,7 @@
     <div class="modal-sheet modal-sheet--confirm">
       <h3 class="modal-title">Your Name</h3>
       <p class="modal-hint">This is what other players will see.</p>
-      <input type="text" id="player-name-input" class="player-name-modal-input" maxlength="20" autocomplete="off" placeholder="Your name">
+      <input type="text" id="player-name-input" class="join-room-code-input" maxlength="20" autocomplete="off" placeholder="Your name">
       <p class="modal-hint mp-error hidden" id="player-name-error"></p>
       <div class="modal-actions">
         <button class="btn-secondary" id="btn-cancel-player-name">Cancel</button>
@@ -296,7 +296,7 @@
         <button class="btn-close" id="btn-close-qr">&#10005;</button>
       </div>
       <div class="qr-canvas-wrap" id="qr-canvas-wrap"></div>
-      <p class="qr-room-code-display" id="qr-room-code-hint"></p>
+      <p class="modal-hint" id="qr-room-code-hint"></p>
     </div>
   </div>
 
@@ -324,18 +324,6 @@
     </div>
   </div>
 
-  <!-- Modal: Host Left Room (guests) -->
-  <div id="modal-host-left" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modal-backdrop" id="host-left-backdrop"></div>
-    <div class="modal-sheet modal-sheet--confirm">
-      <h3 class="modal-title">The host has left the room</h3>
-      <p class="modal-hint">The game has ended.</p>
-      <div class="modal-actions">
-        <button class="btn-primary full-width" id="btn-host-left-home">Back to Home</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Modal: Rules -->
   <div id="modal-rules" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop" id="rules-backdrop"></div>
@@ -344,12 +332,11 @@
         <h3 class="modal-title" id="rules-modal-title">Rules</h3>
         <button class="btn-close" id="btn-close-rules">&#10005;</button>
       </div>
-      <div class="mp-rules-callout hidden" id="rules-mp-callout"></div>
       <div class="rules-content" id="rules-built-in"></div>
       <div class="custom-rules-section" id="custom-rules-section">
         <h4 class="custom-rules-heading">Custom Rules</h4>
         <ul id="custom-rules-list"></ul>
-        <div class="add-rule-row" id="add-rule-row">
+        <div class="add-rule-row">
           <input type="text" id="custom-rule-input" placeholder="Add a house rule or note..." maxlength="120">
           <button class="btn-primary" id="btn-add-rule">Add</button>
         </div>
@@ -390,18 +377,9 @@
           <button class="mode-btn" data-mode="light">&#9728;&#65039; Light</button>
         </div>
       </div>
-      <div class="settings-section">
-        <p class="section-label">Volume</p>
-        <div class="volume-row">
-          <input type="range" id="volume-slider" min="0" max="100" value="80">
-          <span class="volume-value" id="volume-value">80%</span>
-        </div>
-      </div>
       <p class="settings-version" id="settings-version"></p>
     </div>
   </div>
-
-  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
   <script src="qrcode.js"></script>
   <script src="app.js"></script>

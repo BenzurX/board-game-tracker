@@ -4,6 +4,21 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.14 - 2026-07-24
+
+### Added
+- **Multiplayer Rooms** - Jackbox-style joinable rooms for remote score tracking, backed by a Cloudflare Worker + Durable Object (SQLite storage, WebSocket Hibernation API), deployed separately from the static site
+  - Host declares scoring mode in setup before opening the room - each player enters their own score (default), or host scores for everyone
+  - 4-letter join code, plus a QR code that deep-links straight into the app with the code pre-filled
+  - Room capacity capped at 8 players; duplicate names in a lobby are rejected
+  - Round auto-advances once every player has submitted, unless a player has already won
+  - Players can only enter/edit their own score; host can remove a player from the scoreboard (with confirmation)
+  - Reconnect support - a dropped WiFi connection or reload silently rejoins the same room as the same player
+  - Beta scope: no payment gating yet (deferred to before v1.0); unavailable for Solitaire, Generic Game, and Crazy Eights; no host reassignment if the host disconnects mid-game (documented in `worker/README.md`)
+- **App now deployed to Cloudflare Workers (static assets)**, separate from the public GitHub repo, so beta testers get a private link instead of a public-repo GitHub Pages URL
+
+---
+
 ## 0.13 - 2026-07-21
 
 ### Added

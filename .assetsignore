@@ -1,0 +1,9 @@
+worker
+stage
+.claude
+.vscode
+.git
+.wrangler
+wrangler.jsonc
+CLAUDE.md
+PROGRESS.md

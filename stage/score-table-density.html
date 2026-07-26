@@ -1,0 +1,346 @@
+<title>Score Table Density Ideas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Commissioner:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg:           #1c1410;
+    --surface:      #2a1f18;
+    --card:         #3a2d25;
+    --card-hover:   #4a3d35;
+    --border:       rgba(242, 232, 217, 0.12);
+    --accent:       #d4870a;
+    --accent-bright:#f0a820;
+    --accent-dim:   rgba(212, 135, 10, 0.2);
+    --on-accent:    #1c1410;
+    --text:         #f2e8d9;
+    --text-muted:   #a89880;
+    --success:      #5cb85c;
+    --danger:       #d9534f;
+    --radius:       12px;
+    --radius-sm:    8px;
+
+    --p0: #e8533a;
+    --p1: #3a9ee8;
+    --p2: #5cb85c;
+    --p3: #f0a820;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: #0f0b08;
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 32px 20px 80px;
+  }
+
+  h1 { font-family: 'Commissioner', sans-serif; font-size: 1.4rem; margin: 0 0 4px; }
+  .intro { color: var(--text-muted); font-size: 0.9rem; max-width: 640px; margin: 0 0 36px; line-height: 1.5; }
+
+  .variant {
+    margin-bottom: 56px;
+  }
+
+  .variant-label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .variant-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 800;
+    font-size: 0.9rem;
+    font-family: 'Commissioner', sans-serif;
+    flex-shrink: 0;
+  }
+
+  .variant-title { font-family: 'Commissioner', sans-serif; font-weight: 800; font-size: 1.1rem; }
+  .variant-note { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px; max-width: 560px; line-height: 1.5; }
+
+  .frame {
+    width: 380px;
+    container-type: inline-size;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  .frame-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .frame-title { font-family: 'Commissioner', sans-serif; font-weight: 800; font-size: 1rem; }
+  .frame-sub { color: var(--text-muted); font-size: 0.75rem; }
+
+  .frame-body { padding: 12px 0; max-height: 340px; overflow: auto; -webkit-overflow-scrolling: touch; }
+
+  table { width: 100%; min-width: max-content; border-collapse: collapse; font-size: 1rem; }
+  th, td { padding: 10px 14px; text-align: center; white-space: nowrap; }
+
+  thead th {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+  }
+
+  tbody tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  tbody td { border-bottom: 1px solid var(--border); }
+
+  .col-round {
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    padding-left: 20px;
+    min-width: 52px;
+  }
+
+  .score-cell { font-weight: 600; font-size: 1.05rem; }
+  .score-cell.farkle { color: var(--danger); opacity: 0.7; }
+
+  tfoot td {
+    font-weight: 800;
+    font-size: 1.15rem;
+    border-top: 2px solid var(--border);
+    padding-top: 14px;
+    background: var(--bg);
+    position: sticky;
+    bottom: 0;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .player-header-inner { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .player-header-inner.compact { gap: 5px; }
+
+  .scroll-hint {
+    font-size: 0.75rem;
+    color: var(--danger);
+    padding: 6px 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .scroll-hint.ok { color: var(--success); }
+
+  /* ── Leaderboard strip (variant D) ── */
+  .leaderboard {
+    display: flex;
+    gap: 8px;
+    padding: 4px 16px 14px;
+    overflow-x: auto;
+  }
+  .lb-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border-radius: 999px;
+    padding: 6px 12px 6px 8px;
+    flex-shrink: 0;
+  }
+  .lb-chip.leader { background: var(--accent-dim); border: 1px solid var(--accent); }
+  .lb-name { font-size: 0.78rem; font-weight: 700; }
+  .lb-score { font-size: 0.85rem; font-weight: 800; color: var(--accent-bright); }
+
+  /* ── Rotated table (variant B, players as rows) ── */
+  .rotated-table th, .rotated-table td { text-align: right; }
+  .rotated-table .row-player { text-align: left; }
+  .rotated-table thead th { min-width: 46px; }
+</style>
+
+<h1>Score Table Density - staging</h1>
+<p class="intro">
+  Problem: Farkle with 4 players overflows a 380px mobile viewport, forcing a horizontal scroll to see everyone's score.
+  Four ideas below, each rendered at real mobile width (380px) with the app's actual dark theme tokens.
+  Sample data: 4 players, 5 rounds of Farkle.
+</p>
+
+<!-- ═══════════════ A: CURRENT ═══════════════ -->
+<div class="variant">
+  <div class="variant-label">
+    <span class="variant-letter" style="background:var(--card-hover); color:var(--text);">A</span>
+    <span class="variant-title">Current (reference)</span>
+  </div>
+  <p class="variant-note">Full player names, generous padding. Works great for 2-3 players; at 4 it overflows 380px and requires a right-scroll to see the last player.</p>
+  <div class="frame">
+    <div class="frame-header">
+      <div class="frame-title">Farkle</div>
+      <div class="frame-sub">First to 10,000</div>
+    </div>
+    <div class="scroll-hint">&#8596; scrolls right to see Sam</div>
+    <div class="frame-body">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-round">#</th>
+            <th><div class="player-header-inner"><span class="dot" style="background:var(--p0)"></span>Jordan</div></th>
+            <th><div class="player-header-inner"><span class="dot" style="background:var(--p1)"></span>Priya</div></th>
+            <th><div class="player-header-inner"><span class="dot" style="background:var(--p2)"></span>Marcus</div></th>
+            <th><div class="player-header-inner"><span class="dot" style="background:var(--p3)"></span>Sam</div></th>
+          </tr>
+        </thead>
+        <tbody id="tbody-a"></tbody>
+        <tfoot><tr><td class="col-round totals-label">Total</td><td id="tot-a-0"></td><td id="tot-a-1"></td><td id="tot-a-2"></td><td id="tot-a-3"></td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ B: COMPACT INITIALS ═══════════════ -->
+<div class="variant">
+  <div class="variant-label">
+    <span class="variant-letter">B</span>
+    <span class="variant-title">Compact headers (initial + dot)</span>
+  </div>
+  <p class="variant-note">Same shape as today, but the header shows just a color dot + first initial (tap to reveal full name, like a tooltip), tighter cell padding, and a slightly smaller score font. Smallest code change - fits 4 players at 380px without touching the data model.</p>
+  <div class="frame">
+    <div class="frame-header">
+      <div class="frame-title">Farkle</div>
+      <div class="frame-sub">First to 10,000</div>
+    </div>
+    <div class="scroll-hint ok">&#10003; all 4 players fit, no scroll</div>
+    <div class="frame-body">
+      <table style="font-size: 0.92rem;">
+        <thead>
+          <tr>
+            <th class="col-round" style="padding-left:14px; min-width:34px;">#</th>
+            <th style="padding:8px 6px;"><div class="player-header-inner compact"><span class="dot" style="background:var(--p0); width:13px; height:13px;"></span>J</div></th>
+            <th style="padding:8px 6px;"><div class="player-header-inner compact"><span class="dot" style="background:var(--p1); width:13px; height:13px;"></span>P</div></th>
+            <th style="padding:8px 6px;"><div class="player-header-inner compact"><span class="dot" style="background:var(--p2); width:13px; height:13px;"></span>M</div></th>
+            <th style="padding:8px 6px;"><div class="player-header-inner compact"><span class="dot" style="background:var(--p3); width:13px; height:13px;"></span>S</div></th>
+          </tr>
+        </thead>
+        <tbody id="tbody-b"></tbody>
+        <tfoot><tr><td class="col-round totals-label" style="padding-left:14px;">Total</td><td id="tot-b-0" style="padding:14px 6px 0;"></td><td id="tot-b-1" style="padding:14px 6px 0;"></td><td id="tot-b-2" style="padding:14px 6px 0;"></td><td id="tot-b-3" style="padding:14px 6px 0;"></td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ C: STICKY ROUND COL + LEADER HIGHLIGHT ═══════════════ -->
+<div class="variant">
+  <div class="variant-label">
+    <span class="variant-letter">C</span>
+    <span class="variant-title">Compact + sticky round column + leader highlight</span>
+  </div>
+  <p class="variant-note">Builds on B: the round-number column stays pinned to the left edge while the table scrolls horizontally (matters once a 5th/6th player is added and scrolling comes back), and the current leader's column gets a subtle highlight so standings are readable at a glance even mid-scroll.</p>
+  <div class="frame">
+    <div class="frame-header">
+      <div class="frame-title">Farkle</div>
+      <div class="frame-sub">First to 10,000</div>
+    </div>
+    <div class="scroll-hint ok">&#10003; fits 4, and round # stays put if a 5th player pushes it wider</div>
+    <div class="frame-body">
+      <table style="font-size: 0.92rem;">
+        <thead>
+          <tr>
+            <th class="col-round" style="padding-left:14px; min-width:34px; position:sticky; left:0; z-index:3; box-shadow: 2px 0 4px rgba(0,0,0,0.3);">#</th>
+            <th style="padding:8px 6px;"><div class="player-header-inner compact"><span class="dot" style="background:var(--p0); width:13px; height:13px;"></span>J</div></th>
+            <th style="padding:8px 6px; background:var(--accent-dim); border-radius:6px 6px 0 0;"><div class="player-header-inner compact"><span class="dot" style="background:var(--p1); width:13px; height:13px;"></span>P &#128081;</div></th>
+            <th style="padding:8px 6px;"><div class="player-header-inner compact"><span class="dot" style="background:var(--p2); width:13px; height:13px;"></span>M</div></th>
+            <th style="padding:8px 6px;"><div class="player-header-inner compact"><span class="dot" style="background:var(--p3); width:13px; height:13px;"></span>S</div></th>
+          </tr>
+        </thead>
+        <tbody id="tbody-c"></tbody>
+        <tfoot><tr><td class="col-round totals-label" style="padding-left:14px; position:sticky; left:0; background:var(--bg); box-shadow: 2px 0 4px rgba(0,0,0,0.3);">Total</td><td id="tot-c-0" style="padding:14px 6px 0;"></td><td id="tot-c-1" style="padding:14px 6px 0; background:var(--accent-dim);"></td><td id="tot-c-2" style="padding:14px 6px 0;"></td><td id="tot-c-3" style="padding:14px 6px 0;"></td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ D: LEADERBOARD STRIP ═══════════════ -->
+<div class="variant">
+  <div class="variant-label">
+    <span class="variant-letter">D</span>
+    <span class="variant-title">Always-visible leaderboard strip above the table</span>
+  </div>
+  <p class="variant-note">A horizontally-scrollable row of ranked chips (dot + initial + running total, leader first) sits above the table and never needs a right-scroll to answer "who's winning" - it's a fixed few chips regardless of player count. The detailed round-by-round table underneath can scroll freely for large player counts without losing standings context.</p>
+  <div class="frame">
+    <div class="frame-header">
+      <div class="frame-title">Farkle</div>
+      <div class="frame-sub">First to 10,000</div>
+    </div>
+    <div class="leaderboard">
+      <div class="lb-chip leader"><span class="dot" style="background:var(--p1); width:11px; height:11px;"></span><span class="lb-name">Priya</span><span class="lb-score">6,150</span></div>
+      <div class="lb-chip"><span class="dot" style="background:var(--p0); width:11px; height:11px;"></span><span class="lb-name">Jordan</span><span class="lb-score">4,800</span></div>
+      <div class="lb-chip"><span class="dot" style="background:var(--p2); width:11px; height:11px;"></span><span class="lb-name">Marcus</span><span class="lb-score">3,950</span></div>
+      <div class="lb-chip"><span class="dot" style="background:var(--p3); width:11px; height:11px;"></span><span class="lb-name">Sam</span><span class="lb-score">2,400</span></div>
+    </div>
+    <div class="scroll-hint">&#8596; table below still scrolls right for full detail</div>
+    <div class="frame-body" style="max-height:220px;">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-round">#</th>
+            <th><div class="player-header-inner"><span class="dot" style="background:var(--p0)"></span>Jordan</div></th>
+            <th><div class="player-header-inner"><span class="dot" style="background:var(--p1)"></span>Priya</div></th>
+            <th><div class="player-header-inner"><span class="dot" style="background:var(--p2)"></span>Marcus</div></th>
+            <th><div class="player-header-inner"><span class="dot" style="background:var(--p3)"></span>Sam</div></th>
+          </tr>
+        </thead>
+        <tbody id="tbody-d"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const rounds = [
+    [800, 0, 550, 1200],
+    [1050, 1500, 0, 400],
+    [0, 1200, 950, 800],
+    [1400, 900, 1100, 0],
+    [1550, 2550, 1350, 0],
+  ];
+  const totals = rounds.reduce((acc, r) => acc.map((t, i) => t + r[i]), [0,0,0,0]);
+
+  function fillBody(id, extraCellStyle) {
+    const tbody = document.getElementById(id);
+    rounds.forEach((r, ri) => {
+      const tr = document.createElement('tr');
+      let html = `<td class="col-round"${id==='tbody-c' ? ' style="position:sticky;left:0;background:var(--bg);box-shadow:2px 0 4px rgba(0,0,0,0.3);"' : ''}>${ri+1}</td>`;
+      r.forEach((s, pi) => {
+        const cls = s === 0 ? 'score-cell farkle' : 'score-cell';
+        const highlight = (id === 'tbody-c' && pi === 1) ? 'background:var(--accent-dim);' : '';
+        html += `<td class="${cls}" style="${extraCellStyle||''}${highlight}">${s === 0 ? 'Farkle' : s.toLocaleString()}</td>`;
+      });
+      tr.innerHTML = html;
+      tbody.appendChild(tr);
+    });
+  }
+
+  ['a','b','c','d'].forEach(v => fillBody('tbody-' + v, v === 'b' || v === 'c' ? 'padding:10px 6px;' : ''));
+
+  ['a','b','c'].forEach(v => {
+    totals.forEach((t, i) => {
+      const el = document.getElementById(`tot-${v}-${i}`);
+      if (el) el.textContent = t.toLocaleString();
+    });
+  });
+</script>
