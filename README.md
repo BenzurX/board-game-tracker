@@ -15,7 +15,7 @@ A lightweight score-tracking web app for board games and dice games. No install,
   - **"Track who goes out first"** - opt-in per game; flags the round closer (⚑) next to their score
 - **2–8 players** with distinct color-coded columns; tap a player's color dot on setup or mid-game to change it
 - **Inline editing** - tap any score cell or player name to edit mid-game
-- **Add Score modal** - enter all players' scores for a round in one step, with each player's current total shown alongside their input
+- **Enter Scores modal** - enter all players' scores for a round in one step, with each player's current total shown alongside their input and a quick rules-lookup shortcut in the header
 - **Winner banner + confetti** - detects the win, then fires a confetti burst (honors `prefers-reduced-motion`); tapping the banner replays it, synced to everyone in multiplayer
 - **Basic Rules on setup** - picking a game goes straight to setup, with the game's intro shown above the player list (clamped to 4 lines with a "Show more/less" toggle) and a "See Scoring and Custom Rules" button
 - **Device back-button support** - hardware/gesture back navigates the same screen stack as the in-app back buttons, with the same in-progress-game confirmation guard
@@ -37,7 +37,7 @@ Open `index.html` in a browser. No build step required.
 
 1. Pick a game on the home screen - the Generic Game catch-all sits above the category groups (e.g. "Dice Games")
 2. On setup, read the Basic Rules panel (or tap "See Scoring and Custom Rules" for the full list), then add 2–8 players and set the win score and entry threshold
-3. Tap **+ Add Score** after each round to log scores
+3. Tap **Enter Score** after each round to log scores
 4. Tap any cell to correct a score; tap a player name to rename them
 5. Change theme/mode anytime via the gear icon (⚙) on the home screen
 

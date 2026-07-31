@@ -827,6 +827,19 @@ html, body {
   color: var(--accent-bright);
 }
 
+.modal-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.modal-title-row .modal-title { margin: 0; }
+.modal-title-row .btn-rules {
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+}
+
 .modal-hint {
   font-size: 0.82rem;
   color: var(--text-muted);

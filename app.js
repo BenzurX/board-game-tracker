@@ -128,7 +128,7 @@ Example turn: you roll 1, 1, 5, 3, 3, 4. You set aside both 1s (100 each) and th
     defaultPlayers: 4,
     intro: `Each turn, roll 5 dice up to three times (re-rolling any you want to keep aside), then write your result into one of 13 scoring categories - each category is used exactly once across the game. After all 13 categories are filled for every player, whoever has the highest total wins.
 
-Use "Add Score" to log the score each player wrote down for that round's category (enter 0 for a category they scratched). The Upper Section (Ones through Sixes) earns a 35-point bonus if those six categories add up to 63 or more - add that bonus in as its own turn once it's earned.
+Use "Enter Score" to log the score each player wrote down for that round's category (enter 0 for a category they scratched). The Upper Section (Ones through Sixes) earns a 35-point bonus if those six categories add up to 63 or more - add that bonus in as its own turn once it's earned.
 
 Example: rolling 4, 4, 4, 2, 6 - you could score it as three 4s in the "Fours" category (12 pts) or as 28 in "Chance" (sum of all 5 dice).`,
     rules: [
@@ -171,7 +171,7 @@ Example: placing a tile that extends one line to 3 tiles and completes a second 
     defaultPlayers: 2,
     intro: `Deal 6 cards each (2-player); each player discards down to 4, with the extra 2 going into the dealer's "crib." Players take turns playing cards face-up while counting the running total out loud (never exceeding 31), scoring points for 15s, pairs, and runs formed during play - then each hand (plus the crib) is counted again against the starter card for its own points.
 
-Use "Add Score" to log each player's total pegged for that hand (play + hand + crib, if applicable). First to 121 wins - Score board points as they're won.
+Use "Enter Score" to log each player's total pegged for that hand (play + hand + crib, if applicable). First to 121 wins - Score board points as they're won.
 
 Example hand: 5, 5, 5, J against a starter of 5 scores 12 for four 5s (six different combinations of two summing to 15) plus 12 for four-of-a-kind = 24 total, plus 2 for "his heels" if the starter itself was a Jack.`,
     rules: [
@@ -195,7 +195,7 @@ Example hand: 5, 5, 5, J against a starter of 5 scores 12 for four 5s (six diffe
 
 The team that named trump must take at least 3 of the 5 tricks to score; taking all 5 ("a march") scores extra. Failing to take 3 tricks ("getting euchred") hands the points to the other team instead.
 
-Use "Add Score" to log each team's points after a hand is scored (usually one team gets 0 and the other gets 1-4). First team to 10 points wins.`,
+Use "Enter Score" to log each team's points after a hand is scored (usually one team gets 0 and the other gets 1-4). First team to 10 points wins.`,
     rules: [
       'Only 9, 10, J, Q, K, A are in the deck (24 cards total)',
       'Jack of trump ("right bower") is the highest card; same-color Jack ("left bower") is second-highest and counts as trump',
@@ -236,7 +236,7 @@ Card values: 8s = 50 pts, face cards (K/Q/J) = 10 pts, Aces = 1 pt, everything e
 
 Once you're out of chips you're out of active rolling, but stay in - a chip passed to you brings you back in. The last player still holding any chips wins the whole center pot.
 
-Use "Add Score" to log each player's chip count after a round of passing, so you can see who's still in.`,
+Use "Enter Score" to log each player's chip count after a round of passing, so you can see who's still in.`,
     rules: [
       'Everyone starts with 3 chips',
       'Roll one die per chip you hold (max 3 dice)',
@@ -252,7 +252,7 @@ Use "Add Score" to log each player's chip count after a round of passing, so you
     defaultMinScore: 0,
     allowNegative: true, // per-hand chip swings can be a loss
     defaultPlayers: 4,
-    intro: `Standard hand rankings apply across most poker variants (Texas Hold'em, 7-Card Stud, etc.) - best 5-card hand wins the pot at showdown, or the last player left after everyone else folds. This tracker isn't tied to a specific variant - use "Add Score" to log each player's net chip change (wins as positive, losses as negative) after each hand or at cash-out, so you can see who's up or down for the session.`,
+    intro: `Standard hand rankings apply across most poker variants (Texas Hold'em, 7-Card Stud, etc.) - best 5-card hand wins the pot at showdown, or the last player left after everyone else folds. This tracker isn't tied to a specific variant - use "Enter Score" to log each player's net chip change (wins as positive, losses as negative) after each hand or at cash-out, so you can see who's up or down for the session.`,
     rules: [
       'Hand ranking, highest to lowest: Royal Flush, Straight Flush, Four of a Kind, Full House, Flush, Straight, Three of a Kind, Two Pair, One Pair, High Card',
       'Best 5-card hand at showdown wins the pot',
@@ -270,7 +270,7 @@ Use "Add Score" to log each player's chip count after a round of passing, so you
 
 Knocking with 0 deadwood is "Gin," worth a 25-point bonus on top of the deadwood difference. If your opponent's deadwood is actually lower than yours when you knock, they "undercut" you and score the difference plus a 25-point bonus instead.
 
-Use "Add Score" to log each player's points from the hand. First to 100 wins.`,
+Use "Enter Score" to log each player's points from the hand. First to 100 wins.`,
     rules: [
       'Sets = 3-4 cards of the same rank; Runs = 3+ sequential cards in the same suit',
       'Knock once your unmatched ("deadwood") card total is 10 or less, ending the hand',
@@ -292,7 +292,7 @@ Use "Add Score" to log each player's points from the hand. First to 100 wins.`,
 
 Draw and discard each turn, melding your hand into sets (3+ of the same rank) and runs (3+ sequential cards, same suit), using wilds to fill gaps. Once your whole hand is melded except one card, discard it to "go out" and end the hand immediately.
 
-Use "Add Score" to log each player's points after a hand: the player who went out scores 0, everyone else totals the value of the cards still in their hand. Play all 11 hands - lowest running total when the last hand ends wins.
+Use "Enter Score" to log each player's points after a hand: the player who went out scores 0, everyone else totals the value of the cards still in their hand. Play all 11 hands - lowest running total when the last hand ends wins.
 
 Card values: 2-10 = face value, J/Q/K = 10 pts, Ace = 15 pts, that hand's wild rank = 20 pts.`,
     rules: [
@@ -314,7 +314,7 @@ Card values: 2-10 = face value, J/Q/K = 10 pts, Ace = 15 pts, that hand's wild r
 
 If challenged, all dice are revealed: if the bid was true (that many dice of that face really exist), the challenger loses a die; if it was false, the bidder loses a die. Losing all your dice eliminates you. Last player with any dice left wins.
 
-Use "Add Score" to log each player's dice remaining after a round, so you can track who's still in.`,
+Use "Enter Score" to log each player's dice remaining after a round, so you can track who's still in.`,
     rules: [
       'Everyone rolls 5 dice in secret, hidden from other players',
       'Bids claim how many of a face value exist across all hidden dice combined',
@@ -1207,7 +1207,7 @@ document.getElementById('btn-add-turn').addEventListener('click', () => {
   }
   const game = GAMES[state.gameKey];
   const mpEach = state.multiplayer && state.mpScoringMode === 'each';
-  document.getElementById('turn-modal-title').textContent = mpEach ? 'Enter Your Score' : 'Add Scores';
+  document.getElementById('turn-modal-title').textContent = mpEach ? 'Enter Your Score' : 'Enter Scores';
   document.getElementById('turn-hint').textContent = mpEach
     ? 'Enter your score for this round'
     : (state.generic
@@ -1814,6 +1814,7 @@ const modalRules = document.getElementById('modal-rules');
 
 document.getElementById('btn-rules').addEventListener('click', () => openRulesModal());
 document.getElementById('btn-rules-setup').addEventListener('click', () => openRulesModal());
+document.getElementById('btn-rules-turn').addEventListener('click', () => openRulesModal());
 document.getElementById('btn-see-full-rules').addEventListener('click', () => openRulesModal());
 document.getElementById('rules-backdrop').addEventListener('click', closeRulesModal);
 document.getElementById('btn-close-rules').addEventListener('click', closeRulesModal);

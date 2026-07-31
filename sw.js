@@ -1,4 +1,4 @@
-const CACHE = 'board-game-tracker-v28';
+const CACHE = 'board-game-tracker-v29';
 
 const ASSETS = [
   './',
