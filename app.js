@@ -1,7 +1,7 @@
 // ── App Version ──────────────────────────────────────────
 // Bumped alongside CHANGELOG.md per the pre-push gate - single source of truth
 // for the version shown in Settings.
-const APP_VERSION = '0.18';
+const APP_VERSION = '0.19';
 document.getElementById('settings-version').textContent = `v${APP_VERSION}`;
 
 // ── Theme Management ─────────────────────────────────────
@@ -1076,7 +1076,7 @@ function checkWin() {
     mpGameOverSent = false;
     if (!state.finalRoundAnnounced) {
       state.finalRoundAnnounced = true;
-      showToast(`Target of ${state.winScore.toLocaleString()} reached! One more round for everyone else to beat it.`);
+      showToast(`FINAL ROUND STARTED!! Someone scored over ${state.winScore.toLocaleString()} points! One more round for everyone else to beat it.`);
     }
     return;
   }
@@ -1221,12 +1221,15 @@ document.getElementById('btn-add-turn').addEventListener('click', () => {
   const container = document.getElementById('turn-score-inputs');
   container.innerHTML = '';
   const playersToShow = mpEach ? state.players.filter(p => p.id === state.mpPlayerId) : state.players;
+  const totals = getTotals();
   playersToShow.forEach(p => {
+    const pi = state.players.indexOf(p);
     const row = document.createElement('div');
     row.className = 'turn-player-row';
     row.innerHTML = `
       <span class="turn-player-dot" style="background:${p.color}"></span>
       <span class="turn-player-name">${escHtml(p.name)}</span>
+      <span class="turn-player-total" title="Current total before this round">Total: ${totals[pi].toLocaleString()}</span>
       <input type="number" class="turn-score-input" value="0" min="${minAttr}" max="99999" step="${stepAttr}" inputmode="numeric">
     `;
     container.appendChild(row);

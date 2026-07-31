@@ -851,6 +851,11 @@ html, body {
   font-weight: 600;
   font-size: 0.95rem;
 }
+.turn-player-total {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
 .turn-score-input {
   width: 90px;
   background: var(--card);
