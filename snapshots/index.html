@@ -283,18 +283,98 @@
   <div class="page-header">
     <div><a class="back-link" href="../index.html">&#8592; Back to App</a></div>
     <div class="page-title">&#127922; Game Tracker</div>
-    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>9 snapshots</strong> captured</div>
+    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>10 snapshots</strong> captured</div>
   </div>
 
   <div class="timeline">
 
-    <!-- v0.14 — current, milestone -->
-    <div class="version-entry current milestone">
+    <!-- v0.18 — current -->
+    <div class="version-entry current">
+      <div class="v-dot">&#9679;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.18</span>
+          <span class="v-current-chip">CURRENT</span>
+          <span class="v-date">July 31, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Screen Wake Lock</div>
+          <ul class="v-bullets">
+            <li>Screen Wake Lock keeps the display on while the tracker screen is active, so mid-game score entry isn't interrupted by the device auto-locking. Re-acquires automatically if the OS releases it (app switch, screen lock) while still on the tracker. Requires a secure context (HTTPS or localhost) - won't activate over plain-HTTP LAN preview.</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.18/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.17 — no separate snapshot -->
+    <div class="version-entry">
+      <div class="v-dot">&#9670;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.17</span>
+          <span class="v-date">July 30, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Win-banner replay, Farkle "last chance" rule, Enter Scores totals</div>
+          <ul class="v-bullets">
+            <li>Tapping the victory banner replays the win bounce animation and confetti burst, synced to all players in multiplayer</li>
+            <li>Farkle house rule: once a player crosses the winning score target, everyone else gets one more round to beat it</li>
+            <li>Enter Scores modal (renamed from "Add Scores") shows each player's current total next to their score input, plus a rules shortcut in the header</li>
+          </ul>
+          <p style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">No standalone snapshot - captured retroactively as part of the v0.18 update.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.16 — no separate snapshot -->
+    <div class="version-entry">
+      <div class="v-dot">&#9670;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.16</span>
+          <span class="v-date">July 26, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Removed-guest toast, Cloudflare hosting, round-edit fix</div>
+          <ul class="v-bullets">
+            <li>Removed guest now sees a dismissable toast instead of a blocking alert</li>
+            <li>Static site now hosted on Cloudflare (Workers static-assets deploy) instead of GitHub Pages</li>
+            <li>Fixed editing an earlier still-off-board round skipping the entry-threshold check</li>
+          </ul>
+          <p style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">No standalone snapshot - captured retroactively as part of the v0.18 update.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.15 — no separate snapshot -->
+    <div class="version-entry">
+      <div class="v-dot">&#9670;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.15</span>
+          <span class="v-date">July 26, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Live-synced house rules for multiplayer, room-code display polish</div>
+          <ul class="v-bullets">
+            <li>Guests now see the host's edited rule text and house-rule list for the duration of the room (read-only), reverting to their own on leaving; a callout banner tells host/guest whose rules they're viewing</li>
+            <li>Room code display distinguishes the "Room Code:" label from the code itself, in both the room bar and QR modal</li>
+            <li>Rules modal's "Reset to default" button redesigned as an icon-only control</li>
+          </ul>
+          <p style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);font-style:italic;">No standalone snapshot - captured retroactively as part of the v0.18 update.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.14 — milestone -->
+    <div class="version-entry milestone">
       <div class="v-dot">&#9733;</div>
       <div class="v-card">
         <div class="v-card-head">
           <span class="v-badge">v0.14</span>
-          <span class="v-current-chip">CURRENT</span>
           <span class="v-milestone-chip">MILESTONE</span>
           <span class="v-date">July 24, 2026</span>
         </div>

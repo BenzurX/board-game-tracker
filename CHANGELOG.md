@@ -4,6 +4,13 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.18 - 2026-07-31
+
+### Added
+- Screen Wake Lock keeps the display on while the tracker screen is active, so mid-game score entry isn't interrupted by the device auto-locking. Re-acquires automatically if the OS releases it (app switch, screen lock) while still on the tracker. Requires a secure context (HTTPS or localhost) - won't activate over plain-HTTP LAN preview.
+
+---
+
 ## 0.17 - 2026-07-30
 
 ### Added
