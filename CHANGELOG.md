@@ -4,24 +4,12 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
-## 0.19 - 2026-07-30
-
-### Added
-- Add Score modal now shows each player's current total (before this round) next to their score input, under a "Total" column heading and in bold, so it's visible while entering new scores instead of only after saving.
-
----
-
-## 0.18 - 2026-07-30
-
-### Added
-- Farkle house rule: once a player crosses the winning score target, every other player gets one more full round to beat it before a winner is crowned - works identically for solo scoring, host-scoring multiplayer, and each-player-scores-their-own multiplayer, since it's derived purely from the shared round history rather than a separately tracked flag.
-
----
-
 ## 0.17 - 2026-07-30
 
 ### Added
 - Tapping the victory banner replays the win bounce animation and confetti burst. In multiplayer, a tap by any player (host or guest) syncs the replay to everyone in the room.
+- Farkle house rule: once a player crosses the winning score target, every other player gets one more full round to beat it before a winner is crowned - works identically for solo scoring, host-scoring multiplayer, and each-player-scores-their-own multiplayer, since it's derived purely from the shared round history rather than a separately tracked flag.
+- Add Score modal now shows each player's current total (before this round) next to their score input, under a "Total" column heading and in bold, so it's visible while entering new scores instead of only after saving.
 
 ### Fixed
 - PWA installed on mobile devices failed to open ("can't reach" the URL) because `manifest.json` `start_url` pointed at `./index.html`, which Cloudflare Workers static-assets redirects (308) to `./` — standalone launch didn't follow it reliably. `start_url` now matches `./` directly.

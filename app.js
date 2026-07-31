@@ -1,7 +1,7 @@
 // ── App Version ──────────────────────────────────────────
 // Bumped alongside CHANGELOG.md per the pre-push gate - single source of truth
 // for the version shown in Settings.
-const APP_VERSION = '0.19';
+const APP_VERSION = '0.17';
 document.getElementById('settings-version').textContent = `v${APP_VERSION}`;
 
 // ── Theme Management ─────────────────────────────────────
