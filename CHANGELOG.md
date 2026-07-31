@@ -4,6 +4,16 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.17 - 2026-07-30
+
+### Added
+- Tapping the victory banner replays the win bounce animation and confetti burst. In multiplayer, a tap by any player (host or guest) syncs the replay to everyone in the room.
+
+### Fixed
+- PWA installed on mobile devices failed to open ("can't reach" the URL) because `manifest.json` `start_url` pointed at `./index.html`, which Cloudflare Workers static-assets redirects (308) to `./` — standalone launch didn't follow it reliably. `start_url` now matches `./` directly.
+
+---
+
 ## 0.16 - 2026-07-26
 
 ### Added

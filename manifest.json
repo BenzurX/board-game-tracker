@@ -2,7 +2,7 @@
   "name": "Game Tracker",
   "short_name": "Game Tracker",
   "description": "Score tracker for board and dice games",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0d1b2a",

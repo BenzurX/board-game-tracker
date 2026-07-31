@@ -1,7 +1,7 @@
 // ── App Version ──────────────────────────────────────────
 // Bumped alongside CHANGELOG.md per the pre-push gate - single source of truth
 // for the version shown in Settings.
-const APP_VERSION = '0.14';
+const APP_VERSION = '0.17';
 document.getElementById('settings-version').textContent = `v${APP_VERSION}`;
 
 // ── Theme Management ─────────────────────────────────────
@@ -1118,6 +1118,20 @@ function fireConfetti() {
   })();
 }
 
+document.getElementById('winner-banner').addEventListener('click', () => {
+  if (!state.gameOver) return;
+  if (state.multiplayer) mpSend({ type: 'celebrate' });
+  else replayCelebration();
+});
+
+function replayCelebration() {
+  const banner = document.getElementById('winner-banner');
+  banner.classList.remove('celebrate');
+  void banner.offsetWidth;        // restart the pop animation
+  banner.classList.add('celebrate');
+  fireConfetti();
+}
+
 document.getElementById('btn-new-game').addEventListener('click', () => {
   if (state.rounds.length > 0) {
     confirmLeaveAction = 'newgame';
@@ -1409,6 +1423,7 @@ function mpHandleMessage(msg) {
     case 'round-update': mpApplyRounds(msg.rounds, msg.roundSubmitted); break;
     case 'round-advance': mpApplyRounds(msg.rounds, msg.roundSubmitted); break;
     case 'game-over': mpOnGameOver(); break;
+    case 'celebrate': mpOnCelebrate(); break;
     case 'player-removed': mpOnPlayerRemoved(msg.playerId); break;
     case 'room-closed': mpOnRoomClosed(); break;
     case 'rules-update': mpApplyRules(msg.ruleOverrides, msg.customRules); break;
@@ -1535,6 +1550,10 @@ function mpOnError(msg) {
 function mpOnGameOver() {
   state.gameOver = true;
   if (document.getElementById('screen-tracker').classList.contains('active')) checkWin();
+}
+
+function mpOnCelebrate() {
+  if (document.getElementById('screen-tracker').classList.contains('active')) replayCelebration();
 }
 
 function mpOnPlayerRemoved(playerId) {

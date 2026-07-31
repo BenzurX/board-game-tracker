@@ -1,10 +1,11 @@
 # CLAUDE.md - Board Game Tracker
 
 ## Pre-push gate (required every push, no exceptions)
-Before any `git push`, update all three files and stage them in the same commit as the code changes:
+Before any `git push`, update all four files and stage them in the same commit as the code changes:
 1. **CHANGELOG.md** - prepend a new version entry documenting what changed
 2. **README.md** - update any feature descriptions affected by the change
 3. **sw.js** - bump the `CACHE` version string (e.g. `board-game-tracker-v3` → `board-game-tracker-v4`)
+4. **app.js** - bump `APP_VERSION` to match the new CHANGELOG version (shown in the settings popup)
 
 ## Version scheme
 - CHANGELOG uses flat decimal versions starting at 0.01, incrementing by 0.01 per release (0.01, 0.02 … 0.10 …)

@@ -88,6 +88,10 @@ interface DeclareGameOverMessage {
   type: "declare-game-over";
 }
 
+interface CelebrateMessage {
+  type: "celebrate";
+}
+
 interface HostSubmitScoresMessage {
   type: "host-submit-scores";
   values: Array<number | null>;
@@ -108,6 +112,7 @@ type ClientMessage =
   | EditScoreMessage
   | RemovePlayerMessage
   | DeclareGameOverMessage
+  | CelebrateMessage
   | HostSubmitScoresMessage
   | HostLeaveMessage
   | LeaveSelfMessage
@@ -237,6 +242,10 @@ export class Room extends DurableObject<Env> {
 
       case "declare-game-over":
         await this.handleDeclareGameOver(attachment);
+        break;
+
+      case "celebrate":
+        this.broadcast({ type: "celebrate" });
         break;
 
       case "host-submit-scores":
@@ -1217,6 +1226,7 @@ export class Room extends DurableObject<Env> {
         );
 
       case "declare-game-over":
+      case "celebrate":
         return true;
 
       case "host-submit-scores":
