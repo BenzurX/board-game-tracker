@@ -78,7 +78,7 @@ CHANGELOG.md       - history of changes
 ## Games
 
 Currently implemented:
-- **Farkle** - dice game, first to 10,000 points (configurable), minimum 500 to get on the board (configurable)
+- **Farkle** - dice game, first to 10,000 points (configurable), minimum 500 to get on the board (configurable); once someone crosses the target, everyone else gets one more full round to beat it before a winner is declared
 - **Generic Game** - freeform round-by-round score sheet (e.g. Skyjo), with high/low (golf) scoring, negative scores, optional target, and opt-in round-closer tracking
 
 More games planned (round-by-round and category-based scoring).

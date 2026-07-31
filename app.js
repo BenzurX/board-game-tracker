@@ -1,7 +1,7 @@
 // ── App Version ──────────────────────────────────────────
 // Bumped alongside CHANGELOG.md per the pre-push gate - single source of truth
 // for the version shown in Settings.
-const APP_VERSION = '0.17';
+const APP_VERSION = '0.18';
 document.getElementById('settings-version').textContent = `v${APP_VERSION}`;
 
 // ── Theme Management ─────────────────────────────────────
@@ -101,6 +101,7 @@ const GAMES = {
     defaultWinScore: 10000,
     defaultMinScore: 500,
     defaultPlayers: 4,
+    finalRoundOnWin: true, // once someone crosses winScore, everyone else gets one more full round to beat it
     intro: `Turns go in order: Player 1 rolls all 6 dice, sets aside any scoring dice, then chooses to bank their points and end their turn, or keep rolling the remaining (non-scoring) dice to try to add more. You must set aside at least one scoring die every time you roll - if a roll scores nothing, that's a Farkle and you lose every point banked so far that turn. Once a turn ends (by banking or Farkling), play passes to Player 2, and so on around the table. Traditionally, each player must also clear a one-time points threshold in a single turn before they're "on the board" and can start banking toward the game total.
 
 If all 6 dice end up scoring across a turn, you can say "still rolling!" and continue - reset to rolling all 6 again and keep building your total before banking.
@@ -403,6 +404,7 @@ const state = {
   mpHostRuleOverrides: null, // guest-only, in-memory: host's rule overrides synced live for a multiplayer room
   gameOver: false,
   celebrated: false, // true once the win confetti has fired for the current win
+  finalRoundAnnounced: false, // true once the "final round" toast has fired for the current trigger
   trackCloser: false, // track who "goes out first" each round (custom games)
   closers: [],       // [playerIndex|null, ...]  parallel to rounds
   multiplayer: false,    // true when this game is a synced multiplayer room
@@ -714,6 +716,7 @@ document.getElementById('btn-start-game').addEventListener('click', () => {
   state.onBoard = state.players.map(() => state.minScore === 0);
   state.gameOver = false;
   state.celebrated = false;
+  state.finalRoundAnnounced = false;
 
   buildTrackerScreen();
   navigateTo('screen-tracker');
@@ -1030,21 +1033,57 @@ function getLeaders(totals) {
   return leaders.length === totals.length ? [] : leaders;
 }
 
+// Earliest round index where some player's running total first reaches winScore,
+// or -1 if no round has done so yet. Purely derived from state.rounds/winScore, so
+// it comes out identical on every device (host-scoring, each-scoring, or solo)
+// without needing any extra synced state.
+function findWinTriggerRound() {
+  if (!state.winScore || state.winScore <= 0) return -1;
+  const running = state.players.map(() => 0);
+  for (let r = 0; r < state.rounds.length; r++) {
+    state.players.forEach((_, pi) => { running[pi] += (state.rounds[r][pi] || 0); });
+    if (running.some(t => t >= state.winScore)) return r;
+  }
+  return -1;
+}
+
 function checkWin() {
   const banner = document.getElementById('winner-banner');
-  const noTarget = !state.winScore || state.winScore <= 0;
-  const totals = getTotals();
+  const triggerRound = findWinTriggerRound();
 
-  // No target, or target not reached: no winner - reset so a later win re-celebrates
-  if (noTarget || !totals.some(t => t >= state.winScore)) {
+  // No target, or target not reached yet: no winner - reset so a later win re-celebrates
+  if (triggerRound === -1) {
     banner.classList.add('hidden');
     state.gameOver = false;
     state.celebrated = false;
+    state.finalRoundAnnounced = false;
     mpGameOverSent = false;
     return;
   }
 
-  // Target reached: pick winner by scoring direction (lowest total wins in golf mode)
+  // Some games (Farkle) give everyone else one more full round to beat the
+  // target once someone crosses it, rather than ending the instant it's hit.
+  // The round where the target was crossed doesn't count as that extra round
+  // even for players who go after the crosser, since rounds are entered as one
+  // shared row (host-scoring or "each" mode) rather than tracked turn-by-turn.
+  const extraRound = !!(GAMES[state.gameKey]?.finalRoundOnWin);
+  const roundsNeeded = triggerRound + (extraRound ? 2 : 1);
+
+  if (state.rounds.length < roundsNeeded) {
+    banner.classList.add('hidden');
+    state.gameOver = false;
+    state.celebrated = false;
+    mpGameOverSent = false;
+    if (!state.finalRoundAnnounced) {
+      state.finalRoundAnnounced = true;
+      showToast(`Target of ${state.winScore.toLocaleString()} reached! One more round for everyone else to beat it.`);
+    }
+    return;
+  }
+
+  // Extra round played out: crown the actual winner, who may not be whoever
+  // first crossed the target (lowest total wins in golf mode).
+  const totals = getTotals();
   const best = state.scoreDirection === 'low' ? Math.min(...totals) : Math.max(...totals);
   const winIdx = totals.indexOf(best);
   const winner = state.players[winIdx];
@@ -1458,6 +1497,7 @@ function mpOnJoined(msg) {
   state.closers = [];
   state.gameOver = false;
   state.celebrated = false;
+  state.finalRoundAnnounced = false;
   mpGameOverSent = false;
 
   mpApplyRoster(msg.players);

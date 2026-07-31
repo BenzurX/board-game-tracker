@@ -4,6 +4,13 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.18 - 2026-07-30
+
+### Added
+- Farkle house rule: once a player crosses the winning score target, every other player gets one more full round to beat it before a winner is crowned - works identically for solo scoring, host-scoring multiplayer, and each-player-scores-their-own multiplayer, since it's derived purely from the shared round history rather than a separately tracked flag.
+
+---
+
 ## 0.17 - 2026-07-30
 
 ### Added
