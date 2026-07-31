@@ -7,7 +7,7 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 ## 0.19 - 2026-07-30
 
 ### Added
-- Add Score modal now shows each player's current total (before this round) next to their score input, so it's visible while entering new scores instead of only after saving.
+- Add Score modal now shows each player's current total (before this round) next to their score input, under a "Total" column heading and in bold, so it's visible while entering new scores instead of only after saving.
 
 ---
 

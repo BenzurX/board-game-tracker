@@ -1222,6 +1222,17 @@ document.getElementById('btn-add-turn').addEventListener('click', () => {
   container.innerHTML = '';
   const playersToShow = mpEach ? state.players.filter(p => p.id === state.mpPlayerId) : state.players;
   const totals = getTotals();
+
+  const header = document.createElement('div');
+  header.className = 'turn-player-row turn-header-row';
+  header.innerHTML = `
+    <span class="turn-player-dot" style="visibility:hidden"></span>
+    <span class="turn-player-name"></span>
+    <span class="turn-header-total">Total</span>
+    <span class="turn-header-spacer"></span>
+  `;
+  container.appendChild(header);
+
   playersToShow.forEach(p => {
     const pi = state.players.indexOf(p);
     const row = document.createElement('div');
@@ -1229,7 +1240,7 @@ document.getElementById('btn-add-turn').addEventListener('click', () => {
     row.innerHTML = `
       <span class="turn-player-dot" style="background:${p.color}"></span>
       <span class="turn-player-name">${escHtml(p.name)}</span>
-      <span class="turn-player-total" title="Current total before this round">Total: ${totals[pi].toLocaleString()}</span>
+      <span class="turn-player-total" title="Current total before this round">${totals[pi].toLocaleString()}</span>
       <input type="number" class="turn-score-input" value="0" min="${minAttr}" max="99999" step="${stepAttr}" inputmode="numeric">
     `;
     container.appendChild(row);

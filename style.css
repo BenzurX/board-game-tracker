@@ -852,9 +852,25 @@ html, body {
   font-size: 0.95rem;
 }
 .turn-player-total {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
   white-space: nowrap;
+}
+.turn-header-row {
+  padding-bottom: 2px;
+}
+.turn-header-total {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.turn-header-spacer {
+  width: 90px;
+  flex-shrink: 0;
 }
 .turn-score-input {
   width: 90px;
