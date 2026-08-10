@@ -27,7 +27,7 @@ A lightweight score-tracking web app for board games and dice games. No install,
 - **Responsive** - mobile-first with clean tablet (700px) and desktop (1080px) breakpoints
 - **No flash** - theme is applied before first paint via an inline script; persists across sessions
 - **Installable PWA** - `manifest.json` and app icons let the app be added to a home screen or installed as a desktop app, supports screen rotation, and includes offline caching plus a dismissable notification that names the new version when it is ready to reload
-- **Multiplayer Rooms** - host or join a 4-letter-code room to track scores together remotely; shareable invite link and QR code, live roster, persistent player colors (duplicates allowed), host-controlled turn highlighting, per-player or host-only scoring, own-score-only editing, and host removal. Same-device, same-name reconnects reclaim the existing player instead of creating a duplicate. In per-player-scoring rooms a joining player can nominate another player in the room to enter scores for them (picked during the join flow, changeable any time from the ✍ button in the room bar); the nominated player enters all their columns in one modal. Several people sharing one phone can join together: the name step has a "Players on this device" dropdown (1-4) with a name field each, they all become full players, and that device keeps score for the whole group. Removed and departed players take their score columns with them. Guests see the host's edited rules and house-rule list live for the duration of the room. Backed by a separate Cloudflare Worker (`worker/`) - see its README for deploy steps
+- **Multiplayer Rooms** - host or join a 4-letter-code room to track scores together remotely; shareable invite link and QR code, live roster, persistent player colors (duplicates allowed), host-controlled turn highlighting, per-player or host-only scoring, own-score-only editing, and host removal. Same-device, same-name reconnects reclaim the existing player instead of creating a duplicate. In per-player-scoring rooms a joining player can nominate another player in the room to enter scores for them (picked during the join flow, changeable any time from the ✍ button in the room bar); the nominated player enters all their columns in one modal. Several people sharing one phone can join together: a compact Players dropdown can allocate up to all 8 seats, capped to the room's remaining capacity, with one name field per person; they all become full players, and that device keeps score for the whole group. Removed and departed players take their score columns with them. Guests see the host's edited rules and house-rule list live for the duration of the room. Backed by a separate Cloudflare Worker (`worker/`) - see its README for deploy steps
 - **Screen Wake Lock** - keeps the display on while a game is being tracked, so it doesn't auto-lock mid-round (requires HTTPS or localhost)
 
 ---
@@ -57,6 +57,9 @@ qrcode.js          - vendored QR-code generator (multiplayer room join links)
 wrangler.jsonc     - Cloudflare Workers static-assets deploy config for this site
 .assetsignore      - files excluded from the Cloudflare deploy (dev-only dirs, internal docs)
 worker/            - Cloudflare Worker + Durable Object backend for Multiplayer Rooms (separate deploy target, see worker/README.md)
+tests/
+  regressions.mjs  - dependency-free regression checks; run with `node tests/regressions.mjs`
+progress/          - per-work-item detail files linked from PROGRESS.md (internal, not deployed)
 snapshots/
   index.html       - version history timeline with live snapshot links
   v0.01/           - initial scaffold
@@ -89,6 +92,14 @@ More games planned (round-by-round and category-based scoring).
 ## Development
 
 Pure HTML/CSS/JS - no framework, no bundler, no dependencies except Google Fonts (Commissioner).
+
+Run the regression checks before pushing:
+
+```sh
+node tests/regressions.mjs
+```
+
+They need no install step - the harness reads `app.js`, `index.html`, and `worker/src/room.ts` directly and asserts that previously fixed behaviour is still in place.
 
 To add a new game, add an entry to the `GAMES` object in `app.js`:
 

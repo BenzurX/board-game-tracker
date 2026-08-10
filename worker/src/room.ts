@@ -172,8 +172,8 @@ interface StoredRoomRow {
 }
 
 const MAX_PLAYERS = 8;
-// Including the person holding the device, so at most 3 extra names.
-const MAX_GROUP_SIZE = 4;
+// One device may represent every seat in a room: its holder plus 7 others.
+const MAX_GROUP_SIZE = 8;
 const ABANDONED_ROOM_TIMEOUT_MS = 30 * 60 * 1000;
 const REJOIN_RESERVATION_MS = 10 * 60 * 1000;
 const PLAYER_REMOVED_CLOSE_CODE = 4001;

@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const app = fs.readFileSync(new URL('../app.js', import.meta.url), 'utf8');
 const index = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const style = fs.readFileSync(new URL('../style.css', import.meta.url), 'utf8');
 const worker = fs.readFileSync(new URL('../worker/src/room.ts', import.meta.url), 'utf8');
 
 const rosterHelper = app.match(/function reconcileRosterColumns[\s\S]*?\n}\n/);
@@ -70,5 +71,23 @@ assert.match(app, /showWinnerColumnFrame\(winIdx\)/,
   'game over must move the shared frame to the winning column');
 assert.match(app, /querySelectorAll\('#score-table \.current-turn'\)/,
   'game over must remove current-turn highlighting');
+const groupRowIndex = index.indexOf('id="group-size-row"');
+const primaryNameIndex = index.indexOf('id="player-name-input"');
+assert.ok(groupRowIndex !== -1 && groupRowIndex < primaryNameIndex,
+  'player-count selection must appear before the primary name field');
+assert.match(index, /class="group-size-label"[^>]*>Players:<\/label>/,
+  'the compact player-count row must use the Players label');
+assert.doesNotMatch(index, /Players on this device|You'll enter scores for everyone on this device/,
+  'the old players-on-this-device lines must be removed');
+assert.match(app, /const MP_MAX_GROUP_SIZE = 8/,
+  'the client must allow one device to represent all eight room seats');
+assert.match(worker, /const MAX_GROUP_SIZE = 8/,
+  'the Worker must allow one device to represent all eight room seats');
+assert.match(app, /Math\.min\(MP_MAX_GROUP_SIZE, seatsLeft\)/,
+  'the join dropdown must cap device players at the remaining room seats');
+assert.match(style, /\.group-size-select[\s\S]*?padding:\s*10px 38px 10px 14px/,
+  'the player-count select must reserve space between its value and chevron');
+assert.match(style, /\.group-size-select-wrap::after/,
+  'the player-count select must use an inset custom chevron');
 
 console.log('Regression checks passed');

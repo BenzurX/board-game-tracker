@@ -1,15 +1,19 @@
-# Multiplayer Rooms (built 2026-07-23, not yet shipped)
+# Multiplayer Rooms (built 2026-07-23, shipped 2026-07-24 in v0.14)
 
-Backend: Cloudflare Worker + Durable Object (SQLite storage, WebSocket Hibernation API), one DO per 4-letter room code, free-tier only, no D1/KV. Lives in `worker/` (separate deploy target from the static GitHub Pages site - `wrangler`, not part of the site build).
+<!-- `Claude:` Status corrected 2026-08-09. This file was written pre-launch and still described the feature as unshipped; the stale claims are corrected inline below rather than deleted, so the original scope decisions stay readable. -->
+
+Backend: Cloudflare Worker + Durable Object (SQLite storage, WebSocket Hibernation API), one DO per 4-letter room code, free-tier only, no D1/KV. Lives in `worker/` (separate deploy target from the static site - `wrangler`, not part of the site build). Deployed at `https://board-game-tracker-multiplayer.benzur.workers.dev`, which is the value of `MP_WORKER_URL` in `app.js`. Deploy it with `cd worker && npx wrangler deploy -c wrangler.toml` - the `-c` flag is required, or wrangler resolves the repo-root `wrangler.jsonc` and redeploys the static site instead while reporting success.
+
+The static site moved from GitHub Pages to a Cloudflare Workers static-assets deploy in v0.16; references to GitHub Pages below are historical.
 
 Client: setup-screen toggle (multiplayer off by default, scoring mode defaults to "each player enters own"), join-by-code + QR deep link (`?room=CODE`), player name / remove-player-confirm / QR modals, live room bar with roster chips, "Enter Score" button (each-mode) that disables after submit until the round advances, host-scores-all mode via `+ Add Turn`. `qrcode.js` vendored locally (works offline, in `sw.js` cache list).
 
-Beta scope cuts (deliberate, documented in code comments):
-- No payment/entitlement gating yet - deferred to before v1.0 per Ben's call
-- Multiplayer unavailable for: Custom Game, and any `trackCloser: true` game (currently just Crazy Eights)
-- Multiplayer games always use the game's default win score / entry threshold / scoring direction - no custom override in this phase
-- Farkle-style "on the board" entry-threshold mechanic doesn't apply in multiplayer - all submitted scores count immediately
-- Editing a score in multiplayer only works for the current (last) round, not history
-- No host reassignment if the host disconnects mid-game (remaining players lose remove-player/declare-game-over until the host reconnects) - documented in `worker/README.md`, revisit if it turns out to matter in practice
+Beta scope cuts (deliberate, documented in code comments). Three have since been lifted - marked below, since code comments elsewhere may still reflect the original limitation:
+- No payment/entitlement gating yet - deferred to before v1.0 per Ben's call. **Still true.**
+- Multiplayer unavailable for: Custom Game, and any `trackCloser: true` game (currently just Crazy Eights). **Still true** - see `state.trackCloser = false` in `mpOnJoined`.
+- ~~Multiplayer games always use the game's default win score / entry threshold / scoring direction - no custom override in this phase~~ **Lifted.** `mpStartHostFlow` reads the setup screen's win-score and entry-threshold inputs and sends them on the create join; the room stores and broadcasts both.
+- ~~Farkle-style "on the board" entry-threshold mechanic doesn't apply in multiplayer - all submitted scores count immediately~~ **Lifted.** The Worker keeps a parallel `onBoard[]` and applies the threshold in `applyEntryThreshold`, including the correction path for editing an earlier still-off-board round.
+- ~~Editing a score in multiplayer only works for the current (last) round, not history~~ **Lifted.** `handleEditScore` takes an optional `roundIndex` and permits correcting past rounds, for a player's own column and for any column they score for.
+- No host reassignment if the host disconnects mid-game (remaining players lose remove-player/declare-game-over until the host reconnects) - documented in `worker/README.md`. **Still true.** `handleLeaveSelf` has a defensive promotion of `players[0]`, but that only fires on a voluntary leave, not a disconnect.
 
 Verification: two independent review passes ran (policy requires the verifier never be the implementer) - a Claude subagent reviewed the Codex-written backend, Codex reviewed the Claude-written client. 6 real bugs found and fixed (except the host-disconnect one above, which was judged an acceptable documented tradeoff, not fixed): unsubmitted score cells were editable and could silently corrupt host-mode rounds; the server kept advancing rounds after a win instead of stopping at `gameOver`; a stale socket's close event could wrongly flip a freshly-reconnected player back to disconnected (added a `connSeq` generation counter server-side to guard it); "New Game" left a stale `multiplayer:true` snapshot in `localStorage` that `resumeSavedGame()` would try to restore as an unrecoverable ghost game (fixed both the leak and added a defense-in-depth refusal in `resumeSavedGame()`); the `joined` message didn't include `roundSubmitted`, so a reload mid-round could wrongly re-enable an already-used Enter Score button; rejoining an expired/deleted room failed with zero user feedback (now clears the session and reopens the join modal with an error).

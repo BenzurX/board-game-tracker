@@ -4,6 +4,23 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.20 - 2026-08-09
+
+### Changed
+- `Codex:` One device can now claim up to all 8 seats in a room, not just 4. Creating a room lets the host allocate the full table from a single device; joining caps the dropdown to the room's remaining capacity.
+- `Codex:` Reordered the multiplayer create/join modal: the player-count row now sits above the name fields rather than below, under a compact "Players:" label. The explanatory hint below the fields was dropped as redundant, and the count row stays visible (with the control disabled) when only one seat is available, instead of disappearing.
+
+### Added
+- `Claude:` `tests/regressions.mjs` - a dependency-free regression harness run with `node tests/regressions.mjs`. It reads `app.js`, `index.html`, and `worker/src/room.ts` as text and asserts that previously fixed behaviour is still present, plus one real unit test of the roster-reconciliation helper via `node:vm`. Now step 0 of the pre-push gate. Guards against silently regressing behaviour that has no automated coverage otherwise.
+
+### Fixed
+- `Codex:` Added proper inset spacing for the player-count dropdown chevron.
+
+### Docs
+- `Claude:` PROGRESS.md was still describing multiplayer as unshipped with an undeployed Worker and a placeholder URL; rewritten against the current state, with detail files added for group join and the v0.19 work. Three of the six beta scope cuts recorded in `progress/multiplayer-rooms.md` (custom win score, entry threshold, past-round editing) had since been lifted and are now marked as such. CLAUDE.md gained the test suite as step 0 of the pre-push gate, the `wrangler deploy -c wrangler.toml` requirement for the Worker (without it, wrangler run from `worker/` silently redeploys the static site instead), and a cross-agent provenance convention. `tests` and `progress` are now excluded from the public static deploy via `.assetsignore`.
+
+---
+
 ## 0.19 - 2026-08-09
 
 ### Added
@@ -12,6 +29,7 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 - Update-available toast: when a new service-worker build activates in the background, a top-of-screen notification shows the available app version, offers Reload, and can be dismissed with its X or by tapping outside it. Reload uses a cache-busted URL so the new build is fetched immediately.
 - Proxy scoring in multiplayer rooms where the host chose "each player scores their own": a joining player can nominate another player already in the room to enter scores on their behalf. The picker appears in the join flow after the name step (the roster now rides along with the room-code existence check so it can be shown before joining), and the choice can be changed at any time from the new ✍ button in the room bar. The nominated player's Enter Score modal grows a row per player they're scoring for, all submitted together, and they can correct those players' cells in past rounds too. Nominations are one level deep only: a player who is already someone else's scorer can't hand their own entry off, and a player who has nominated someone can't be nominated in turn. If a scorer leaves or is removed, everyone who nominated them falls back to entering their own scores. Not offered in host-scoring rooms, where there's nothing to delegate.
 - Group join: the name step of both the create-room and join-room flows now has a "Players on this device" dropdown (1-4). Picking more than one reveals a name field per extra person, and all of them join the room together as full players with their own score columns. The device that entered them keeps score for the whole group - its Enter Score modal shows a row per person, and it can correct their cells in past rounds - so several people at one table can play from a single phone. The group is fixed at join time; the host can still remove any of them individually, and removing the person holding the device removes everyone they entered. Group members go offline and come back with that device, and a refresh or reconnect restores the whole group. Names must all be different, and a group that no longer fits the 8-player room is told how many seats are left rather than just "room full". Because the device already scores for its group, it can't also nominate someone else to enter its own scores.
+
 ### Changed
 - Enter Scores now drops down from the top. Installed PWAs may rotate to any screen orientation. Farkle zeroes use a stylized `F`, including before the entry threshold is met. Host-name stars were removed.
 - Once a winner is declared, the current-turn highlight disappears and one continuous animated spectrum frame surrounds the winner's full score column.

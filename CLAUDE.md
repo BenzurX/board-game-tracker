@@ -1,11 +1,13 @@
 # CLAUDE.md - Board Game Tracker
 
 ## Pre-push gate (required every push, no exceptions)
-Before any `git push`, update all four files and stage them in the same commit as the code changes:
+Before any `git push`, run the regression checks and update all five files, staging them in the same commit as the code changes:
+0. **`node tests/regressions.mjs`** - must print `Regression checks passed`. Never delete or weaken an assertion to make it pass; if a change intentionally supersedes one, update the assertion and say so in the CHANGELOG entry
 1. **CHANGELOG.md** - prepend a new version entry documenting what changed
 2. **README.md** - update any feature descriptions affected by the change
-3. **sw.js** - bump the `CACHE` version string (e.g. `board-game-tracker-v3` → `board-game-tracker-v4`)
+3. **sw.js** - bump the `CACHE` version string (e.g. `board-game-tracker-v3` → `board-game-tracker-v4`) and `APP_VERSION` to match the new CHANGELOG version (the update-available toast reads it from here)
 4. **app.js** - bump `APP_VERSION` to match the new CHANGELOG version (shown in the settings popup)
+5. **PROGRESS.md** - refresh the work-item blurbs and the `## Next Session` list so they describe the state being pushed, not the state before it
 
 ## Version scheme
 - CHANGELOG uses flat decimal versions starting at 0.01, incrementing by 0.01 per release (0.01, 0.02 … 0.10 …)
@@ -18,6 +20,19 @@ Before any `git push`, update all four files and stage them in the same commit a
 - Each release that warrants a snapshot gets a copy of the app saved to `snapshots/vX.XX/` (index.html, style.css, app.js, sw.js if present)
 - Snapshot copies are made from the working tree just before committing - they should reflect the released state
 
+## Cross-agent provenance
+Both Claude and Codex edit this repo's docs asynchronously. Tag entries so authorship stays clear:
+- Prefix new agent-authored headings or CHANGELOG bullets with the inline-code tag `` `Codex:` `` or `` `Claude:` ``
+- Where a visible prefix hurts prose readability, use an adjacent Markdown comment instead: `` <!-- `Claude:` short note. --> ``
+- The tag records who wrote or materially revised that entry - it is not an edit lock, either agent may still edit it
+- Preserve the other agent's entries and their tags; correct stale facts explicitly rather than silently deleting
+- Untagged pre-existing content stays valid; no retroactive tagging needed
+
+## Testing
+- `node tests/regressions.mjs` - no install step, no dependencies. Mostly source-text assertions (it reads `app.js`, `index.html`, and `worker/src/room.ts` as strings) plus one real unit test of `reconcileRosterColumns` via `node:vm`
+- Because the assertions match on source text, renaming a function or reformatting a matched line will fail the suite even when behaviour is unchanged - update the assertion to match the new source, don't drop it
+- Add an assertion here whenever a bug is fixed that has no other automated coverage
+
 ## Commit message style
 Short imperative phrase describing the change. No ticket numbers, no scope prefixes.
 Example: `add touch drag-to-reorder for pinned actions on mobile`
@@ -25,6 +40,8 @@ Example: `add touch drag-to-reorder for pinned actions on mobile`
 ## Project stack
 - Pure HTML / CSS / JS - no build step, no framework, no bundler
 - Hosted on Cloudflare (Workers static-assets deploy, `wrangler deploy` from repo root using `wrangler.jsonc`) - deploy manually after pushing, git push alone does not update the live site
+- Two separate deploy targets, and they are easy to confuse. The static site is `wrangler deploy` from the repo root. The multiplayer Worker is `cd worker && npx wrangler deploy -c wrangler.toml`. **The `-c` flag is required**: without it, wrangler run from `worker/` still resolves the repo-root `wrangler.jsonc` and silently redeploys the static site instead, reporting success while the Worker stays on its old code
+- `.assetsignore` keeps internal directories (`worker`, `stage`, `tests`, `progress`, docs) out of the public static deploy - add new internal-only paths there
 - Single file per layer: `index.html`, `style.css`, `app.js`
 - PWA service worker in `sw.js` - caches static assets for offline use
 
