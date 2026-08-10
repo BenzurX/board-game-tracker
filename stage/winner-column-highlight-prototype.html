@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Winner Column Highlight Prototype</title>
+  <!-- Four winner-column effects, switchable via ?variant=, staged in the real score-table context. -->
+  <style>
+    :root { color-scheme: dark; --bg:#151515; --panel:#222; --line:#3c3c3c; --gold:#ffc94d; }
+    * { box-sizing:border-box }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 50% 0,#33251c 0,#151515 42%); color:#f6f1e8; font:600 16px system-ui,sans-serif; }
+    main { width:min(720px,100%); margin:auto; padding:28px 14px 120px; }
+    .eyebrow { color:#e59445; text-align:center; letter-spacing:.18em; text-transform:uppercase; font-size:12px; }
+    h1 { margin:8px 0 5px; text-align:center; font-size:28px; }
+    .winner { margin:18px auto; padding:12px 18px; width:max-content; max-width:100%; border-radius:14px; background:#34291f; color:var(--gold); text-align:center; }
+    .table-shell { position:relative; overflow:hidden; border:1px solid var(--line); border-radius:18px; background:var(--panel); box-shadow:0 18px 45px #0008; }
+    table { width:100%; border-collapse:collapse; table-layout:fixed; }
+    th,td { position:relative; height:64px; padding:10px 5px; text-align:center; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+    th:first-child,td:first-child { width:58px; color:#aaa; }
+    tr:last-child td { border-bottom:0; font-size:19px; }
+    th:last-child,td:last-child { border-right:0; }
+    .name { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dot { display:inline-block; width:9px; height:9px; margin-right:5px; border-radius:50%; background:currentColor; }
+    .champ { isolation:isolate; }
+    .champ > * { position:relative; z-index:2; }
+
+    /* A: one continuous, rotating spectrum frame around the whole column. */
+    .variant-a .champ { background:#2b2721; }
+    .winner-frame { display:none; position:absolute; z-index:4; pointer-events:none; padding:4px; border-radius:12px; background:conic-gradient(from var(--spin),#ff3d77,#ffcc33,#4dff88,#36cfff,#a855f7,#ff3d77); filter:drop-shadow(0 0 4px #53dfff55); animation:spin 2.4s linear infinite; -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; }
+    .variant-a .winner-frame { display:block; }
+    @property --spin { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+    @keyframes spin { to { --spin:360deg; } }
+
+    /* B: bright theatre bulbs chase around the winning column. */
+    .variant-b .champ { border-left:4px dotted #ffdd4a; border-right:4px dotted #55e7ff; background:#302a20; animation:bulbs .7s steps(2,end) infinite; }
+    .variant-b thead .champ { border-top:4px dotted #ff63c3; }
+    .variant-b tfoot .champ { border-bottom:4px dotted #72ff73; }
+    @keyframes bulbs { 50% { border-left-color:#72ff73; border-right-color:#ff63c3; filter:drop-shadow(0 0 7px #ffdf57); } }
+
+    /* C: soft aurora ribbons flow behind the whole column. */
+    .variant-c .champ { overflow:hidden; background:#28262c; box-shadow:inset 3px 0 #bc65ff,inset -3px 0 #49e7ff; }
+    .variant-c .champ::before { content:""; position:absolute; z-index:0; inset:-80% -40%; background:conic-gradient(from 0deg,transparent,#ff4d8d66,#ffe85b77,#43ffc877,#42c8ff77,#ad5cff77,transparent 65%); animation:aurora 3s linear infinite; }
+    .variant-c thead .champ { box-shadow:inset 3px 3px #bc65ff,inset -3px 0 #49e7ff; }
+    .variant-c tfoot .champ { box-shadow:inset 3px 0 #bc65ff,inset -3px -3px #49e7ff; }
+    @keyframes aurora { to { transform:rotate(360deg); } }
+
+    /* D: a fast neon comet races clockwise around a restrained gold frame. */
+    .variant-d .champ { background:#2b2823; border-left:3px solid #d6a733; border-right:3px solid #d6a733; }
+    .variant-d thead .champ { border-top:3px solid #d6a733; }
+    .variant-d tfoot .champ { border-bottom:3px solid #d6a733; }
+    .variant-d .champ::after { content:""; position:absolute; z-index:3; width:11px; height:11px; border-radius:50%; background:#fff; box-shadow:0 0 5px #fff,0 0 12px #3ff,0 0 20px #f3f; animation:comet 2s linear infinite; }
+    @keyframes comet { 0%{left:-7px;top:-7px} 25%{left:calc(100% - 5px);top:-7px} 50%{left:calc(100% - 5px);top:calc(100% - 5px)} 75%{left:-7px;top:calc(100% - 5px)} 100%{left:-7px;top:-7px} }
+
+    .note { margin:16px auto 0; max-width:560px; color:#bbb; text-align:center; font-weight:450; line-height:1.45; }
+    .switcher { position:fixed; z-index:10; left:50%; bottom:22px; transform:translateX(-50%); display:flex; align-items:center; gap:14px; width:max-content; max-width:calc(100% - 24px); padding:9px; border:1px solid #777; border-radius:999px; background:#090909ee; box-shadow:0 8px 30px #000c; }
+    .switcher button { width:42px; height:42px; border:0; border-radius:50%; background:#f2eee5; color:#171717; font-size:22px; cursor:pointer; }
+    #label { min-width:190px; text-align:center; font-size:14px; }
+    @media (max-width:520px) { th,td{height:58px;font-size:14px} .name{font-size:12px} .switcher{gap:7px} #label{min-width:155px} }
+  </style>
+</head>
+<body>
+  <main id="stage">
+    <div class="eyebrow">Winner state prototype</div>
+    <h1>Final scores</h1>
+    <div class="winner">🎉 Maya wins with 10,450 points!</div>
+    <div class="table-shell">
+      <table aria-label="Final score table">
+        <thead><tr><th>Rnd.</th><th><span class="dot" style="color:#3a9ee8"></span><span class="name">Ben</span></th><th class="champ"><span class="dot" style="color:#ec4899"></span><span class="name">Maya</span></th><th><span class="dot" style="color:#5cb85c"></span><span class="name">Theo</span></th><th><span class="dot" style="color:#f0a820"></span><span class="name">June</span></th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>450</td><td class="champ">1,500</td><td>800</td><td>1,000</td></tr>
+          <tr><td>2</td><td>1,200</td><td class="champ">2,600</td><td>F</td><td>900</td></tr>
+          <tr><td>3</td><td>750</td><td class="champ">3,400</td><td>1,450</td><td>1,200</td></tr>
+          <tr><td>4</td><td>2,100</td><td class="champ">2,950</td><td>2,250</td><td>1,500</td></tr>
+        </tbody>
+        <tfoot><tr><td>Total</td><td>4,500</td><td class="champ">10,450</td><td>4,500</td><td>4,600</td></tr></tfoot>
+      </table>
+      <div class="winner-frame" aria-hidden="true"></div>
+    </div>
+    <p class="note" id="note"></p>
+  </main>
+  <nav class="switcher" aria-label="Prototype variants">
+    <button id="prev" aria-label="Previous variant">←</button><span id="label"></span><button id="next" aria-label="Next variant">→</button>
+  </nav>
+  <script>
+    const variants = [
+      ['A','Spectrum Frame','Continuous rotating rainbow border. Cleanest marquee.'],
+      ['B','Chasing Bulbs','Playful dotted lights. Most board-game-like.'],
+      ['C','Aurora Column','Color flows inside the winner column. Biggest celebration.'],
+      ['D','Neon Comet','Restrained gold frame with one rainbow light racing around it.'],
+    ];
+    const params = new URLSearchParams(location.search);
+    let index = Math.max(0, variants.findIndex(([key]) => key === (params.get('variant') || 'A').toUpperCase()));
+    function render() {
+      const [key,name,note] = variants[index];
+      document.getElementById('stage').className = `variant-${key.toLowerCase()}`;
+      document.getElementById('label').textContent = `${key} — ${name}`;
+      document.getElementById('note').textContent = note;
+      params.set('variant',key);
+      history.replaceState(null,'',`${location.pathname}?${params}`);
+      requestAnimationFrame(positionWinnerFrame);
+    }
+    function positionWinnerFrame() {
+      const shell = document.querySelector('.table-shell');
+      const cells = [...document.querySelectorAll('table .champ')];
+      const frame = document.querySelector('.winner-frame');
+      if (!shell || !cells.length || !frame) return;
+      const shellBox = shell.getBoundingClientRect();
+      const first = cells[0].getBoundingClientRect();
+      const last = cells[cells.length - 1].getBoundingClientRect();
+      frame.style.left = `${first.left - shellBox.left}px`;
+      frame.style.top = `${first.top - shellBox.top}px`;
+      frame.style.width = `${first.width}px`;
+      frame.style.height = `${last.bottom - first.top}px`;
+    }
+    function move(delta) { index = (index + delta + variants.length) % variants.length; render(); }
+    document.getElementById('prev').onclick = () => move(-1);
+    document.getElementById('next').onclick = () => move(1);
+    addEventListener('keydown', event => {
+      if (event.target.matches('input,textarea,[contenteditable]')) return;
+      if (event.key === 'ArrowLeft') move(-1);
+      if (event.key === 'ArrowRight') move(1);
+    });
+    addEventListener('resize', positionWinnerFrame);
+    render();
+  </script>
+</body>
+</html>

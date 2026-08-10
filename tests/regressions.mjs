@@ -1,0 +1,74 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+
+const app = fs.readFileSync(new URL('../app.js', import.meta.url), 'utf8');
+const index = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const worker = fs.readFileSync(new URL('../worker/src/room.ts', import.meta.url), 'utf8');
+
+const rosterHelper = app.match(/function reconcileRosterColumns[\s\S]*?\n}\n/);
+assert.ok(rosterHelper, 'roster reconciliation helper must exist');
+const context = {};
+vm.runInNewContext(`${rosterHelper[0]}; this.reconcile = reconcileRosterColumns`, context);
+
+const result = context.reconcile(
+  [{ id: 'a' }, { id: 'b' }, { id: 'c' }],
+  [{ id: 'a' }, { id: 'c' }, { id: 'd' }],
+  [[10, 20, 30], [40, 50, 60]],
+  [true, false, true],
+);
+assert.deepEqual(JSON.parse(JSON.stringify(result)), {
+  rounds: [[10, 30, null], [40, 60, null]],
+  roundSubmitted: [true, true, false],
+}, 'leaving players must take their score columns with them');
+
+assert.doesNotMatch(app, /if \(state\.multiplayer\) return; \/\/ color is assigned/,
+  'multiplayer color editing must not be disabled');
+assert.match(app, /type: 'update-color'/, 'color changes must be sent to the room');
+assert.match(worker, /case "update-color"/, 'the room must accept color changes');
+assert.match(app, /td\.textContent = 'F'/, 'Farkle zeroes must render as F');
+assert.match(worker, /this\.room\.gameKey === "farkle" && value === 0/,
+  'the room must preserve below-threshold Farkles');
+assert.match(app, /const MP_DEVICE_ID_KEY/, 'multiplayer must keep a stable device identity');
+assert.match(app, /deviceId: mpDeviceId\(\)/, 'joins must send stable device identity');
+assert.match(worker, /player\.deviceId === message\.deviceId/, 'same-device same-name joins must reclaim the existing player');
+assert.match(app, /setTimeout\([\s\S]*?socket\.close\(\)[\s\S]*?mpRenderRoomBar\(\)/,
+  'leaving must hide the room bar and give the leave message time to flush');
+assert.match(worker, /this\.send\(ws,[\s\S]*?Unsupported message type/,
+  'newer harmless message types must not disconnect an older client');
+assert.doesNotMatch(worker, /PLAYER_COLORS\.includes\(color\)[\s\S]*?some\([^)]*candidate\.color/,
+  'multiplayer colors must not be unique');
+assert.match(app, /class="turn-score-input" value=""/,
+  'score inputs must start blank');
+assert.match(app, /filter\(entry => entry\.value !== null\)/,
+  'blank proxy-scoring entries must not be submitted');
+assert.match(worker, /roundSubmitted\[index\] \|\| Number\.isFinite\(values\[index\]\)/,
+  'blank host-scoring entries must remain unsubmitted');
+assert.match(worker, /REJOIN_RESERVATION_MS = 10 \* 60 \* 1000/,
+  'disconnected player identity must be reserved for ten minutes');
+assert.match(worker, /reconnectUntil: number \| null/,
+  'player state must persist reconnect reservation expiry');
+assert.match(app, /url\.searchParams\.set\('_refresh', Date\.now\(\)\.toString\(\)\)/,
+  'the refresh button must bypass HTTP and service-worker caches');
+assert.match(app, /registration => registration\.unregister\(\)/,
+  'hard refresh must unregister the currently controlling service worker');
+assert.match(app, /key\.startsWith\('board-game-tracker-'\)/,
+  'hard refresh must clear old app caches');
+assert.match(worker, /currentTurnPlayerId = player\.id/,
+  'new rooms must start with the host as the current turn');
+assert.match(worker, /currentTurnPlayerId \?\?[\s\S]*?this\.room\.players\.find\(\(player\) => player\.isHost\)\?\.id/,
+  'persisted rooms without turn state must default to the host');
+assert.match(worker, /findNextUnsubmittedPlayerId\([\s\S]*?roundSubmitted/,
+  'turn advancement must scan for the next player who has not scored');
+assert.match(worker, /!player\.connected \|\| room\.roundSubmitted\[candidateIndex\]/,
+  'turn advancement must skip disconnected and already-scored players');
+assert.match(index, /New version \(v\$\{version\}\) available/,
+  'the update toast must show the available app version');
+assert.match(index, /id="winner-column-frame"/,
+  'the score table must provide one shared winner-column frame');
+assert.match(app, /showWinnerColumnFrame\(winIdx\)/,
+  'game over must move the shared frame to the winning column');
+assert.match(app, /querySelectorAll\('#score-table \.current-turn'\)/,
+  'game over must remove current-turn highlighting');
+
+console.log('Regression checks passed');

@@ -4,6 +4,31 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.19 - 2026-08-09
+
+### Added
+- Multiplayer turn indicator: the host starts as the current turn, can tap any player name to change it, and the selected player's full score column receives a strong highlight. The highlight advances to the next player after the current player's score is submitted.
+- Invite sheet replaces Show QR, with a join link, copy and native Share actions, QR code, and room code. Added a tracker-header refresh button.
+- Update-available toast: when a new service-worker build activates in the background, a top-of-screen notification shows the available app version, offers Reload, and can be dismissed with its X or by tapping outside it. Reload uses a cache-busted URL so the new build is fetched immediately.
+- Proxy scoring in multiplayer rooms where the host chose "each player scores their own": a joining player can nominate another player already in the room to enter scores on their behalf. The picker appears in the join flow after the name step (the roster now rides along with the room-code existence check so it can be shown before joining), and the choice can be changed at any time from the new ✍ button in the room bar. The nominated player's Enter Score modal grows a row per player they're scoring for, all submitted together, and they can correct those players' cells in past rounds too. Nominations are one level deep only: a player who is already someone else's scorer can't hand their own entry off, and a player who has nominated someone can't be nominated in turn. If a scorer leaves or is removed, everyone who nominated them falls back to entering their own scores. Not offered in host-scoring rooms, where there's nothing to delegate.
+- Group join: the name step of both the create-room and join-room flows now has a "Players on this device" dropdown (1-4). Picking more than one reveals a name field per extra person, and all of them join the room together as full players with their own score columns. The device that entered them keeps score for the whole group - its Enter Score modal shows a row per person, and it can correct their cells in past rounds - so several people at one table can play from a single phone. The group is fixed at join time; the host can still remove any of them individually, and removing the person holding the device removes everyone they entered. Group members go offline and come back with that device, and a refresh or reconnect restores the whole group. Names must all be different, and a group that no longer fits the 8-player room is told how many seats are left rather than just "room full". Because the device already scores for its group, it can't also nominate someone else to enter its own scores.
+### Changed
+- Enter Scores now drops down from the top. Installed PWAs may rotate to any screen orientation. Farkle zeroes use a stylized `F`, including before the entry threshold is met. Host-name stars were removed.
+- Once a winner is declared, the current-turn highlight disappears and one continuous animated spectrum frame surrounds the winner's full score column.
+
+### Fixed
+- Player colors can be edited during multiplayer and now persist for everyone in the room.
+- Voluntarily leaving or removing a player deletes that player's historical score column immediately; later joiners receive a new empty column instead of inheriting old scores.
+- The tracker refresh button now uses a cache-busted navigation so it fetches the latest deployed build instead of reopening the service worker's stale cached copy.
+- Leaving a hosted room now hides the room bar immediately but gives the WebSocket leave message time to reach the Worker before closing, preventing abandoned joinable rooms.
+- Same-device, same-name reconnects now use a stable device identity as a fallback when the saved player session ID is unavailable.
+- Unknown newer client message types return a non-fatal error instead of closing the WebSocket, preventing static-app/Worker deployment skew from desynchronizing the host.
+- Score-entry fields now start empty. Blank fields are skipped instead of becoming zero, so a player scoring for several people can submit only the scores they have; an explicitly entered `0` still records a real zero/Farkle.
+- Disconnected guests now keep a same-device identity reservation for 10 minutes, allowing refresh and hard-refresh reconnects to reclaim the existing names and score columns. Expired disconnected guests are pruned when the next player joins.
+- Multiplayer turn advancement skips disconnected players and players who already scored, preventing proxy-scored columns from trapping the turn indicator on an ineligible player.
+
+---
+
 ## 0.18 - 2026-07-31
 
 ### Added

@@ -13,6 +13,16 @@ interface Player {
   connected: boolean;
   isHost: boolean;
   connSeq: number; // bumped on every (re)join - lets a stale socket's close event be ignored
+  // 'each' scoring only: the id of another player who enters this player's
+  // scores for them. null means they enter their own.
+  scorerId: string | null;
+  // Set when this player was added as part of someone else's group join (one
+  // device declaring several people at the table). Points at the player who
+  // owns the socket. null for anyone who joined on their own device.
+  groupLeaderId: string | null;
+  color: string;
+  deviceId: string | null;
+  reconnectUntil: number | null;
 }
 
 interface RoomData {
@@ -29,6 +39,7 @@ interface RoomData {
   disconnectedAt: number | null;
   ruleOverrides: Record<string, unknown>; // host's edited baseline rule text, opaque to the server
   customRules: string[]; // host's house-rules list, shown read-only to guests
+  currentTurnPlayerId: string | null;
 }
 
 interface SocketAttachment {
@@ -51,6 +62,13 @@ interface JoinMessage {
   minScore?: number;
   ruleOverrides?: Record<string, unknown>;
   customRules?: string[];
+  // Chosen during the join flow from the roster returned by /room/:code/exists.
+  // Ignored unless the room is in 'each' scoring mode.
+  scorerId?: string | null;
+  // Extra people sharing this device, named in the join form. They become full
+  // roster entries scored by the joining player - see handleJoin.
+  guestNames?: string[];
+  deviceId?: string;
 }
 
 interface HostLeaveMessage {
@@ -71,16 +89,42 @@ interface SubmitScoreMessage {
   value: number;
 }
 
+// A player entering this round for themselves and/or for every player who has
+// nominated them as their scorer, in one submission.
+interface SubmitScoresForMessage {
+  type: "submit-scores-for";
+  entries: Array<{ playerId: string; value: number }>;
+}
+
+interface SetScorerMessage {
+  type: "set-scorer";
+  scorerId: string | null;
+}
+
 interface EditScoreMessage {
   type: "edit-score";
   value: number;
   // Present when correcting a specific already-recorded round (current or
   // past) instead of just the still-open current round.
   roundIndex?: number;
+  // Present when correcting the cell of a player this player scores for.
+  // Defaults to the sender's own column.
+  playerId?: string;
 }
 
 interface RemovePlayerMessage {
   type: "remove-player";
+  playerId: string;
+}
+
+interface UpdateColorMessage {
+  type: "update-color";
+  playerId: string;
+  color: string;
+}
+
+interface SetCurrentTurnMessage {
+  type: "set-current-turn";
   playerId: string;
 }
 
@@ -109,8 +153,12 @@ interface UpdateRulesMessage {
 type ClientMessage =
   | JoinMessage
   | SubmitScoreMessage
+  | SubmitScoresForMessage
+  | SetScorerMessage
   | EditScoreMessage
   | RemovePlayerMessage
+  | UpdateColorMessage
+  | SetCurrentTurnMessage
   | DeclareGameOverMessage
   | CelebrateMessage
   | HostSubmitScoresMessage
@@ -124,8 +172,15 @@ interface StoredRoomRow {
 }
 
 const MAX_PLAYERS = 8;
+// Including the person holding the device, so at most 3 extra names.
+const MAX_GROUP_SIZE = 4;
 const ABANDONED_ROOM_TIMEOUT_MS = 30 * 60 * 1000;
+const REJOIN_RESERVATION_MS = 10 * 60 * 1000;
 const PLAYER_REMOVED_CLOSE_CODE = 4001;
+const PLAYER_COLORS = [
+  "#3a9ee8", "#5cb85c", "#f0a820", "#a855f7",
+  "#14b8a6", "#e8533a", "#ec4899", "#6366f1",
+];
 
 export class Room extends DurableObject<Env> {
   private room: RoomData | null = null;
@@ -149,6 +204,21 @@ export class Room extends DurableObject<Env> {
 
       if (rows.length > 0) {
         this.room = JSON.parse(rows[0].data) as RoomData;
+
+        // Rooms persisted before proxy scoring / group joins existed have no
+        // scorerId or groupLeaderId - the null checks below treat undefined as
+        // "not set", so normalize once.
+        this.room.currentTurnPlayerId =
+          this.room.currentTurnPlayerId ??
+          this.room.players.find((player) => player.isHost)?.id ??
+          null;
+        for (const [index, player] of this.room.players.entries()) {
+          player.scorerId = player.scorerId ?? null;
+          player.groupLeaderId = player.groupLeaderId ?? null;
+          player.color = player.color ?? PLAYER_COLORS[index % PLAYER_COLORS.length];
+          player.deviceId = player.deviceId ?? null;
+          player.reconnectUntil = player.reconnectUntil ?? null;
+        }
       }
     });
   }
@@ -159,6 +229,21 @@ export class Room extends DurableObject<Env> {
     if (url.pathname === "/__status") {
       return Response.json({
         initialized: this.room !== null,
+        scoringMode: this.room?.scoringMode ?? null,
+        // Lets the join form cap its "how many of you?" dropdown before the
+        // socket join. Re-checked on join, since it can go stale.
+        seatsLeft: this.room
+          ? Math.max(0, MAX_PLAYERS - this.room.players.length)
+          : MAX_PLAYERS,
+        // Enough of the roster for a joining player to pick who scores for
+        // them before the socket join - names only, no connection state.
+        players:
+          this.room?.players.map((player) => ({
+            id: player.id,
+            name: player.name,
+            isHost: player.isHost,
+            scorerId: player.scorerId,
+          })) ?? [],
       });
     }
 
@@ -211,6 +296,14 @@ export class Room extends DurableObject<Env> {
     }
 
     if (!this.isClientMessage(parsed)) {
+      if (parsed && typeof parsed === "object" && "type" in parsed && typeof parsed.type === "string") {
+        this.send(ws, {
+          type: "error",
+          code: "unsupported-message",
+          message: `Unsupported message type: ${parsed.type}`,
+        });
+        return;
+      }
       this.closeForInvalidMessage(ws, "Unsupported or malformed message.");
       return;
     }
@@ -232,12 +325,33 @@ export class Room extends DurableObject<Env> {
         await this.handleSubmitScore(attachment, parsed.value);
         break;
 
+      case "submit-scores-for":
+        await this.handleSubmitScores(attachment, parsed.entries);
+        break;
+
+      case "set-scorer":
+        await this.handleSetScorer(ws, attachment, parsed.scorerId);
+        break;
+
       case "edit-score":
-        await this.handleEditScore(attachment, parsed.value, parsed.roundIndex);
+        await this.handleEditScore(
+          attachment,
+          parsed.value,
+          parsed.roundIndex,
+          parsed.playerId,
+        );
         break;
 
       case "remove-player":
         await this.handleRemovePlayer(ws, attachment, parsed.playerId);
+        break;
+
+      case "update-color":
+        await this.handleUpdateColor(attachment, parsed.playerId, parsed.color);
+        break;
+
+      case "set-current-turn":
+        await this.handleSetCurrentTurn(attachment, parsed.playerId);
         break;
 
       case "declare-game-over":
@@ -302,12 +416,21 @@ export class Room extends DurableObject<Env> {
     }
 
     player.connected = false;
+    player.reconnectUntil = player.isHost ? null : Date.now() + REJOIN_RESERVATION_MS;
+
+    // Everyone this device declared goes offline with it.
+    for (const member of this.groupMembers(player.id)) {
+      member.connected = false;
+      member.reconnectUntil = player.reconnectUntil;
+    }
+
     await this.updateAbandonedRoomAlarm();
     await this.persist();
 
     this.broadcast({
       type: "roster-update",
       players: this.room.players,
+      currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
 
     await this.advanceRoundIfComplete();
@@ -375,14 +498,35 @@ export class Room extends DurableObject<Env> {
       return;
     }
 
-    if (this.room && message.rejoinId) {
-      const existingPlayer = this.room.players.find(
-        (player) => player.id === message.rejoinId,
+    if (this.room && this.pruneExpiredReconnectReservations()) {
+      await this.persist();
+    }
+
+    if (this.room && (message.rejoinId || message.deviceId)) {
+      const existingPlayer = this.room.players.find((player) =>
+        Boolean(message.rejoinId && player.id === message.rejoinId) ||
+        Boolean(
+          message.deviceId &&
+          player.deviceId === message.deviceId &&
+          player.name.toLocaleLowerCase() === name.toLocaleLowerCase(),
+        )
       );
 
-      if (existingPlayer) {
+      // Only the device that owns the socket can rejoin. A group member's id is
+      // visible in the broadcast roster, so accepting it here would let any
+      // other device claim that person's identity.
+      if (existingPlayer && existingPlayer.groupLeaderId === null) {
         existingPlayer.connected = true;
         existingPlayer.connSeq += 1;
+        existingPlayer.reconnectUntil = null;
+
+        // Group members have no socket of their own - their presence in the
+        // room follows the device that entered them.
+        for (const member of this.groupMembers(existingPlayer.id)) {
+          member.connected = true;
+          member.connSeq = existingPlayer.connSeq;
+          member.reconnectUntil = null;
+        }
 
         ws.serializeAttachment({
           playerId: existingPlayer.id,
@@ -403,25 +547,65 @@ export class Room extends DurableObject<Env> {
       }
     }
 
-    if (this.room) {
-      if (this.room.players.length >= MAX_PLAYERS) {
+    // Extra people sharing this device. They join as full roster entries in the
+    // same transaction as the person holding it, so the room never ends up with
+    // half a group in it.
+    const guestNames = Array.isArray(message.guestNames)
+      ? message.guestNames
+          .map((guestName) => String(guestName).trim().slice(0, 20))
+          .filter((guestName) => guestName.length > 0)
+      : [];
+
+    if (guestNames.length > MAX_GROUP_SIZE - 1) {
+      this.closeForInvalidMessage(
+        ws,
+        `At most ${MAX_GROUP_SIZE} players can share one device.`,
+      );
+      return;
+    }
+
+    const joiningNames = [name, ...guestNames];
+    const seenNames = new Set<string>();
+
+    for (const candidate of joiningNames) {
+      const normalized = candidate.toLocaleLowerCase();
+
+      if (seenNames.has(normalized)) {
         this.send(ws, {
           type: "error",
-          code: "room-full",
+          code: "name-taken",
+          name: candidate,
         });
         return;
       }
 
-      const normalizedName = name.toLocaleLowerCase();
+      seenNames.add(normalized);
+    }
 
-      if (
-        this.room.players.some(
-          (player) => player.name.toLocaleLowerCase() === normalizedName,
-        )
-      ) {
+    if (this.room) {
+      const seatsLeft = Math.max(0, MAX_PLAYERS - this.room.players.length);
+
+      if (joiningNames.length > seatsLeft) {
+        this.send(ws, {
+          type: "error",
+          code: "room-full",
+          seatsLeft,
+        });
+        return;
+      }
+
+      const taken = joiningNames.find((candidate) =>
+        this.room!.players.some(
+          (player) =>
+            player.name.toLocaleLowerCase() === candidate.toLocaleLowerCase(),
+        ),
+      );
+
+      if (taken !== undefined) {
         this.send(ws, {
           type: "error",
           code: "name-taken",
+          name: taken,
         });
         return;
       }
@@ -477,6 +661,7 @@ export class Room extends DurableObject<Env> {
         disconnectedAt: null,
         ruleOverrides,
         customRules,
+        currentTurnPlayerId: null,
       };
     }
 
@@ -486,16 +671,56 @@ export class Room extends DurableObject<Env> {
       connected: true,
       isHost: this.room.players.length === 0,
       connSeq: 1,
+      scorerId: null,
+      groupLeaderId: null,
+      color: PLAYER_COLORS[this.room.players.length % PLAYER_COLORS.length],
+      deviceId: typeof message.deviceId === "string" ? message.deviceId : null,
+      reconnectUntil: null,
     };
 
-    this.room.players.push(player);
-
-    for (const round of this.room.rounds) {
-      round.push(null);
+    if (player.isHost) {
+      this.room.currentTurnPlayerId = player.id;
     }
 
-    this.room.roundSubmitted.push(false);
-    this.room.onBoard.push(this.room.minScore === 0);
+    const joining: Player[] = [player];
+
+    for (const guestName of guestNames) {
+      joining.push({
+        id: crypto.randomUUID(),
+        name: guestName,
+        connected: true,
+        isHost: false,
+        connSeq: player.connSeq,
+        // In 'each' rooms the device that entered them is the one submitting
+        // their scores; in 'host' rooms only the host enters anything, so
+        // there is nothing to nominate.
+        scorerId: this.room.scoringMode === "each" ? player.id : null,
+        groupLeaderId: player.id,
+        color: PLAYER_COLORS[(this.room.players.length + joining.length) % PLAYER_COLORS.length],
+        deviceId: null,
+        reconnectUntil: null,
+      });
+    }
+
+    for (const joiner of joining) {
+      this.room.players.push(joiner);
+
+      for (const round of this.room.rounds) {
+        round.push(null);
+      }
+
+      this.room.roundSubmitted.push(false);
+      this.room.onBoard.push(this.room.minScore === 0);
+    }
+
+    // A scorer nominated during the join flow can have left (or taken on a
+    // scorer of their own) in the gap since the roster was fetched - a rejected
+    // nomination just leaves the new player scoring for themselves. A device
+    // speaking for a group can't nominate at all: it already scores for its
+    // own members, and nominations never chain.
+    if (guestNames.length === 0 && typeof message.scorerId === "string") {
+      this.applyScorer(player.id, message.scorerId);
+    }
 
     ws.serializeAttachment({
       playerId: player.id,
@@ -510,6 +735,7 @@ export class Room extends DurableObject<Env> {
     this.broadcast({
       type: "roster-update",
       players: this.room.players,
+      currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
   }
 
@@ -517,44 +743,249 @@ export class Room extends DurableObject<Env> {
     attachment: SocketAttachment,
     value: number,
   ): Promise<void> {
-    if (!this.room || this.room.gameOver || !Number.isFinite(value)) {
+    await this.handleSubmitScores(attachment, [
+      { playerId: attachment.playerId, value },
+    ]);
+  }
+
+  // Handles both a player's own submission and the batch a proxy scorer sends
+  // for themselves plus everyone who nominated them.
+  private async handleSubmitScores(
+    attachment: SocketAttachment,
+    entries: Array<{ playerId: string; value: number }>,
+  ): Promise<void> {
+    const room = this.room;
+
+    if (!room || room.gameOver || entries.length === 0) {
       return;
     }
 
-    const playerIndex = this.room.players.findIndex(
-      (player) => player.id === attachment.playerId,
-    );
+    const resolved: Array<{ index: number; value: number }> = [];
 
-    if (
-      playerIndex === -1 ||
-      this.room.roundSubmitted[playerIndex]
-    ) {
-      return;
-    }
+    for (const entry of entries) {
+      if (!Number.isFinite(entry.value)) {
+        return;
+      }
 
-    if (this.room.rounds.length === 0) {
-      this.room.rounds.push(
-        this.room.players.map(() => null),
+      const index = room.players.findIndex(
+        (player) => player.id === entry.playerId,
       );
-      this.room.roundSubmitted =
-        this.room.players.map(() => false);
+
+      // Skip rather than reject the whole batch: a column already in for this
+      // round, or one whose player revoked the nomination between the modal
+      // opening and this submission, shouldn't cost the sender their own score.
+      if (
+        index === -1 ||
+        !this.canScoreFor(attachment.playerId, index) ||
+        room.roundSubmitted[index] ||
+        resolved.some((item) => item.index === index)
+      ) {
+        continue;
+      }
+
+      resolved.push({ index, value: entry.value });
     }
 
-    const currentRound =
-      this.room.rounds[this.room.rounds.length - 1];
+    if (resolved.length === 0) {
+      return;
+    }
 
-    currentRound[playerIndex] = this.applyEntryThreshold(playerIndex, value);
-    this.room.roundSubmitted[playerIndex] = true;
+    if (room.rounds.length === 0) {
+      room.rounds.push(room.players.map(() => null));
+      room.roundSubmitted = room.players.map(() => false);
+    }
+
+    const currentRound = room.rounds[room.rounds.length - 1];
+
+    for (const { index, value } of resolved) {
+      currentRound[index] = this.applyEntryThreshold(index, value);
+      room.roundSubmitted[index] = true;
+    }
+
+    this.advanceCurrentTurnIfScored(resolved.map((entry) => entry.index));
 
     await this.persist();
 
     this.broadcast({
       type: "round-update",
-      rounds: this.room.rounds,
-      roundSubmitted: this.room.roundSubmitted,
+      rounds: room.rounds,
+      roundSubmitted: room.roundSubmitted,
+      currentTurnPlayerId: room.currentTurnPlayerId,
     });
 
     await this.advanceRoundIfComplete();
+  }
+
+  // A player may write their own column, or the column of anyone who has
+  // nominated them as scorer. Nominations only exist in 'each' scoring mode.
+  private canScoreFor(actorId: string, targetIndex: number): boolean {
+    const target = this.room?.players[targetIndex];
+
+    if (!target) {
+      return false;
+    }
+
+    if (target.id === actorId) {
+      return true;
+    }
+
+    return (
+      this.room?.scoringMode === "each" && target.scorerId === actorId
+    );
+  }
+
+  // Validates and applies a nomination. Returns false (leaving the room
+  // untouched) when the nomination isn't allowed.
+  private applyScorer(playerId: string, scorerId: string | null): boolean {
+    const room = this.room;
+
+    if (!room || room.scoringMode !== "each") {
+      return false;
+    }
+
+    const player = room.players.find(
+      (candidate) => candidate.id === playerId,
+    );
+
+    if (!player) {
+      return false;
+    }
+
+    if (scorerId === null) {
+      player.scorerId = null;
+      return true;
+    }
+
+    if (scorerId === playerId) {
+      return false;
+    }
+
+    const scorer = room.players.find(
+      (candidate) => candidate.id === scorerId,
+    );
+
+    // No chains in either direction: the nominated scorer must enter their own
+    // scores, and a player who is already someone else's scorer can't hand
+    // their own entry off to a third player.
+    if (!scorer || scorer.scorerId !== null) {
+      return false;
+    }
+
+    if (room.players.some((candidate) => candidate.scorerId === playerId)) {
+      return false;
+    }
+
+    player.scorerId = scorerId;
+    return true;
+  }
+
+  private async handleSetScorer(
+    ws: WebSocket,
+    attachment: SocketAttachment,
+    scorerId: string | null,
+  ): Promise<void> {
+    if (!this.room) {
+      return;
+    }
+
+    if (!this.applyScorer(attachment.playerId, scorerId)) {
+      this.send(ws, {
+        type: "error",
+        code: "scorer-unavailable",
+      });
+      return;
+    }
+
+    await this.persist();
+
+    this.broadcast({
+      type: "roster-update",
+      players: this.room.players,
+    });
+  }
+
+  // Everyone entered on the same device as this player. Empty unless this
+  // player led a group join - they follow their leader for connection state
+  // and for removal.
+  private groupMembers(playerId: string): Player[] {
+    return (
+      this.room?.players.filter(
+        (player) => player.groupLeaderId === playerId,
+      ) ?? []
+    );
+  }
+
+  private pruneExpiredReconnectReservations(): boolean {
+    if (!this.room) return false;
+    const now = Date.now();
+    const expiredIds = this.room.players
+      .filter((player) =>
+        !player.isHost &&
+        !player.connected &&
+        player.reconnectUntil !== null &&
+        player.reconnectUntil <= now
+      )
+      .map((player) => player.id);
+    if (expiredIds.length === 0) return false;
+    this.removePlayers(expiredIds);
+    return true;
+  }
+
+  // Removes players and their parallel round/flag columns in one pass, so a
+  // group leaving together can't hit index-shift bugs.
+  private removePlayers(ids: string[]): void {
+    const room = this.room;
+
+    if (!room) {
+      return;
+    }
+
+    const doomed = new Set(ids);
+    const currentTurnIndex = room.players.findIndex(
+      (player) => player.id === room.currentTurnPlayerId,
+    );
+    const keep = room.players.map((player) => !doomed.has(player.id));
+
+    room.players = room.players.filter((_, index) => keep[index]);
+    room.rounds = room.rounds.map((round) =>
+      round.filter((_, index) => keep[index]),
+    );
+    room.roundSubmitted = room.roundSubmitted.filter(
+      (_, index) => keep[index],
+    );
+    room.onBoard = room.onBoard.filter((_, index) => keep[index]);
+
+    if (room.currentTurnPlayerId && doomed.has(room.currentTurnPlayerId)) {
+      room.currentTurnPlayerId = room.players.length > 0
+        ? room.players[Math.min(currentTurnIndex, room.players.length - 1)].id
+        : null;
+    }
+
+    for (const id of ids) {
+      this.clearScorerReferences(id);
+    }
+
+    // Defensive: a member outliving its leader would otherwise point at an id
+    // that no longer exists.
+    for (const player of room.players) {
+      if (player.groupLeaderId !== null && doomed.has(player.groupLeaderId)) {
+        player.groupLeaderId = null;
+      }
+    }
+  }
+
+  // Called when a player leaves or is removed: anyone who nominated them falls
+  // back to entering their own scores rather than pointing at a missing id.
+  private clearScorerReferences(playerId: string): void {
+    if (!this.room) {
+      return;
+    }
+
+    for (const player of this.room.players) {
+      if (player.scorerId === playerId) {
+        player.scorerId = null;
+      }
+    }
   }
 
   // Mirrors the single-player entry-threshold rule: a player not yet on the
@@ -572,6 +1003,10 @@ export class Room extends DurableObject<Env> {
       return value;
     }
 
+    if (this.room.gameKey === "farkle" && value === 0) {
+      return 0;
+    }
+
     if (value >= this.room.minScore) {
       this.room.onBoard[playerIndex] = true;
       return value;
@@ -584,6 +1019,7 @@ export class Room extends DurableObject<Env> {
     attachment: SocketAttachment,
     value: number,
     roundIndex?: number,
+    playerId?: string,
   ): Promise<void> {
     if (
       !this.room ||
@@ -594,11 +1030,15 @@ export class Room extends DurableObject<Env> {
       return;
     }
 
+    const targetPlayerId = playerId ?? attachment.playerId;
     const playerIndex = this.room.players.findIndex(
-      (player) => player.id === attachment.playerId,
+      (player) => player.id === targetPlayerId,
     );
 
-    if (playerIndex === -1) {
+    if (
+      playerIndex === -1 ||
+      !this.canScoreFor(attachment.playerId, playerIndex)
+    ) {
       return;
     }
 
@@ -629,13 +1069,22 @@ export class Room extends DurableObject<Env> {
       this.room.minScore === 0 ||
       this.room.rounds
         .slice(0, targetIndex)
-        .some((round) => round[playerIndex] !== null);
+        .some((round) =>
+          round[playerIndex] !== null &&
+          !(this.room!.gameKey === "farkle" && round[playerIndex] === 0)
+        );
 
     targetRound[playerIndex] =
-      onBoardBeforeThisRound || value >= this.room.minScore ? value : null;
+      onBoardBeforeThisRound || value >= this.room.minScore ||
+      (this.room.gameKey === "farkle" && value === 0)
+        ? value
+        : null;
     this.room.onBoard[playerIndex] =
       this.room.minScore === 0 ||
-      this.room.rounds.some((round) => round[playerIndex] !== null);
+      this.room.rounds.some((round) =>
+        round[playerIndex] !== null &&
+        !(this.room!.gameKey === "farkle" && round[playerIndex] === 0)
+      );
 
     await this.persist();
 
@@ -667,31 +1116,38 @@ export class Room extends DurableObject<Env> {
       return;
     }
 
-    this.room.players.splice(playerIndex, 1);
+    // Removing the person holding a device removes everyone they entered -
+    // nobody would be left able to score those columns. Removing one of their
+    // group members takes only that member.
+    const removedIds = [
+      playerId,
+      ...this.groupMembers(playerId).map((member) => member.id),
+    ];
 
-    for (const round of this.room.rounds) {
-      round.splice(playerIndex, 1);
-    }
-
-    this.room.roundSubmitted.splice(playerIndex, 1);
-    this.room.onBoard.splice(playerIndex, 1);
+    this.removePlayers(removedIds);
     await this.updateAbandonedRoomAlarm();
     await this.persist();
 
-    this.broadcast({
-      type: "player-removed",
-      playerId,
-    });
+    for (const removedId of removedIds) {
+      this.broadcast({
+        type: "player-removed",
+        playerId: removedId,
+      });
+    }
 
     this.broadcast({
       type: "roster-update",
       players: this.room.players,
+      currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
 
     for (const socket of this.ctx.getWebSockets()) {
       const socketAttachment = this.getAttachment(socket);
 
-      if (socketAttachment?.playerId === playerId) {
+      if (
+        socketAttachment &&
+        removedIds.includes(socketAttachment.playerId)
+      ) {
         socket.close(
           PLAYER_REMOVED_CLOSE_CODE,
           "Removed from room by host",
@@ -699,7 +1155,7 @@ export class Room extends DurableObject<Env> {
       }
     }
 
-    if (attachment.playerId !== playerId) {
+    if (!removedIds.includes(attachment.playerId)) {
       await this.advanceRoundIfComplete();
     } else {
       ws.close(
@@ -707,6 +1163,64 @@ export class Room extends DurableObject<Env> {
         "Removed from room by host",
       );
     }
+  }
+
+  private async handleUpdateColor(
+    attachment: SocketAttachment,
+    playerId: string,
+    color: string,
+  ): Promise<void> {
+    if (!this.room || !PLAYER_COLORS.includes(color)) return;
+
+    const player = this.room.players.find((candidate) => candidate.id === playerId);
+    if (!player || (player.id !== attachment.playerId && player.groupLeaderId !== attachment.playerId)) return;
+
+    player.color = color;
+    await this.persist();
+    this.broadcast({
+      type: "roster-update",
+      players: this.room.players,
+      currentTurnPlayerId: this.room.currentTurnPlayerId,
+    });
+  }
+
+  private async handleSetCurrentTurn(
+    attachment: SocketAttachment,
+    playerId: string,
+  ): Promise<void> {
+    if (!this.room || !attachment.isHost || !this.isCurrentHost(attachment.playerId)) return;
+    if (!this.room.players.some((player) => player.id === playerId)) return;
+
+    this.room.currentTurnPlayerId = playerId;
+    await this.persist();
+    this.broadcast({ type: "turn-update", currentTurnPlayerId: playerId });
+  }
+
+  private advanceCurrentTurnIfScored(scoredIndexes: number[]): void {
+    if (!this.room?.currentTurnPlayerId || this.room.players.length === 0) return;
+    const currentIndex = this.room.players.findIndex(
+      (player) => player.id === this.room!.currentTurnPlayerId,
+    );
+    if (currentIndex === -1 || !scoredIndexes.includes(currentIndex)) return;
+    this.room.currentTurnPlayerId = this.findNextUnsubmittedPlayerId(currentIndex);
+  }
+
+  private findNextUnsubmittedPlayerId(currentIndex: number): string {
+    const room = this.room!;
+    for (let offset = 1; offset <= room.players.length; offset += 1) {
+      const candidateIndex = (currentIndex + offset) % room.players.length;
+      const player = room.players[candidateIndex];
+      if (!player.connected || room.roundSubmitted[candidateIndex]) continue;
+      return player.id;
+    }
+
+    // Everyone connected has scored. Keep normal clockwise order ready for the
+    // fresh round that advanceRoundIfComplete creates immediately afterwards.
+    for (let offset = 1; offset <= room.players.length; offset += 1) {
+      const player = room.players[(currentIndex + offset) % room.players.length];
+      if (player.connected) return player.id;
+    }
+    return room.players[currentIndex].id;
   }
 
   private async handleDeclareGameOver(
@@ -770,14 +1284,11 @@ export class Room extends DurableObject<Env> {
 
     const wasHost = this.room.players[playerIndex].isHost;
 
-    this.room.players.splice(playerIndex, 1);
-
-    for (const round of this.room.rounds) {
-      round.splice(playerIndex, 1);
-    }
-
-    this.room.roundSubmitted.splice(playerIndex, 1);
-    this.room.onBoard.splice(playerIndex, 1);
+    // A device speaking for several people takes all of them with it.
+    this.removePlayers([
+      attachment.playerId,
+      ...this.groupMembers(attachment.playerId).map((member) => member.id),
+    ]);
 
     // Hosts leave via host-leave (which closes the room outright) - this is a
     // defensive fallback only, so the room isn't left permanently host-less.
@@ -791,6 +1302,7 @@ export class Room extends DurableObject<Env> {
     this.broadcast({
       type: "roster-update",
       players: this.room.players,
+      currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
 
     await this.advanceRoundIfComplete();
@@ -928,11 +1440,16 @@ export class Room extends DurableObject<Env> {
     const currentRound = this.room.rounds[this.room.rounds.length - 1];
 
     values.forEach((value, index) => {
-      currentRound[index] = Number.isFinite(value)
-        ? this.applyEntryThreshold(index, value as number)
-        : null;
+      if (Number.isFinite(value)) {
+        currentRound[index] = this.applyEntryThreshold(index, value as number);
+      }
     });
-    this.room.roundSubmitted = this.room.players.map(() => true);
+    this.room.roundSubmitted = this.room.players.map(
+      (_, index) => this.room!.roundSubmitted[index] || Number.isFinite(values[index]),
+    );
+    this.advanceCurrentTurnIfScored(
+      this.room.players.map((_, index) => index).filter((index) => Number.isFinite(values[index])),
+    );
 
     await this.persist();
 
@@ -940,6 +1457,7 @@ export class Room extends DurableObject<Env> {
       type: "round-update",
       rounds: this.room.rounds,
       roundSubmitted: this.room.roundSubmitted,
+      currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
 
     await this.advanceRoundIfComplete();
@@ -980,6 +1498,7 @@ export class Room extends DurableObject<Env> {
       type: "round-advance",
       rounds: this.room.rounds,
       roundSubmitted: this.room.roundSubmitted,
+      currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
   }
 
@@ -1052,6 +1571,7 @@ export class Room extends DurableObject<Env> {
       roundSubmitted: this.room.roundSubmitted,
       ruleOverrides: this.room.ruleOverrides,
       customRules: this.room.customRules,
+      currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
   }
 
@@ -1190,7 +1710,20 @@ export class Room extends DurableObject<Env> {
           (!("customRules" in value) ||
             value.customRules === undefined ||
             (Array.isArray(value.customRules) &&
-              value.customRules.every((rule) => typeof rule === "string")))
+              value.customRules.every((rule) => typeof rule === "string"))) &&
+          (!("scorerId" in value) ||
+            value.scorerId === undefined ||
+            value.scorerId === null ||
+            typeof value.scorerId === "string") &&
+          (!("guestNames" in value) ||
+            value.guestNames === undefined ||
+            (Array.isArray(value.guestNames) &&
+              value.guestNames.every(
+                (guestName) => typeof guestName === "string",
+              ))) &&
+          (!("deviceId" in value) ||
+            value.deviceId === undefined ||
+            (typeof value.deviceId === "string" && value.deviceId.length <= 100))
         );
 
       case "host-leave":
@@ -1207,6 +1740,27 @@ export class Room extends DurableObject<Env> {
           Number.isFinite(value.value)
         );
 
+      case "submit-scores-for":
+        return (
+          "entries" in value &&
+          Array.isArray(value.entries) &&
+          value.entries.length > 0 &&
+          value.entries.every(
+            (entry) =>
+              entry &&
+              typeof entry === "object" &&
+              typeof entry.playerId === "string" &&
+              typeof entry.value === "number" &&
+              Number.isFinite(entry.value),
+          )
+        );
+
+      case "set-scorer":
+        return (
+          "scorerId" in value &&
+          (value.scorerId === null || typeof value.scorerId === "string")
+        );
+
       case "edit-score":
         return (
           "value" in value &&
@@ -1216,13 +1770,27 @@ export class Room extends DurableObject<Env> {
             value.roundIndex === undefined ||
             (typeof value.roundIndex === "number" &&
               Number.isInteger(value.roundIndex) &&
-              value.roundIndex >= 0))
+              value.roundIndex >= 0)) &&
+          (!("playerId" in value) ||
+            value.playerId === undefined ||
+            typeof value.playerId === "string")
         );
 
       case "remove-player":
         return (
           "playerId" in value &&
           typeof value.playerId === "string"
+        );
+
+      case "update-color":
+        return (
+          "playerId" in value && typeof value.playerId === "string" &&
+          "color" in value && typeof value.color === "string"
+        );
+
+      case "set-current-turn":
+        return (
+          "playerId" in value && typeof value.playerId === "string"
         );
 
       case "declare-game-over":

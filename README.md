@@ -13,9 +13,9 @@ A lightweight score-tracking web app for board games and dice games. No install,
   - **Golf scoring toggle** - highest total wins, or lowest wins (golf)
   - **Negative scores** and an optional **no-limit target** (set to 0 to just track scores)
   - **"Track who goes out first"** - opt-in per game; flags the round closer (⚑) next to their score
-- **2–8 players** with distinct color-coded columns; tap a player's color dot on setup or mid-game to change it
+- **2–8 players** with distinct color-coded columns; tap your color dot on setup or mid-game to change it, including in multiplayer
 - **Inline editing** - tap any score cell or player name to edit mid-game
-- **Enter Scores modal** - enter all players' scores for a round in one step, with each player's current total shown alongside their input and a quick rules-lookup shortcut in the header
+- **Enter Scores modal** - enter one or more players' scores for a round in one step; fields begin empty and blanks are skipped, while explicit zeroes are recorded. Each player's current total appears alongside their input, with a quick rules shortcut in the header
 - **Winner banner + confetti** - detects the win, then fires a confetti burst (honors `prefers-reduced-motion`); tapping the banner replays it, synced to everyone in multiplayer
 - **Basic Rules on setup** - picking a game goes straight to setup, with the game's intro shown above the player list (clamped to 4 lines with a "Show more/less" toggle) and a "See Scoring and Custom Rules" button
 - **Device back-button support** - hardware/gesture back navigates the same screen stack as the in-app back buttons, with the same in-progress-game confirmation guard
@@ -26,8 +26,8 @@ A lightweight score-tracking web app for board games and dice games. No install,
 - **Settings on every screen** - theme, mode, and app version are always one tap away
 - **Responsive** - mobile-first with clean tablet (700px) and desktop (1080px) breakpoints
 - **No flash** - theme is applied before first paint via an inline script; persists across sessions
-- **Installable PWA** - `manifest.json` and app icons let the app be added to a home screen or installed as a desktop app, on top of the existing offline service-worker caching
-- **Multiplayer Rooms** - host or join a 4-letter-code room to track scores together remotely; QR-code join, live roster, per-player or host-only scoring, own-score-only editing, host can remove players (removed guest lands on the home screen with a dismissable toast), reconnect-safe. Guests see the host's edited rules and house-rule list live for the duration of the room (read-only, reverts to their own on leaving). Backed by a separate Cloudflare Worker (`worker/`) - see its README for deploy steps
+- **Installable PWA** - `manifest.json` and app icons let the app be added to a home screen or installed as a desktop app, supports screen rotation, and includes offline caching plus a dismissable notification that names the new version when it is ready to reload
+- **Multiplayer Rooms** - host or join a 4-letter-code room to track scores together remotely; shareable invite link and QR code, live roster, persistent player colors (duplicates allowed), host-controlled turn highlighting, per-player or host-only scoring, own-score-only editing, and host removal. Same-device, same-name reconnects reclaim the existing player instead of creating a duplicate. In per-player-scoring rooms a joining player can nominate another player in the room to enter scores for them (picked during the join flow, changeable any time from the ✍ button in the room bar); the nominated player enters all their columns in one modal. Several people sharing one phone can join together: the name step has a "Players on this device" dropdown (1-4) with a name field each, they all become full players, and that device keeps score for the whole group. Removed and departed players take their score columns with them. Guests see the host's edited rules and house-rule list live for the duration of the room. Backed by a separate Cloudflare Worker (`worker/`) - see its README for deploy steps
 - **Screen Wake Lock** - keeps the display on while a game is being tracked, so it doesn't auto-lock mid-round (requires HTTPS or localhost)
 
 ---

@@ -98,8 +98,30 @@ async function checkRoomExists(env: Env, roomCode: string): Promise<Response> {
     return json({ exists: false });
   }
 
-  const status = await statusResponse.json<{ initialized: boolean }>();
-  return json({ exists: status.initialized });
+  // The roster comes back with the existence check so the join flow can offer
+  // "who enters your scores?" before the player is in the room.
+  const status = await statusResponse.json<{
+    initialized: boolean;
+    scoringMode: string | null;
+    seatsLeft: number;
+    players: Array<{
+      id: string;
+      name: string;
+      isHost: boolean;
+      scorerId: string | null;
+    }>;
+  }>();
+
+  if (!status.initialized) {
+    return json({ exists: false });
+  }
+
+  return json({
+    exists: true,
+    scoringMode: status.scoringMode,
+    seatsLeft: status.seatsLeft,
+    players: status.players,
+  });
 }
 
 async function forwardWebSocket(
