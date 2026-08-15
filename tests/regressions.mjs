@@ -97,6 +97,16 @@ assert.match(app, /if \(!player \|\| !mpEntersScoresFor\(player\)\) return;/,
   'the your-turn toast must only fire for players this device scores for');
 assert.match(style, /\.turn-toast-title[\s\S]*?-webkit-background-clip: text/,
   'the your-turn toast shimmer must clip its gradient to the text');
+assert.match(app, /if \(!state\.multiplayer \|\| !playerId \|\| mpGameDecided\(\)\) return;/,
+  'the your-turn toast must stay silent once the board decides the game, not just once gameOver is set');
+assert.match(app, /function mpGameDecided\(\)[\s\S]*?state\.rounds\.length >= roundsNeededToWin\(triggerRound\)/,
+  'game-decided must be recomputed from the score data, since turn-update does not run checkWin');
+assert.match(app, /function roundsNeededToWin\(triggerRound\)[\s\S]*?finalRoundOnWin[\s\S]*?extraRound \? 2 : 1/,
+  'checkWin and the turn announcement must share one final-round rule (Farkle gives an extra round)');
+assert.match(index, /id="turn-toast-backdrop"/,
+  'the your-turn toast must dim the screen behind it');
+assert.match(app, /getElementById\('turn-toast-backdrop'\)\.addEventListener\('click', hideTurnToast\)/,
+  'tapping the dimmed backdrop must dismiss the your-turn toast');
 assert.match(style, /\.turn-toast::before[\s\S]*?mask-composite: exclude/,
   'the your-turn toast must shimmer its border via a masked gradient ring');
 assert.match(style, /\.turn-toast\.visible::before \{ animation: turn-toast-shimmer/,

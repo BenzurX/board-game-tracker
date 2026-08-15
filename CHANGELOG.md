@@ -11,15 +11,18 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ### Changed
 - `Claude:` The app version now appears in the top left of the home screen, reading from the same `APP_VERSION` constant as the settings popup. Shipped in a follow-up push that deliberately kept the version at 0.21 (see the note at the end of this entry).
+- `Claude:` The your-turn card dims the screen behind it while it is up, and tapping the dimmed area dismisses it the same way tapping the card does.
+- `Claude:` The your-turn card no longer fires on the turn handoff that ends the game. It now guards on `mpGameDecided()`, which recomputes the outcome from the score data, rather than on `state.gameOver`: `turn-update` and `roster-update` do not run `checkWin`, so the server could push the final turn change before the round row that ends the game and the card would appear a beat before the winner banner. The final-round rule that makes this specific to Farkle (everyone gets one more round after the target is crossed, so the game is not decided the instant it is hit) moved into a shared `roundsNeededToWin()` helper used by both `checkWin` and the announcement, so the two cannot drift apart. Turns during that extra round still announce - players have to play them. `checkWin` and the game-over handler also dismiss any card still on screen so it cannot sit over the winner banner.
 - `Claude:` The your-turn card's border shimmers along with its title. Both use the same keyframes and the same highlight colour (`--turn-shimmer-hi`), so one highlight appears to pass over the whole card. The border ring is a gradient rectangle masked to the 1px border band, gated behind `@supports` for mask compositing - without that support the plain accent border is kept, since the fallback would be a gradient slab across the card.
 - The home screen's settings button now reuses the shared `.btn-rules` / `.btn-settings-header` styling instead of its own bespoke `.btn-settings` rules, leaving `.btn-settings-home` to carry only its absolute positioning. Keeps the gear consistent with the other header buttons.
 - The multiplayer setup hint now also mentions that in "Each Player Enters Score" rooms a player can nominate someone else to score for them, which was previously only discoverable during the join flow.
 
 ### Tests
+- `Claude:` Three assertions pinning the game-decided guard (the predicate itself, its use in the announcement, and the shared final-round helper) and two for the dimming backdrop.
 - `Claude:` Two assertions for the home version label (present, and read from `APP_VERSION` rather than hardcoded) and two for the border shimmer (masked ring, shared keyframes).
 - `Claude:` Four assertions covering the your-turn toast: that it fires only on a real turn change, that join/rejoin passes `announce: false`, that it is gated on `mpEntersScoresFor`, and that the shimmer clips its gradient to the text.
 
-<!-- `Claude:` 0.21 covers two pushes. The second (home version label, border shimmer, sw.js CACHE v38) was released on Ben's explicit call to leave the version number where it was, so devices already on 0.21 pick those changes up on a later reload rather than through the update toast, which compares APP_VERSION and sees no change. -->
+<!-- `Claude:` 0.21 covers two pushes. The second and third (home version label, border shimmer, dimming backdrop, game-decided guard; sw.js CACHE v38 then v39) were released on Ben's explicit call to leave the version number where it was, so devices already on 0.21 pick those changes up on a later reload rather than through the update toast, which compares APP_VERSION and sees no change. -->
 
 ---
 

@@ -1230,6 +1230,20 @@ html, body {
 .toast-close:hover { color: var(--text); }
 
 /* ── "Your turn" announcement (multiplayer) ─────────────── */
+/* Its own element rather than a pseudo-element on the card: the card is
+   transform-positioned, which would make a fixed child resolve against the card
+   instead of the viewport. Tapping it dismisses, same as tapping the card. */
+.turn-toast-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1099;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.turn-toast-backdrop.hidden { display: none; }
+.turn-toast-backdrop.visible { opacity: 1; }
+
 .turn-toast {
   /* Shared by the title shimmer and the border shimmer, so the two sweeps read
      as one highlight passing over the whole card. */

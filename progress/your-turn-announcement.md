@@ -24,12 +24,16 @@ The naive version - announce whenever `mpCurrentTurnPlayerId` is yours - fires o
 
 That comparison also dedupes the two server paths for free: `round-update` carries `currentTurnPlayerId` and a separate `turn-update` may follow with the same id, but the second one sees no change and stays silent.
 
+The end-of-game case needed more than the `state.gameOver` flag. `turn-update` and `roster-update` do not run `checkWin`, so the flag can still be false when the server pushes the turn change that coincides with the winning row, and the card would flash a beat before the winner banner. `mpGameDecided()` recomputes the outcome from the score data instead. That matters most in Farkle: with `finalRoundOnWin` the game is not decided when the target is crossed, only after everyone gets one more round, so the naive "target reached, stop announcing" test would silence the whole final round. The rounds arithmetic lives in `roundsNeededToWin()`, shared with `checkWin`, so the two cannot drift.
+
 Further suppressed when: joining or rejoining (`mpApplyRounds(..., { announce: false })` from `mpOnJoined` - the highlighted column already says whose turn it is, and a rejoin is not a handoff), the game is over, or the tracker screen is not the active screen. The gameOver check runs *after* `checkWin()` so a turn arriving alongside the winning score does not announce.
 
 Ownership is `mpEntersScoresFor(player)`, the same predicate the Enter Score modal uses, so group members and proxy-scored players are covered without a second notion of "mine".
 
+The screen dims behind the card (`#turn-toast-backdrop`, a sibling element rather than a pseudo-element, because the card is transform-positioned and a fixed child would resolve against the card instead of the viewport). Tapping the dim dismisses, matching the app's `.modal-backdrop` convention - which does mean the first tap anywhere during those 2.4s dismisses rather than hitting the control underneath.
+
 ## Known gaps
 
-- Never run in the real app before shipping. Two-device testing is item 1 in Next Session.
+- Never run in the real app before shipping. Two-device testing is item 1 in Next Session, and a real Farkle finish is the case worth watching: the extra round should still announce turn by turn, and only the handoff that crowns the winner should be silent.
 - Light mode: the shimmer highlight is `color-mix(in srgb, #fff 70%, var(--accent-bright))`, which against a light `--surface` is a smaller contrast jump than in dark mode. Legible, but the effect is subtler than the stage page suggests at dark defaults.
 - Nothing fires for a player whose scores another device enters - they see no card on their own phone, because they are not the one who has to act.

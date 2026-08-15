@@ -1117,6 +1117,18 @@ function findWinTriggerRound() {
   return -1;
 }
 
+// How many rounds must be on the board before a winner can be declared, given
+// the round where the target was first crossed. Some games (Farkle) give
+// everyone else one more full round to beat the target once someone crosses it,
+// rather than ending the instant it's hit. The round where the target was
+// crossed doesn't count as that extra round even for players who go after the
+// crosser, since rounds are entered as one shared row (host-scoring or "each"
+// mode) rather than tracked turn-by-turn.
+function roundsNeededToWin(triggerRound) {
+  const extraRound = !!(GAMES[state.gameKey]?.finalRoundOnWin);
+  return triggerRound + (extraRound ? 2 : 1);
+}
+
 function checkWin() {
   const banner = document.getElementById('winner-banner');
   const triggerRound = findWinTriggerRound();
@@ -1132,13 +1144,7 @@ function checkWin() {
     return;
   }
 
-  // Some games (Farkle) give everyone else one more full round to beat the
-  // target once someone crosses it, rather than ending the instant it's hit.
-  // The round where the target was crossed doesn't count as that extra round
-  // even for players who go after the crosser, since rounds are entered as one
-  // shared row (host-scoring or "each" mode) rather than tracked turn-by-turn.
-  const extraRound = !!(GAMES[state.gameKey]?.finalRoundOnWin);
-  const roundsNeeded = triggerRound + (extraRound ? 2 : 1);
+  const roundsNeeded = roundsNeededToWin(triggerRound);
 
   if (state.rounds.length < roundsNeeded) {
     banner.classList.add('hidden');
@@ -1162,6 +1168,7 @@ function checkWin() {
   banner.textContent = `🎉 ${winner.name} wins with ${totals[winIdx].toLocaleString()} points!`;
   banner.classList.remove('hidden');
   state.gameOver = true;
+  hideTurnToast(); // the winner banner owns the screen from here
   document.querySelectorAll('#score-table .current-turn').forEach(cell => {
     cell.classList.remove('current-turn');
   });
@@ -1778,11 +1785,26 @@ function mpApplyCurrentTurn(playerId, { announce = true } = {}) {
   if (announce && turnChanged) mpAnnounceTurn(nextTurn);
 }
 
+// True once the scores already on the board decide the game, whether or not the
+// winner banner has been drawn yet. `state.gameOver` alone is not enough: the
+// server can push a turn change before the round row that ends the game, and
+// `turn-update` / `roster-update` do not run checkWin, so the flag can still be
+// stale when the winning turn arrives. Recomputing from the score data closes
+// that window. In final-round games (Farkle) turns during the extra round are
+// still announced - players have to play them - but the handoff that lands as
+// the winner is crowned stays silent.
+function mpGameDecided() {
+  if (state.gameOver) return true;
+  const triggerRound = findWinTriggerRound();
+  if (triggerRound === -1) return false;
+  return state.rounds.length >= roundsNeededToWin(triggerRound);
+}
+
 // Announces only the transition into a turn this device is responsible for -
 // re-renders, reconnects and other players' turns stay silent. Group members
 // and players who nominated this device as their scorer count as "mine".
 function mpAnnounceTurn(playerId) {
-  if (!state.multiplayer || state.gameOver || !playerId) return;
+  if (!state.multiplayer || !playerId || mpGameDecided()) return;
   if (!document.getElementById('screen-tracker').classList.contains('active')) return;
   const player = state.players.find(p => p.id === playerId);
   if (!player || !mpEntersScoresFor(player)) return;
@@ -1862,6 +1884,7 @@ function mpOnError(msg) {
 
 function mpOnGameOver() {
   state.gameOver = true;
+  hideTurnToast(); // a card still on screen must not sit over the winner banner
   if (document.getElementById('screen-tracker').classList.contains('active')) checkWin();
 }
 
@@ -2629,24 +2652,33 @@ let turnToastHideTimer = null;
 const TURN_TOAST_DURATION_MS = 2400;
 function showTurnToast(title, eyebrow, subtitle) {
   const el = document.getElementById('turn-toast');
+  const backdrop = document.getElementById('turn-toast-backdrop');
   clearTimeout(turnToastTimer);
   clearTimeout(turnToastHideTimer);
   el.querySelector('.turn-toast-eyebrow').textContent = eyebrow;
   el.querySelector('.turn-toast-title').textContent = title;
   el.querySelector('.turn-toast-name').textContent = subtitle;
   el.classList.remove('hidden', 'visible');
+  backdrop.classList.remove('hidden', 'visible');
   void el.offsetWidth; // reflow, so the shimmer restarts on a repeat announcement
   el.classList.add('visible');
+  backdrop.classList.add('visible');
   turnToastTimer = setTimeout(hideTurnToast, TURN_TOAST_DURATION_MS);
 }
 function hideTurnToast() {
   const el = document.getElementById('turn-toast');
+  const backdrop = document.getElementById('turn-toast-backdrop');
   clearTimeout(turnToastTimer);
   clearTimeout(turnToastHideTimer);
   el.classList.remove('visible');
-  turnToastHideTimer = setTimeout(() => el.classList.add('hidden'), 300);
+  backdrop.classList.remove('visible');
+  turnToastHideTimer = setTimeout(() => {
+    el.classList.add('hidden');
+    backdrop.classList.add('hidden');
+  }, 300);
 }
 document.getElementById('turn-toast').addEventListener('click', hideTurnToast);
+document.getElementById('turn-toast-backdrop').addEventListener('click', hideTurnToast);
 function hideToast() {
   const el = document.getElementById('toast');
   clearTimeout(toastTimer);
