@@ -14,7 +14,9 @@ Four variants were staged in `stage/your-turn-toast.html` before any app code wa
 
 The stage page is still there with all four, so the call can be revisited without redoing the work. It also carries theme/mode/player switches, which is how the light-mode contrast question below was spotted.
 
-The shimmer is `background-clip: text` on a `linear-gradient` sized to 250% and slid from `140%` to `-40%` background-position. No pseudo-element, no overlay: the gradient *is* the text colour. `-webkit-background-clip` is present for older Safari.
+The title shimmer is `background-clip: text` on a `linear-gradient` sized to 250% and slid from `140%` to `-40%` background-position. No pseudo-element, no overlay: the gradient *is* the text colour. `-webkit-background-clip` is present for older Safari.
+
+The border shimmers too, from the same `turn-toast-shimmer` keyframes and the same highlight colour (`--turn-shimmer-hi`), so the two read as one highlight crossing the whole card rather than two effects. The ring is a `::before` gradient rectangle masked down to the 1px border band (`mask-composite: exclude`, fill minus content-box), with the card's own border set transparent and `background-clip: padding-box` so the background does not bleed under it. All of that lives inside an `@supports` block: where mask compositing is missing the fallback would be a gradient slab painted over the card, so those browsers keep the plain accent border instead.
 
 ## Why it fires when it does
 

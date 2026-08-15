@@ -97,5 +97,13 @@ assert.match(app, /if \(!player \|\| !mpEntersScoresFor\(player\)\) return;/,
   'the your-turn toast must only fire for players this device scores for');
 assert.match(style, /\.turn-toast-title[\s\S]*?-webkit-background-clip: text/,
   'the your-turn toast shimmer must clip its gradient to the text');
+assert.match(style, /\.turn-toast::before[\s\S]*?mask-composite: exclude/,
+  'the your-turn toast must shimmer its border via a masked gradient ring');
+assert.match(style, /\.turn-toast\.visible::before \{ animation: turn-toast-shimmer/,
+  'the border shimmer must reuse the title shimmer keyframes so both sweeps stay in step');
+assert.match(index, /id="home-version"/,
+  'the home screen must carry a version label');
+assert.match(app, /getElementById\('home-version'\)\.textContent = `v\$\{APP_VERSION\}`/,
+  'the home version label must read from APP_VERSION, not a hardcoded string');
 
 console.log('Regression checks passed');

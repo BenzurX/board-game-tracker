@@ -1231,6 +1231,9 @@ html, body {
 
 /* ── "Your turn" announcement (multiplayer) ─────────────── */
 .turn-toast {
+  /* Shared by the title shimmer and the border shimmer, so the two sweeps read
+     as one highlight passing over the whole card. */
+  --turn-shimmer-hi: color-mix(in srgb, #fff 70%, var(--accent-bright));
   position: fixed;
   top: 50%;
   left: 50%;
@@ -1253,6 +1256,39 @@ html, body {
 }
 .turn-toast.hidden { display: none; }
 .turn-toast.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* Border shimmer. The ring is a gradient rectangle masked down to just the 1px
+   border band (fill minus content-box), so the same sweep that runs through the
+   title also runs around the edge. Gated behind @supports because without mask
+   compositing the fallback is a gradient slab covering the card - the plain
+   accent border above stays in that case. */
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  .turn-toast {
+    border-color: transparent;
+    background-clip: padding-box;
+  }
+  .turn-toast::before {
+    content: '';
+    position: absolute;
+    inset: -1px; /* reaches back over the transparent border band */
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(100deg,
+      var(--accent) 0%,
+      var(--accent) 40%,
+      var(--turn-shimmer-hi) 50%,
+      var(--accent) 60%,
+      var(--accent) 100%);
+    background-size: 250% 100%;
+    background-position: 140% 0;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+  .turn-toast.visible::before { animation: turn-toast-shimmer 1.7s ease-in-out 0.2s 2; }
+}
 .turn-toast-eyebrow {
   font-size: 0.68rem;
   font-weight: 800;
@@ -1270,7 +1306,7 @@ html, body {
   background: linear-gradient(100deg,
     var(--accent-bright) 0%,
     var(--accent-bright) 40%,
-    color-mix(in srgb, #fff 70%, var(--accent-bright)) 50%,
+    var(--turn-shimmer-hi) 50%,
     var(--accent-bright) 60%,
     var(--accent-bright) 100%);
   background-size: 250% 100%;
@@ -1287,7 +1323,8 @@ html, body {
 .turn-toast-name { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
 @media (prefers-reduced-motion: reduce) {
   .turn-toast { transition: opacity 0.25s; }
-  .turn-toast.visible .turn-toast-title { animation: none; background-position: 50% 0; }
+  .turn-toast.visible .turn-toast-title,
+  .turn-toast.visible::before { animation: none; background-position: 50% 0; }
 }
 
 @keyframes update-toast-in {
@@ -1584,6 +1621,21 @@ html, body {
   position: absolute;
   top: 16px;
   right: 20px;
+}
+
+/* Top left, on the gear's centre line - the header title starts below both,
+   so neither can collide with it on narrow screens. */
+.home-version {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
 }
 
 /* ── Settings Modal ────────────────────────────────────── */

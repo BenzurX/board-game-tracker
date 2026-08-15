@@ -10,11 +10,16 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 - `Claude:` "Your turn" announcement in multiplayer. When the turn moves to a column this device is responsible for, a centre card pops in with a shimmer running through the title text (the gradient is clipped to the glyphs and slid across), then clears itself after 2.4s; tapping it dismisses early. It fires only on an actual turn *change* into one of this device's columns, so re-renders, reconnects and other players' turns stay silent, and it is suppressed on join/rejoin, once the game is over, and while the tracker screen is not showing. Group members and players who nominated this device as their scorer count as "yours" - those read "<Name>'s turn / You enter their score" rather than "Your turn". Honors `prefers-reduced-motion`. Four variants were staged in `stage/your-turn-toast.html` first; this is variant C.
 
 ### Changed
+- `Claude:` The app version now appears in the top left of the home screen, reading from the same `APP_VERSION` constant as the settings popup. Shipped in a follow-up push that deliberately kept the version at 0.21 (see the note at the end of this entry).
+- `Claude:` The your-turn card's border shimmers along with its title. Both use the same keyframes and the same highlight colour (`--turn-shimmer-hi`), so one highlight appears to pass over the whole card. The border ring is a gradient rectangle masked to the 1px border band, gated behind `@supports` for mask compositing - without that support the plain accent border is kept, since the fallback would be a gradient slab across the card.
 - The home screen's settings button now reuses the shared `.btn-rules` / `.btn-settings-header` styling instead of its own bespoke `.btn-settings` rules, leaving `.btn-settings-home` to carry only its absolute positioning. Keeps the gear consistent with the other header buttons.
 - The multiplayer setup hint now also mentions that in "Each Player Enters Score" rooms a player can nominate someone else to score for them, which was previously only discoverable during the join flow.
 
 ### Tests
+- `Claude:` Two assertions for the home version label (present, and read from `APP_VERSION` rather than hardcoded) and two for the border shimmer (masked ring, shared keyframes).
 - `Claude:` Four assertions covering the your-turn toast: that it fires only on a real turn change, that join/rejoin passes `announce: false`, that it is gated on `mpEntersScoresFor`, and that the shimmer clips its gradient to the text.
+
+<!-- `Claude:` 0.21 covers two pushes. The second (home version label, border shimmer, sw.js CACHE v38) was released on Ben's explicit call to leave the version number where it was, so devices already on 0.21 pick those changes up on a later reload rather than through the update toast, which compares APP_VERSION and sees no change. -->
 
 ---
 

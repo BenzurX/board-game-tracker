@@ -1,8 +1,9 @@
 // ── App Version ──────────────────────────────────────────
 // Bumped alongside CHANGELOG.md per the pre-push gate - single source of truth
-// for the version shown in Settings.
+// for the version shown in Settings and on the home screen.
 const APP_VERSION = '0.21';
 document.getElementById('settings-version').textContent = `v${APP_VERSION}`;
+document.getElementById('home-version').textContent = `v${APP_VERSION}`;
 
 // ── Theme Management ─────────────────────────────────────
 const THEMES = ['ember', 'ocean', 'forest'];

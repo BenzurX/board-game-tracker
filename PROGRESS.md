@@ -17,7 +17,7 @@ Codex-authored pass adding the turn indicator, invite sheet, update-available to
 
 ## Your Turn Announcement (built and shipped 2026-08-15 in v0.21)
 `multiplayer` `ui` `shipped`
-Centre card with a shimmer clipped to its title text, fired only on a real turn transition into a column this device scores for. Four variants were staged first; the chosen one is variant C in `stage/your-turn-toast.html`, and the other three are still there if the call needs revisiting.
+Centre card whose title text and border share one shimmer sweep, fired only on a real turn transition into a column this device scores for. Four variants were staged first; the chosen one is variant C in `stage/your-turn-toast.html`, and the other three are still there if the call needs revisiting.
 → [progress/your-turn-announcement.md](progress/your-turn-announcement.md)
 
 ## Next Session
