@@ -1,7 +1,7 @@
 // ── App Version ──────────────────────────────────────────
 // Bumped alongside CHANGELOG.md per the pre-push gate - single source of truth
 // for the version shown in Settings.
-const APP_VERSION = '0.20';
+const APP_VERSION = '0.21';
 document.getElementById('settings-version').textContent = `v${APP_VERSION}`;
 
 // ── Theme Management ─────────────────────────────────────
@@ -1692,7 +1692,9 @@ function mpOnJoined(msg) {
   mpGameOverSent = false;
 
   mpApplyRoster(msg.players);
-  mpApplyRounds(msg.rounds, msg.roundSubmitted || msg.players.map(() => false), msg.currentTurnPlayerId);
+  // Silent on join/rejoin: the highlighted column already says whose turn it is,
+  // and a rejoin is not a turn transition.
+  mpApplyRounds(msg.rounds, msg.roundSubmitted || msg.players.map(() => false), msg.currentTurnPlayerId, { announce: false });
 
   const me = msg.players.find(p => p.id === msg.playerId);
   mpSaveSession(msg.roomCode, msg.playerId, me ? me.name : '');
@@ -1751,21 +1753,44 @@ function reconcileRosterColumns(priorPlayers, nextPlayers, rounds, roundSubmitte
   };
 }
 
-function mpApplyRounds(rounds, roundSubmitted, currentTurnPlayerId = mpCurrentTurnPlayerId) {
+function mpApplyRounds(rounds, roundSubmitted, currentTurnPlayerId = mpCurrentTurnPlayerId, { announce = true } = {}) {
   state.rounds = rounds;
   state.onBoard = state.players.map(() => true);
   mpRoundSubmitted = roundSubmitted || [];
-  mpCurrentTurnPlayerId = currentTurnPlayerId || null;
+  const nextTurn = currentTurnPlayerId || null;
+  const turnChanged = nextTurn !== mpCurrentTurnPlayerId;
+  mpCurrentTurnPlayerId = nextTurn;
   if (document.getElementById('screen-tracker').classList.contains('active')) {
     renderTable();
     mpUpdateEnterScoreButtonState();
     checkWin();
   }
+  // After checkWin, so a turn that arrives with the winning score stays silent.
+  if (announce && turnChanged) mpAnnounceTurn(nextTurn);
 }
 
-function mpApplyCurrentTurn(playerId) {
-  mpCurrentTurnPlayerId = playerId || null;
+function mpApplyCurrentTurn(playerId, { announce = true } = {}) {
+  const nextTurn = playerId || null;
+  const turnChanged = nextTurn !== mpCurrentTurnPlayerId;
+  mpCurrentTurnPlayerId = nextTurn;
   if (document.getElementById('screen-tracker').classList.contains('active')) renderTable();
+  if (announce && turnChanged) mpAnnounceTurn(nextTurn);
+}
+
+// Announces only the transition into a turn this device is responsible for -
+// re-renders, reconnects and other players' turns stay silent. Group members
+// and players who nominated this device as their scorer count as "mine".
+function mpAnnounceTurn(playerId) {
+  if (!state.multiplayer || state.gameOver || !playerId) return;
+  if (!document.getElementById('screen-tracker').classList.contains('active')) return;
+  const player = state.players.find(p => p.id === playerId);
+  if (!player || !mpEntersScoresFor(player)) return;
+  const isSelf = player.id === state.mpPlayerId;
+  showTurnToast(
+    isSelf ? 'Your turn' : `${player.name}'s turn`,
+    `Round ${Math.max(1, state.rounds.length)}`,
+    isSelf ? player.name : 'You enter their score'
+  );
 }
 
 function mpUpdateEnterScoreButtonState() {
@@ -1882,6 +1907,7 @@ function mpLeaveMultiplayer({ graceful = false } = {}) {
   state.mpPlayerId = null;
   state.mpIsHost = false;
   mpCurrentTurnPlayerId = null;
+  hideTurnToast();
   if (!graceful) mpLeavingSelf = false;
   mpRenderRoomBar();
 }
@@ -2595,6 +2621,31 @@ function showToast(text, { closable = false } = {}) {
   el.classList.add('visible');
   toastTimer = setTimeout(hideToast, TOAST_DURATION_MS);
 }
+
+let turnToastTimer = null;
+let turnToastHideTimer = null;
+// Short: it covers the score grid, so it clears itself quickly. Tap dismisses early.
+const TURN_TOAST_DURATION_MS = 2400;
+function showTurnToast(title, eyebrow, subtitle) {
+  const el = document.getElementById('turn-toast');
+  clearTimeout(turnToastTimer);
+  clearTimeout(turnToastHideTimer);
+  el.querySelector('.turn-toast-eyebrow').textContent = eyebrow;
+  el.querySelector('.turn-toast-title').textContent = title;
+  el.querySelector('.turn-toast-name').textContent = subtitle;
+  el.classList.remove('hidden', 'visible');
+  void el.offsetWidth; // reflow, so the shimmer restarts on a repeat announcement
+  el.classList.add('visible');
+  turnToastTimer = setTimeout(hideTurnToast, TURN_TOAST_DURATION_MS);
+}
+function hideTurnToast() {
+  const el = document.getElementById('turn-toast');
+  clearTimeout(turnToastTimer);
+  clearTimeout(turnToastHideTimer);
+  el.classList.remove('visible');
+  turnToastHideTimer = setTimeout(() => el.classList.add('hidden'), 300);
+}
+document.getElementById('turn-toast').addEventListener('click', hideTurnToast);
 function hideToast() {
   const el = document.getElementById('toast');
   clearTimeout(toastTimer);

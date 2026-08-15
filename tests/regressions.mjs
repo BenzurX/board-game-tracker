@@ -89,5 +89,13 @@ assert.match(style, /\.group-size-select[\s\S]*?padding:\s*10px 38px 10px 14px/,
   'the player-count select must reserve space between its value and chevron');
 assert.match(style, /\.group-size-select-wrap::after/,
   'the player-count select must use an inset custom chevron');
+assert.match(app, /if \(announce && turnChanged\) mpAnnounceTurn\(nextTurn\)/,
+  'the your-turn toast must fire only when the current turn actually changes');
+assert.match(app, /msg\.currentTurnPlayerId, \{ announce: false \}\)/,
+  'joining or rejoining a room must not fire the your-turn toast');
+assert.match(app, /if \(!player \|\| !mpEntersScoresFor\(player\)\) return;/,
+  'the your-turn toast must only fire for players this device scores for');
+assert.match(style, /\.turn-toast-title[\s\S]*?-webkit-background-clip: text/,
+  'the your-turn toast shimmer must clip its gradient to the text');
 
 console.log('Regression checks passed');

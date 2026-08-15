@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="ember" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Turn toast - 4 ideas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── App design tokens (copied from style.css) ─────────── */
+:root {
+  --success:    #5cb85c;
+  --danger:     #d9534f;
+  --shadow:     0 4px 24px rgba(0, 0, 0, 0.5);
+  --radius:     12px;
+  --radius-sm:  8px;
+  --p0: #e8533a; --p1: #3a9ee8; --p2: #5cb85c;
+  --p3: #f0a820; --p4: #a855f7; --p5: #14b8a6;
+}
+html[data-theme="ember"][data-mode="dark"] {
+  --bg:#1c1410; --surface:#2a1f18; --card:#3a2d25; --card-hover:#4a3d35;
+  --border:rgba(242,232,217,0.12); --accent:#d4870a; --accent-bright:#f0a820;
+  --accent-dim:rgba(212,135,10,0.2); --on-accent:#1c1410; --text:#f2e8d9; --text-muted:#a89880;
+}
+html[data-theme="ember"][data-mode="light"] {
+  --bg:#faf5ee; --surface:#f0e8da; --card:#e4d9c8; --card-hover:#d8cbb8;
+  --border:rgba(42,31,24,0.15); --accent:#b06800; --accent-bright:#cc7a00;
+  --accent-dim:rgba(176,104,0,0.15); --on-accent:#faf5ee; --text:#2a1f18; --text-muted:#7a6858;
+}
+html[data-theme="ocean"][data-mode="dark"] {
+  --bg:#0d1b2a; --surface:#162840; --card:#1d3554; --card-hover:#254368;
+  --border:rgba(224,240,245,0.12); --accent:#0e9fa8; --accent-bright:#14c8d4;
+  --accent-dim:rgba(14,159,168,0.2); --on-accent:#0d1b2a; --text:#e0f0f5; --text-muted:#7aacba;
+}
+html[data-theme="ocean"][data-mode="light"] {
+  --bg:#eef5f8; --surface:#dcedf5; --card:#c5dfe8; --card-hover:#b0d0dc;
+  --border:rgba(13,27,42,0.15); --accent:#0a7a82; --accent-bright:#0e9fa8;
+  --accent-dim:rgba(10,122,130,0.15); --on-accent:#eef5f8; --text:#0d1b2a; --text-muted:#4a7a8a;
+}
+html[data-theme="forest"][data-mode="dark"] {
+  --bg:#0f1f10; --surface:#162d17; --card:#1e3d20; --card-hover:#264d28;
+  --border:rgba(228,242,222,0.12); --accent:#6b9c52; --accent-bright:#85b869;
+  --accent-dim:rgba(107,156,82,0.2); --on-accent:#0f1f10; --text:#e4f2de; --text-muted:#7a9e72;
+}
+html[data-theme="forest"][data-mode="light"] {
+  --bg:#f0f8ed; --surface:#e2f0dd; --card:#cde3c6; --card-hover:#bad4b2;
+  --border:rgba(15,31,16,0.15); --accent:#4a7a34; --accent-bright:#5c9442;
+  --accent-dim:rgba(74,122,52,0.15); --on-accent:#f0f8ed; --text:#0f1f10; --text-muted:#5a7a54;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 28px 20px 80px;
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+h1 { font-family: 'Commissioner', sans-serif; font-weight: 900; font-size: 1.4rem; margin: 0 0 6px; }
+.sub { color: var(--text-muted); font-size: 0.86rem; margin: 0 0 24px; }
+
+/* ── Controls ──────────────────────────────────────────── */
+.controls {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 12px; margin-bottom: 26px;
+}
+.controls button {
+  font-family: inherit; font-size: 0.8rem; font-weight: 700;
+  background: var(--card); color: var(--text);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 7px 14px; cursor: pointer;
+}
+.controls button:hover { background: var(--card-hover); }
+.controls button.on { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.controls .sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+.controls .lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 800; }
+.play-all { margin-left: auto; background: var(--accent) !important; color: var(--on-accent) !important; border-color: transparent !important; }
+
+/* ── Layout ────────────────────────────────────────────── */
+.grid { display: flex; flex-wrap: wrap; gap: 22px; }
+.idea { flex: 1 1 340px; min-width: 320px; max-width: 420px; }
+.idea header { margin-bottom: 8px; }
+.idea h2 { font-family: 'Commissioner', sans-serif; font-weight: 800; font-size: 1rem; margin: 0 0 3px; }
+.idea .note { color: var(--text-muted); font-size: 0.78rem; line-height: 1.4; margin: 0; }
+.idea .replay {
+  font-family: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer;
+  background: none; color: var(--accent-bright); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 11px; margin-top: 8px;
+}
+
+/* Phone frame - the toast is position:fixed in the app, here it is
+   absolutely positioned inside the frame so all four render at once. */
+.phone {
+  position: relative; overflow: hidden;
+  width: 100%; height: 400px;
+  background: var(--bg);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.phone-content { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.fake-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.8rem; font-weight: 600;
+}
+.fake-row .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.fake-row .score { margin-left: auto; font-family: 'Commissioner', sans-serif; font-weight: 800; color: var(--text-muted); }
+.fake-row.active { border-color: var(--accent); background: var(--accent-dim); }
+.fake-head { font-family:'Commissioner',sans-serif; font-weight:800; font-size:0.95rem; margin-bottom:4px; }
+
+/* ══════════════════════════════════════════════════════════
+   A - Bottom toast, accent bar + diagonal light sweep
+   Matches the existing .toast shape exactly.
+   ══════════════════════════════════════════════════════════ */
+.toast-base {
+  position: absolute; left: 50%; transform: translateX(-50%) translateY(12px);
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 20px; font-size: 0.88rem; font-weight: 600;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  max-width: min(90%, 380px);
+  opacity: 0; transition: opacity 0.22s, transform 0.22s;
+}
+.toast-base.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.a-toast {
+  bottom: 20px;
+  padding-left: 16px; overflow: hidden;
+  border-left: 4px solid var(--turn-color, var(--accent-bright));
+}
+.a-toast .a-icon {
+  flex: none; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--turn-color, var(--accent-bright));
+  display: grid; place-items: center; color: #fff; font-size: 0.8rem; font-weight: 900;
+}
+.a-toast .a-text { display: flex; flex-direction: column; gap: 1px; line-height: 1.25; }
+.a-toast .a-title { font-family: 'Commissioner', sans-serif; font-weight: 800; font-size: 0.92rem; }
+.a-toast .a-sub { font-size: 0.74rem; color: var(--text-muted); font-weight: 600; }
+/* shimmer: single diagonal highlight sweeping the toast surface */
+.a-toast::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg,
+    transparent 35%,
+    rgba(255,255,255,0.16) 48%,
+    rgba(255,255,255,0.30) 52%,
+    transparent 66%);
+  transform: translateX(-120%);
+}
+.a-toast.visible::after { animation: sweep 1.5s cubic-bezier(.25,.6,.3,1) 0.18s 2; }
+@keyframes sweep { to { transform: translateX(120%); } }
+
+/* ══════════════════════════════════════════════════════════
+   B - Top banner pill on accent gradient, shimmer over fill
+   ══════════════════════════════════════════════════════════ */
+.b-toast {
+  position: absolute; top: 16px; left: 50%;
+  transform: translateX(-50%) translateY(-14px);
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 20px; border-radius: 999px; overflow: hidden;
+  background: linear-gradient(100deg, var(--accent), var(--accent-bright));
+  color: var(--on-accent);
+  font-family: 'Commissioner', sans-serif; font-weight: 800;
+  font-size: 0.85rem; letter-spacing: 0.02em; white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  opacity: 0; transition: opacity 0.25s, transform 0.25s cubic-bezier(.2,.9,.3,1.3);
+}
+.b-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+.b-toast .b-avatar {
+  width: 20px; height: 20px; border-radius: 50%; flex: none;
+  background: var(--turn-color, #fff); border: 2px solid rgba(255,255,255,0.75);
+}
+.b-toast::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(100deg,
+    transparent 40%, rgba(255,255,255,0.55) 50%, transparent 60%);
+  transform: translateX(-120%);
+}
+.b-toast.visible::after { animation: sweep 1.25s ease-in-out 0.25s 3; }
+
+/* ══════════════════════════════════════════════════════════
+   C - Center hero card, shimmer runs through the text itself
+   ══════════════════════════════════════════════════════════ */
+.c-toast {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.88);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 26px 34px; border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--turn-color, var(--accent));
+  box-shadow: 0 0 0 6px var(--accent-dim), 0 18px 50px rgba(0,0,0,0.5);
+  opacity: 0; transition: opacity 0.25s, transform 0.3s cubic-bezier(.2,.9,.3,1.35);
+  text-align: center;
+}
+.c-toast.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.c-toast .c-eyebrow {
+  font-size: 0.68rem; font-weight: 800; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.c-toast .c-title {
+  font-family: 'Commissioner', sans-serif; font-weight: 900;
+  font-size: 1.85rem; line-height: 1.05; letter-spacing: -0.01em;
+  /* shimmer: gradient clipped to the glyphs, sliding across */
+  background: linear-gradient(100deg,
+    var(--turn-color, var(--accent-bright)) 0%,
+    var(--turn-color, var(--accent-bright)) 40%,
+    #fff 50%,
+    var(--turn-color, var(--accent-bright)) 60%,
+    var(--turn-color, var(--accent-bright)) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  background-position: 140% 0;
+}
+.c-toast.visible .c-title { animation: text-shimmer 1.7s ease-in-out 0.2s 2; }
+@keyframes text-shimmer { from { background-position: 140% 0; } to { background-position: -40% 0; } }
+.c-toast .c-name { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+
+/* ══════════════════════════════════════════════════════════
+   D - Quiet toast, shimmer lives in an animated border ring
+   ══════════════════════════════════════════════════════════ */
+.d-toast {
+  bottom: 20px; padding: 12px 20px; border-color: transparent;
+  background: var(--card);
+}
+.d-toast .d-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none;
+  background: var(--turn-color, var(--accent-bright));
+  box-shadow: 0 0 0 0 var(--turn-color, var(--accent-bright));
+}
+.d-toast.visible .d-dot { animation: pulse-dot 1.6s ease-out 3; }
+@keyframes pulse-dot {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--turn-color, var(--accent-bright)) 70%, transparent); }
+  70%  { box-shadow: 0 0 0 9px color-mix(in srgb, var(--turn-color, var(--accent-bright)) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--turn-color, var(--accent-bright)) 0%, transparent); }
+}
+.d-toast .d-title { font-family:'Commissioner',sans-serif; font-weight:800; font-size:0.88rem; }
+.d-toast .d-sub { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
+/* shimmer: conic gradient rotating behind a 1.5px inset mask = travelling border light */
+.d-toast::before {
+  content: ''; position: absolute; inset: -2px; border-radius: inherit; z-index: -1;
+  background: conic-gradient(from 0deg,
+    transparent 0turn, transparent 0.62turn,
+    var(--turn-color, var(--accent-bright)) 0.78turn,
+    #fff 0.83turn,
+    var(--turn-color, var(--accent-bright)) 0.88turn,
+    transparent 1turn);
+  opacity: 0;
+}
+.d-toast { isolation: isolate; }
+.d-toast::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  border: 1px solid var(--border); pointer-events: none;
+}
+.d-toast.visible::before { animation: ring-spin 1.4s linear 3, ring-fade 4.2s ease-out forwards; }
+@keyframes ring-spin { to { transform: rotate(1turn); } }
+@keyframes ring-fade { 0% { opacity: 0.95; } 85% { opacity: 0.95; } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .a-toast.visible::after, .b-toast.visible::after,
+  .c-toast.visible .c-title, .d-toast.visible::before,
+  .d-toast.visible .d-dot { animation: none !important; }
+  .c-toast .c-title { background-position: 50% 0; }
+}
+</style>
+</head>
+<body>
+
+<h1>"It's your turn" toast - 4 ideas</h1>
+<p class="sub">Fires on the device of whichever player (host or guest) just became active. Each frame replays on click; theme buttons show every palette. The player accent colour drives the shimmer tint, so the toast reads as "you" at a glance.</p>
+
+<div class="controls">
+  <span class="lbl">Theme</span>
+  <button data-theme-btn="ember" class="on">Ember</button>
+  <button data-theme-btn="ocean">Ocean</button>
+  <button data-theme-btn="forest">Forest</button>
+  <span class="sep"></span>
+  <span class="lbl">Mode</span>
+  <button data-mode-btn="dark" class="on">Dark</button>
+  <button data-mode-btn="light">Light</button>
+  <span class="sep"></span>
+  <span class="lbl">Player</span>
+  <button data-p="0" class="on">P1</button>
+  <button data-p="1">P2</button>
+  <button data-p="3">P4</button>
+  <button data-p="4">P5</button>
+  <button class="play-all" id="play-all">Replay all</button>
+</div>
+
+<div class="grid">
+
+  <!-- ── A ─────────────────────────────────────────────── -->
+  <section class="idea">
+    <header>
+      <h2>A - Accent-bar toast, diagonal sweep</h2>
+      <p class="note">The existing bottom toast, unchanged in shape, plus a player-coloured left bar and a light sweep across the surface. Cheapest to ship and least disruptive; also the easiest to miss if the phone is face-down on the table.</p>
+      <button class="replay" data-replay="a">Replay A</button>
+    </header>
+    <div class="phone" data-frame="a">
+      <div class="phone-content"></div>
+      <div class="toast-base a-toast" data-toast="a">
+        <span class="a-icon">&#9654;</span>
+        <span class="a-text">
+          <span class="a-title">Your turn</span>
+          <span class="a-sub">Round 3 &middot; Ben to play</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── B ─────────────────────────────────────────────── -->
+  <section class="idea">
+    <header>
+      <h2>B - Top banner pill, shimmer over accent fill</h2>
+      <p class="note">Solid accent pill dropping from the top, same slot as the update toast. Brightest of the four and hard to miss mid-game, but it sits over the header and can collide with the existing update-available toast.</p>
+      <button class="replay" data-replay="b">Replay B</button>
+    </header>
+    <div class="phone" data-frame="b">
+      <div class="phone-content"></div>
+      <div class="b-toast" data-toast="b">
+        <span class="b-avatar"></span>
+        YOUR TURN
+      </div>
+    </div>
+  </section>
+
+  <!-- ── C ─────────────────────────────────────────────── -->
+  <section class="idea">
+    <header>
+      <h2>C - Centre hero card, shimmer through the text</h2>
+      <p class="note">Full-attention moment: card pops in the middle, shimmer runs through the letterforms themselves. Most celebratory and best for across-the-table glances, but it covers the score grid, so it needs a short auto-dismiss (~2s) and tap-to-clear.</p>
+      <button class="replay" data-replay="c">Replay C</button>
+    </header>
+    <div class="phone" data-frame="c">
+      <div class="phone-content"></div>
+      <div class="c-toast" data-toast="c">
+        <span class="c-eyebrow">Round 3</span>
+        <span class="c-title">YOUR TURN</span>
+        <span class="c-name">Ben &middot; 42 pts</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── D ─────────────────────────────────────────────── -->
+  <section class="idea">
+    <header>
+      <h2>D - Quiet toast, shimmer in a travelling border</h2>
+      <p class="note">Plain toast with a light travelling around its border and a pulsing player dot. Subtlest option, safest for long sessions where a bright flash every turn gets annoying, but the shimmer is easy to miss in bright light.</p>
+      <button class="replay" data-replay="d">Replay D</button>
+    </header>
+    <div class="phone" data-frame="d">
+      <div class="phone-content"></div>
+      <div class="toast-base d-toast" data-toast="d">
+        <span class="d-dot"></span>
+        <span class="a-text">
+          <span class="d-title">Your turn</span>
+          <span class="d-sub">Round 3</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const PLAYERS = ['Ben', 'Marta', 'Rui', 'Ana'];
+const PCOLORS = ['--p0', '--p1', '--p3', '--p4'];
+let activePlayer = 0;
+
+// Fill each phone frame with a plausible tracker screen.
+function paintFrames() {
+  document.querySelectorAll('.phone-content').forEach(el => {
+    el.innerHTML = '<div class="fake-head">Wingspan &middot; Round 3</div>' +
+      PLAYERS.map((name, i) =>
+        '<div class="fake-row' + (i === activePlayer ? ' active' : '') + '">' +
+          '<span class="dot" style="background:var(' + PCOLORS[i] + ')"></span>' +
+          name + '<span class="score">' + (18 + i * 8) + '</span>' +
+        '</div>').join('');
+  });
+}
+
+function replay(key) {
+  const toast = document.querySelector('[data-toast="' + key + '"]');
+  if (!toast) return;
+  toast.classList.remove('visible');
+  // Force reflow so the animations restart from frame zero.
+  void toast.offsetWidth;
+  requestAnimationFrame(() => toast.classList.add('visible'));
+}
+
+function replayAll() { ['a','b','c','d'].forEach(replay); }
+
+document.querySelectorAll('[data-replay]').forEach(btn =>
+  btn.addEventListener('click', () => replay(btn.dataset.replay)));
+document.getElementById('play-all').addEventListener('click', replayAll);
+
+document.querySelectorAll('[data-theme-btn]').forEach(btn =>
+  btn.addEventListener('click', () => {
+    document.documentElement.dataset.theme = btn.dataset.themeBtn;
+    document.querySelectorAll('[data-theme-btn]').forEach(b => b.classList.toggle('on', b === btn));
+    replayAll();
+  }));
+
+document.querySelectorAll('[data-mode-btn]').forEach(btn =>
+  btn.addEventListener('click', () => {
+    document.documentElement.dataset.mode = btn.dataset.modeBtn;
+    document.querySelectorAll('[data-mode-btn]').forEach(b => b.classList.toggle('on', b === btn));
+  }));
+
+document.querySelectorAll('[data-p]').forEach(btn =>
+  btn.addEventListener('click', () => {
+    const idx = PCOLORS.indexOf('--p' + btn.dataset.p);
+    activePlayer = idx === -1 ? 0 : idx;
+    document.documentElement.style.setProperty('--turn-color', 'var(--p' + btn.dataset.p + ')');
+    document.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('on', b === btn));
+    paintFrames();
+    replayAll();
+  }));
+
+document.documentElement.style.setProperty('--turn-color', 'var(--p0)');
+paintFrames();
+replayAll();
+setInterval(replayAll, 6000);
+</script>
+</body>
+</html>

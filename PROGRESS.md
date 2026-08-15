@@ -15,12 +15,18 @@ One device can declare up to all 8 seats during create-room or join-room; they b
 Codex-authored pass adding the turn indicator, invite sheet, update-available toast, blank-vs-zero score entry, device-identity reconnect reservations, and the winner-column frame. Introduced `tests/regressions.mjs`, which is now part of the pre-push gate.
 → [progress/v019-scoring-and-feedback.md](progress/v019-scoring-and-feedback.md)
 
+## Your Turn Announcement (built and shipped 2026-08-15 in v0.21)
+`multiplayer` `ui` `shipped`
+Centre card with a shimmer clipped to its title text, fired only on a real turn transition into a column this device scores for. Four variants were staged first; the chosen one is variant C in `stage/your-turn-toast.html`, and the other three are still there if the call needs revisiting.
+→ [progress/your-turn-announcement.md](progress/your-turn-announcement.md)
+
 ## Next Session
-1. Test group join on 2+ real devices - it is deployed but has not been exercised end to end. Worth covering: a 3-person group joining mid-game, the host removing one member vs removing the group leader, and a refresh on the leader's device restoring the whole group.
-2. Verify the group-join dropdown against a nearly-full room (join with 2 when only 1 seat is left) - the seat count comes from `/room/:code/exists` and can go stale, so the server rejection path is the one that actually matters.
-3. Sanity-check the v0.20 cap raise: a host claiming all 8 seats on one device leaves nobody to join, and the Enter Score modal then renders 8 rows. Confirm the modal stays usable at that size on a phone and that the room still behaves sensibly with a single connected socket.
-4. Decide whether group members should be renameable by the leader. Currently only a player can rename themselves, so a typo in a group member's name is unfixable without removing them.
-5. Decide the win-logic philosophy (deferred 2026-07-09): should the tracker enforce game rules or just record scores? On tied winning totals the earlier-seated player silently wins (`indexOf` picks the first match) - decide tie handling (shared win banner? sudden-death round?).
+1. Test the v0.21 your-turn card on 2+ real devices - it shipped without ever running in the real app. Worth covering: that it fires exactly once per turn handoff (not twice, once from `round-update` and once from `turn-update`), that it stays silent on rejoin, and that the shimmer reads correctly in light mode, where the highlight sits close to the accent colour.
+2. Test group join on 2+ real devices - it is deployed but has not been exercised end to end. Worth covering: a 3-person group joining mid-game, the host removing one member vs removing the group leader, and a refresh on the leader's device restoring the whole group.
+3. Verify the group-join dropdown against a nearly-full room (join with 2 when only 1 seat is left) - the seat count comes from `/room/:code/exists` and can go stale, so the server rejection path is the one that actually matters.
+4. Sanity-check the v0.20 cap raise: a host claiming all 8 seats on one device leaves nobody to join, and the Enter Score modal then renders 8 rows. Confirm the modal stays usable at that size on a phone and that the room still behaves sensibly with a single connected socket.
+5. Decide whether group members should be renameable by the leader. Currently only a player can rename themselves, so a typo in a group member's name is unfixable without removing them.
+6. Decide the win-logic philosophy (deferred 2026-07-09): should the tracker enforce game rules or just record scores? On tied winning totals the earlier-seated player silently wins (`indexOf` picks the first match) - decide tie handling (shared win banner? sudden-death round?).
 
 ## Backlog
 - More games (round-by-round and category-based scoring)
