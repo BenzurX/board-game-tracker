@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="ember" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enter Score FAB - 3 placements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── App design tokens (copied from style.css) ─────────── */
+:root {
+  --success:    #5cb85c;
+  --danger:     #d9534f;
+  --shadow:     0 4px 24px rgba(0, 0, 0, 0.5);
+  --radius:     12px;
+  --radius-sm:  8px;
+  --p0: #e8533a; --p1: #3a9ee8; --p2: #5cb85c;
+  --p3: #f0a820; --p4: #a855f7; --p5: #14b8a6;
+}
+html[data-theme="ember"][data-mode="dark"] {
+  --bg: #1c1410; --surface: #2a1f18; --card: #3a2d25; --card-hover: #4a3d35;
+  --border: rgba(242, 232, 217, 0.12); --accent: #d4870a; --accent-bright: #f0a820;
+  --accent-dim: rgba(212, 135, 10, 0.2); --on-accent: #1c1410;
+  --text: #f2e8d9; --text-muted: #a89880;
+}
+html[data-theme="ember"][data-mode="light"] {
+  --bg: #faf5ee; --surface: #f0e8da; --card: #e4d9c8; --card-hover: #d8cbb8;
+  --border: rgba(42, 31, 24, 0.15); --accent: #b06800; --accent-bright: #cc7a00;
+  --accent-dim: rgba(176, 104, 0, 0.15); --on-accent: #faf5ee;
+  --text: #2a1f18; --text-muted: #7a6858;
+}
+html[data-theme="ocean"][data-mode="dark"] {
+  --bg: #0d1b2a; --surface: #162840; --card: #1d3554; --card-hover: #254368;
+  --border: rgba(224, 240, 245, 0.12); --accent: #0e9fa8; --accent-bright: #14c8d4;
+  --accent-dim: rgba(14, 159, 168, 0.2); --on-accent: #0d1b2a;
+  --text: #e0f0f5; --text-muted: #7aacba;
+}
+html[data-theme="ocean"][data-mode="light"] {
+  --bg: #eef5f8; --surface: #dcedf5; --card: #c5dfe8; --card-hover: #b0d0dc;
+  --border: rgba(13, 27, 42, 0.15); --accent: #0a7a82; --accent-bright: #0e9fa8;
+  --accent-dim: rgba(10, 122, 130, 0.15); --on-accent: #eef5f8;
+  --text: #0d1b2a; --text-muted: #4a7a8a;
+}
+html[data-theme="forest"][data-mode="dark"] {
+  --bg: #0f1f10; --surface: #162d17; --card: #1e3d20; --card-hover: #264d28;
+  --border: rgba(228, 242, 222, 0.12); --accent: #6b9c52; --accent-bright: #85b869;
+  --accent-dim: rgba(107, 156, 82, 0.2); --on-accent: #0f1f10;
+  --text: #e4f2de; --text-muted: #7a9e72;
+}
+html[data-theme="forest"][data-mode="light"] {
+  --bg: #f0f8ed; --surface: #dff0d8; --card: #cce4c2; --card-hover: #b8d8ae;
+  --border: rgba(15, 31, 16, 0.15); --accent: #3d7a1c; --accent-bright: #4e9a26;
+  --accent-dim: rgba(61, 122, 28, 0.15); --on-accent: #f0f8ed;
+  --text: #0f1f10; --text-muted: #4a6840;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1.4;
+  padding: 24px 16px 64px;
+}
+
+/* ── Stage furniture (not part of the app) ─────────────── */
+.stage-head { max-width: 900px; margin: 0 auto 20px; }
+.stage-head h1 {
+  font-family: 'Commissioner', sans-serif;
+  font-size: 1.3rem; font-weight: 900; color: var(--accent-bright);
+  margin-bottom: 6px;
+}
+.stage-head p { font-size: 0.9rem; color: var(--text-muted); max-width: 66ch; }
+.stage-controls {
+  max-width: 900px; margin: 0 auto 24px;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.stage-controls button {
+  font: inherit; font-size: 0.82rem; font-weight: 700;
+  padding: 7px 12px; border-radius: 999px; cursor: pointer;
+  background: var(--card); color: var(--text); border: 1px solid var(--border);
+}
+.stage-controls button.sel { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.stage-controls .sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+
+.phones { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+.phone-slot { width: 320px; }
+.phone-label {
+  font-family: 'Commissioner', sans-serif; font-weight: 800;
+  font-size: 0.85rem; margin-bottom: 8px; color: var(--accent-bright);
+}
+.phone-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; min-height: 5em; }
+
+/* The phone frame stands in for the viewport. Inside it the markup and the
+   layout are the app's: a fixed-height flex column whose middle child is the
+   only thing that scrolls. */
+.phone {
+  height: 560px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ── App chrome (copied shapes from style.css) ─────────── */
+.screen-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px 10px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.screen-header h2 {
+  flex: 1; text-align: center; font-family: 'Commissioner', sans-serif;
+  font-size: 1.05rem; font-weight: 800; color: var(--accent-bright);
+}
+.header-actions { display: flex; gap: 6px; }
+.btn-chip {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--card); color: var(--text); border: none;
+  font: inherit; font-size: 0.85rem; cursor: pointer;
+}
+.mp-room-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.mp-room-code { font-weight: 800; letter-spacing: 0.04em; font-size: 0.95rem; color: var(--accent); }
+.mp-room-code span { color: var(--text-muted); font-weight: 600; }
+.btn-qr {
+  margin-left: auto; font: inherit; font-size: 0.75rem; font-weight: 700;
+  padding: 5px 11px; border-radius: 999px;
+  background: var(--card); color: var(--text); border: 1px solid var(--border); cursor: pointer;
+}
+
+.table-scroll-wrap {
+  position: relative; flex: 1; min-height: 0;
+  overflow-y: auto; overflow-x: auto; padding: 0;
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+thead th {
+  position: sticky; top: 0; z-index: 3;
+  background: var(--surface); color: var(--text-muted);
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 8px 6px; border-bottom: 1px solid var(--border);
+}
+tbody td { padding: 9px 6px; text-align: center; border-bottom: 1px solid var(--border); }
+.col-round { color: var(--text-muted); font-size: 0.75rem; width: 34px; }
+tfoot td {
+  position: sticky; bottom: 0; z-index: 3;
+  background: var(--surface); font-weight: 800;
+  padding: 10px 6px; text-align: center; border-top: 1px solid var(--border);
+}
+
+.tracker-actions {
+  display: flex; gap: 8px; padding: 10px 12px;
+  background: var(--surface); border-top: 1px solid var(--border);
+}
+.tracker-actions button {
+  font: inherit; font-size: 0.85rem; font-weight: 700;
+  padding: 10px 14px; border-radius: var(--radius-sm); cursor: pointer; border: none;
+}
+.btn-primary { flex: 2; background: var(--accent); color: var(--on-accent); }
+.btn-secondary { flex: 1; background: var(--card); color: var(--text); border: 1px solid var(--border) !important; }
+
+/* ── Chrome auto-hide (as shipped) ─────────────────────── */
+.phone .screen-header,
+.phone .mp-room-bar,
+.phone .tracker-actions {
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 220ms ease, padding 220ms ease, opacity 160ms ease,
+              border-width 220ms ease;
+}
+.phone.chrome-top-hidden .screen-header,
+.phone.chrome-top-hidden .mp-room-bar,
+.phone.chrome-bottom-hidden .tracker-actions {
+  max-height: 0; padding-top: 0; padding-bottom: 0;
+  border-width: 0; opacity: 0; pointer-events: none;
+}
+
+/* ── The thing being staged: the floating Enter Score button ──
+   It is the counterpart to the action bar, so its visibility is the exact
+   inverse: it exists only while `chrome-bottom-hidden` is on. That makes the
+   whole rule CSS - no second scroll listener, and no window where both the bar
+   and the button are on screen offering the same action twice. */
+.fab {
+  position: absolute;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  font: inherit;
+  /* Hidden state. Scale plus opacity rather than `display`, so it can animate
+     out instead of vanishing under the returning action bar. */
+  opacity: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 200ms cubic-bezier(0.2, 1.3, 0.5, 1);
+}
+.phone.chrome-bottom-hidden .fab {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+.fab:active { transform: scale(0.92); }
+.fab-plus {
+  width: 22px; height: 22px;
+  stroke: currentColor; stroke-width: 3; stroke-linecap: round; fill: none;
+}
+
+/* All three sit on the left, over the round-number gutter rather than over a
+   player column, and all three clear `--fab-clear`: the height of the sticky
+   Total row plus the active round row above it. Those two are the rows worth
+   protecting - the Total is what people check, and the active round is the one
+   being played. That distance is measured at runtime rather than hardcoded,
+   because row height moves with font size and density. */
+.fab { left: 12px; bottom: var(--fab-clear, 88px); }
+
+/* Variant A - plain circle. */
+.fab--a { width: 54px; height: 54px; border-radius: 50%; }
+
+/* Variant B - same circle, resting translucent so the round numbers underneath
+   stay half-readable, and going solid on touch. */
+.fab--b { width: 54px; height: 54px; border-radius: 50%; }
+.phone.chrome-bottom-hidden .fab--b { opacity: 0.72; }
+.phone.chrome-bottom-hidden .fab--b:hover,
+.phone.chrome-bottom-hidden .fab--b:focus-visible { opacity: 1; }
+
+/* Variant C - labelled pill. Says what it does, at the cost of reaching further
+   across the board. */
+.fab--c {
+  height: 46px; padding: 0 18px; border-radius: 999px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.85rem; font-weight: 800;
+}
+
+/* The row currently being played, tinted here so the clearance is visible.
+   Nothing to do with the button - it is stage scaffolding. */
+tbody tr.round-active td {
+  background: var(--accent-dim);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone .screen-header,
+  .phone .mp-room-bar,
+  .phone .tracker-actions,
+  .fab { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="stage-head">
+  <h1>Floating Enter Score button - 3 left-side treatments</h1>
+  <p>Each frame is a live tracker screen with the shipped chrome auto-hide. Scroll a board: the title and room bars collapse once you leave the top, the action bar collapses once you leave the bottom, and the floating button fades in exactly when the action bar is gone. Scroll to the very bottom and the button hands the job back to the real bar. The two never overlap, because the button's visibility is the CSS inverse of the bar's.</p>
+  <p>All three sit on the left over the round-number gutter, so nothing they cover is a score. Their height off the bottom is measured, not hardcoded: the sticky Total row plus the active round row (tinted here) plus a 10px gap, so both stay clear whatever the row height turns out to be.</p>
+</div>
+
+<div class="stage-controls">
+  <button data-theme-btn="ember" class="sel">Ember</button>
+  <button data-theme-btn="ocean">Ocean</button>
+  <button data-theme-btn="forest">Forest</button>
+  <span class="sep"></span>
+  <button data-mode-btn="dark" class="sel">Dark</button>
+  <button data-mode-btn="light">Light</button>
+  <span class="sep"></span>
+  <button id="btn-short">Short board (no overflow)</button>
+</div>
+
+<div class="phones" id="phones"></div>
+
+<script>
+const VARIANTS = [
+  {
+    id: 'a',
+    label: 'A - left circle',
+    note: 'Sits over the round-number gutter, clear of both the Total row and the active round. Covers two or three round numbers and nothing else.',
+  },
+  {
+    id: 'b',
+    label: 'B - left circle, translucent at rest (CHOSEN, shipped at 60%)',
+    note: 'Same spot, resting at 72% so the round numbers underneath stay half-readable. Goes solid on hover or focus. Quieter, but a faded primary action can read as disabled.',
+  },
+  {
+    id: 'c',
+    label: 'C - left pill with label',
+    note: 'Says what it does instead of relying on the + being understood. Reaches further across the board, so it clips the first player column on a narrow phone.',
+  },
+];
+
+const ROUNDS = 14;
+
+function buildPhone(variant) {
+  const slot = document.createElement('div');
+  slot.className = 'phone-slot';
+
+  const rows = [];
+  for (let r = 1; r <= ROUNDS; r++) {
+    const cells = [350, 500, 300, 450].map(base =>
+      `<td>${base + r * 40 + (r % 3) * 25}</td>`).join('');
+    const active = r === ROUNDS ? ' class="round-active"' : '';
+    rows.push(`<tr${active}><td class="col-round">${r}</td>${cells}</tr>`);
+  }
+
+  const fab = variant.id === 'c'
+    ? `<button class="fab fab--c" aria-label="Enter Score">
+         <svg class="fab-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+         <span>Enter Score</span>
+       </button>`
+    : `<button class="fab fab--${variant.id}" aria-label="Enter Score">
+         <svg class="fab-plus" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+       </button>`;
+
+  slot.innerHTML = `
+    <div class="phone-label">${variant.label}</div>
+    <div class="phone">
+      <header class="screen-header">
+        <button class="btn-chip">&lsaquo;</button>
+        <h2>Farkle</h2>
+        <div class="header-actions">
+          <button class="btn-chip">?</button>
+          <button class="btn-chip">&#9881;</button>
+        </div>
+      </header>
+      <div class="mp-room-bar">
+        <span class="mp-room-code"><span>Room</span> QWLM</span>
+        <button class="btn-qr">Invite</button>
+      </div>
+      <div class="table-scroll-wrap">
+        <table>
+          <thead><tr><th class="col-round">#</th><th>Ben</th><th>Ana</th><th>Kit</th><th>Ray</th></tr></thead>
+          <tbody>${rows.join('')}</tbody>
+          <tfoot><tr><td class="col-round">Tot.</td><td>6120</td><td>7340</td><td>5880</td><td>6910</td></tr></tfoot>
+        </table>
+      </div>
+      <div class="tracker-actions">
+        <button class="btn-primary">Enter Score</button>
+        <button class="btn-secondary">New Game</button>
+      </div>
+      ${fab}
+    </div>
+    <div class="phone-note">${variant.note}</div>
+  `;
+  return slot;
+}
+
+// ── Chrome auto-hide, same logic as app.js ────────────────
+const CHROME_EDGE_SLACK = 8;
+const CHROME_MIN_OVERFLOW = 80;
+
+function wirePhone(phone) {
+  const wrap = phone.querySelector('.table-scroll-wrap');
+  let expandedViewport = 0;
+
+  // How far off the bottom the button has to sit to leave the sticky Total row
+  // and the active round row uncovered. Measured rather than hardcoded: both
+  // heights move with font size, and the app has a density setting.
+  function measureClearance() {
+    const totals = phone.querySelector('tfoot tr');
+    const rows = Array.from(phone.querySelectorAll('tbody tr'))
+      .filter(row => row.style.display !== 'none');
+    const activeRow = rows[rows.length - 1];
+    if (!totals || !activeRow) return;
+    const clear = totals.offsetHeight + activeRow.offsetHeight + 10;
+    phone.style.setProperty('--fab-clear', clear + 'px');
+  }
+
+  function update() {
+    const collapsed = phone.classList.contains('chrome-top-hidden') ||
+      phone.classList.contains('chrome-bottom-hidden');
+    if (!collapsed) expandedViewport = wrap.clientHeight;
+
+    const overflow = wrap.scrollHeight - (expandedViewport || wrap.clientHeight);
+    if (overflow <= CHROME_MIN_OVERFLOW) {
+      phone.classList.remove('chrome-top-hidden', 'chrome-bottom-hidden');
+      return;
+    }
+    const maxScroll = wrap.scrollHeight - wrap.clientHeight;
+    phone.classList.toggle('chrome-top-hidden', wrap.scrollTop > CHROME_EDGE_SLACK);
+    phone.classList.toggle('chrome-bottom-hidden',
+      maxScroll - wrap.scrollTop > CHROME_EDGE_SLACK);
+  }
+
+  wrap.addEventListener('scroll', update, { passive: true });
+  new ResizeObserver(() => { measureClearance(); update(); })
+    .observe(wrap.querySelector('table'));
+  measureClearance();
+  update();
+}
+
+const phones = document.getElementById('phones');
+VARIANTS.forEach(v => phones.appendChild(buildPhone(v)));
+document.querySelectorAll('.phone').forEach(wirePhone);
+
+// ── Stage controls ────────────────────────────────────────
+document.querySelectorAll('[data-theme-btn]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.documentElement.dataset.theme = btn.dataset.themeBtn;
+    document.querySelectorAll('[data-theme-btn]').forEach(b => b.classList.toggle('sel', b === btn));
+  });
+});
+document.querySelectorAll('[data-mode-btn]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.documentElement.dataset.mode = btn.dataset.modeBtn;
+    document.querySelectorAll('[data-mode-btn]').forEach(b => b.classList.toggle('sel', b === btn));
+  });
+});
+
+// Trims the boards to two rounds so the no-overflow case can be checked: with
+// nothing to scroll, every bar stays pinned and the floating button never
+// appears at all.
+let short = false;
+document.getElementById('btn-short').addEventListener('click', (e) => {
+  short = !short;
+  e.currentTarget.classList.toggle('sel', short);
+  e.currentTarget.textContent = short ? 'Full board (14 rounds)' : 'Short board (no overflow)';
+  document.querySelectorAll('.phone tbody').forEach(body => {
+    Array.from(body.rows).forEach((row, i) => {
+      row.style.display = (short && i >= 2) ? 'none' : '';
+    });
+  });
+});
+</script>
+</body>
+</html>

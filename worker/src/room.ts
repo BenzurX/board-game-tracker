@@ -23,6 +23,10 @@ interface Player {
   color: string;
   deviceId: string | null;
   reconnectUntil: number | null;
+  // Set when this player's socket closed. Until it passes they still count as
+  // present: a refresh, a tab throttle or a brief network drop must not strike
+  // their name out or skip their turn. Null whenever the socket is live.
+  graceUntil: number | null;
 }
 
 interface RoomData {
@@ -34,6 +38,11 @@ interface RoomData {
   players: Player[];
   rounds: Array<Array<number | null>>;
   roundSubmitted: boolean[];
+  // Parallel to rounds - the player who took the first turn of each round. Turn
+  // order rotates from whoever the host declared went first, so a round does not
+  // necessarily start at the leftmost column, and the final-round rule has to
+  // know where each round actually began.
+  roundStarts: string[];
   onBoard: boolean[]; // parallel to players - true once a player has met minScore in one round
   gameOver: boolean;
   disconnectedAt: number | null;
@@ -82,6 +91,20 @@ interface LeaveSelfMessage {
 interface RenameSelfMessage {
   type: "rename-self";
   name: string;
+  // Absent means "rename me". Present when renaming someone this sender is
+  // allowed to rename: a player they added in a group join, or - for the host -
+  // anyone at the table.
+  playerId?: string;
+}
+
+// Keeps an idle socket from being dropped by an intermediary. No state change.
+interface PingMessage {
+  type: "ping";
+}
+
+// Host-only: same room, same roster, blank scoreboard.
+interface ResetGameMessage {
+  type: "reset-game";
 }
 
 interface SubmitScoreMessage {
@@ -165,6 +188,8 @@ type ClientMessage =
   | HostLeaveMessage
   | LeaveSelfMessage
   | RenameSelfMessage
+  | PingMessage
+  | ResetGameMessage
   | UpdateRulesMessage;
 
 interface StoredRoomRow {
@@ -176,6 +201,11 @@ const MAX_PLAYERS = 8;
 const MAX_GROUP_SIZE = 8;
 const ABANDONED_ROOM_TIMEOUT_MS = 30 * 60 * 1000;
 const REJOIN_RESERVATION_MS = 10 * 60 * 1000;
+// How long a player keeps their seat, their turn and an unstruck name after
+// their socket drops. Long enough to cover a page refresh taken on your own
+// turn, a phone locking, or a backgrounded desktop tab whose socket the browser
+// quietly closed - none of those mean the person left the table.
+const PRESENCE_GRACE_MS = 5 * 60 * 1000;
 const PLAYER_REMOVED_CLOSE_CODE = 4001;
 const PLAYER_COLORS = [
   "#3a9ee8", "#5cb85c", "#f0a820", "#a855f7",
@@ -212,12 +242,19 @@ export class Room extends DurableObject<Env> {
           this.room.currentTurnPlayerId ??
           this.room.players.find((player) => player.isHost)?.id ??
           null;
+        // Rooms persisted before turn order was recorded played every round from
+        // the leftmost column, which is what an empty entry means to the client.
+        this.room.roundStarts = this.room.roundStarts ?? [];
+        while (this.room.roundStarts.length < this.room.rounds.length) {
+          this.room.roundStarts.push(this.room.players[0]?.id ?? "");
+        }
         for (const [index, player] of this.room.players.entries()) {
           player.scorerId = player.scorerId ?? null;
           player.groupLeaderId = player.groupLeaderId ?? null;
           player.color = player.color ?? PLAYER_COLORS[index % PLAYER_COLORS.length];
           player.deviceId = player.deviceId ?? null;
           player.reconnectUntil = player.reconnectUntil ?? null;
+          player.graceUntil = player.graceUntil ?? null;
         }
       }
     });
@@ -379,7 +416,22 @@ export class Room extends DurableObject<Env> {
         break;
 
       case "rename-self":
-        await this.handleRenameSelf(ws, attachment, parsed.name);
+        await this.handleRenamePlayer(
+          ws,
+          attachment,
+          parsed.name,
+          parsed.playerId,
+        );
+        break;
+
+      case "reset-game":
+        await this.handleResetGame(attachment);
+        break;
+
+      case "ping":
+        // Keepalive only - answering keeps the round trip observable to the
+        // client, which uses it to notice a connection that has gone quiet.
+        this.send(ws, { type: "pong" });
         break;
 
       case "update-rules":
@@ -415,25 +467,18 @@ export class Room extends DurableObject<Env> {
       return;
     }
 
-    player.connected = false;
-    player.reconnectUntil = player.isHost ? null : Date.now() + REJOIN_RESERVATION_MS;
+    // The socket is gone, but the player is not: they stay `connected` (so their
+    // name isn't struck out, their turn isn't skipped and the round doesn't
+    // advance past them) until the grace window expires in `alarm`.
+    player.graceUntil = Date.now() + PRESENCE_GRACE_MS;
 
-    // Everyone this device declared goes offline with it.
+    // Everyone this device declared waits out the same window with it.
     for (const member of this.groupMembers(player.id)) {
-      member.connected = false;
-      member.reconnectUntil = player.reconnectUntil;
+      member.graceUntil = player.graceUntil;
     }
 
-    await this.updateAbandonedRoomAlarm();
     await this.persist();
-
-    this.broadcast({
-      type: "roster-update",
-      players: this.room.players,
-      currentTurnPlayerId: this.room.currentTurnPlayerId,
-    });
-
-    await this.advanceRoundIfComplete();
+    await this.refreshAlarm();
   }
 
   async webSocketError(
@@ -448,32 +493,66 @@ export class Room extends DurableObject<Env> {
       return;
     }
 
+    const expired = this.expireGracePeriods();
+
+    if (expired) {
+      await this.persist();
+
+      this.broadcast({
+        type: "roster-update",
+        players: this.room.players,
+        currentTurnPlayerId: this.room.currentTurnPlayerId,
+      });
+
+      // Only now that they genuinely count as gone can the round move past them.
+      await this.advanceRoundIfComplete();
+    }
+
     const allDisconnected =
       this.room.players.length === 0 ||
       this.room.players.every((player) => !player.connected);
 
-    if (!allDisconnected) {
-      this.room.disconnectedAt = null;
+    if (
+      allDisconnected &&
+      this.room.disconnectedAt !== null &&
+      Date.now() >= this.room.disconnectedAt + ABANDONED_ROOM_TIMEOUT_MS
+    ) {
+      this.room = null;
+      this.ctx.storage.sql.exec(
+        "DELETE FROM room_state WHERE singleton = 1",
+      );
       await this.ctx.storage.deleteAlarm();
-      await this.persist();
       return;
     }
 
-    const disconnectedAt = this.room.disconnectedAt ?? Date.now();
-    const deleteAt = disconnectedAt + ABANDONED_ROOM_TIMEOUT_MS;
+    await this.persist();
+    await this.refreshAlarm();
+  }
 
-    if (Date.now() < deleteAt) {
-      this.room.disconnectedAt = disconnectedAt;
-      await this.ctx.storage.setAlarm(deleteAt);
-      await this.persist();
-      return;
+  // Turns every lapsed grace window into a real disconnect. Returns whether
+  // anything changed, so the caller can skip a needless broadcast.
+  private expireGracePeriods(): boolean {
+    if (!this.room) {
+      return false;
     }
 
-    this.room = null;
-    this.ctx.storage.sql.exec(
-      "DELETE FROM room_state WHERE singleton = 1",
-    );
-    await this.ctx.storage.deleteAlarm();
+    const now = Date.now();
+    let changed = false;
+
+    for (const player of this.room.players) {
+      if (player.graceUntil === null || player.graceUntil > now) {
+        continue;
+      }
+
+      player.graceUntil = null;
+      player.connected = false;
+      player.reconnectUntil = player.isHost
+        ? null
+        : now + REJOIN_RESERVATION_MS;
+      changed = true;
+    }
+
+    return changed;
   }
 
   private async handleJoin(
@@ -519,6 +598,7 @@ export class Room extends DurableObject<Env> {
         existingPlayer.connected = true;
         existingPlayer.connSeq += 1;
         existingPlayer.reconnectUntil = null;
+        existingPlayer.graceUntil = null;
 
         // Group members have no socket of their own - their presence in the
         // room follows the device that entered them.
@@ -526,6 +606,7 @@ export class Room extends DurableObject<Env> {
           member.connected = true;
           member.connSeq = existingPlayer.connSeq;
           member.reconnectUntil = null;
+          member.graceUntil = null;
         }
 
         ws.serializeAttachment({
@@ -656,6 +737,7 @@ export class Room extends DurableObject<Env> {
         players: [],
         rounds: [],
         roundSubmitted: [],
+        roundStarts: [],
         onBoard: [],
         gameOver: false,
         disconnectedAt: null,
@@ -676,6 +758,7 @@ export class Room extends DurableObject<Env> {
       color: PLAYER_COLORS[this.room.players.length % PLAYER_COLORS.length],
       deviceId: typeof message.deviceId === "string" ? message.deviceId : null,
       reconnectUntil: null,
+      graceUntil: null,
     };
 
     if (player.isHost) {
@@ -699,6 +782,7 @@ export class Room extends DurableObject<Env> {
         color: PLAYER_COLORS[(this.room.players.length + joining.length) % PLAYER_COLORS.length],
         deviceId: null,
         reconnectUntil: null,
+        graceUntil: null,
       });
     }
 
@@ -791,8 +875,7 @@ export class Room extends DurableObject<Env> {
     }
 
     if (room.rounds.length === 0) {
-      room.rounds.push(room.players.map(() => null));
-      room.roundSubmitted = room.players.map(() => false);
+      this.openRound();
     }
 
     const currentRound = room.rounds[room.rounds.length - 1];
@@ -810,6 +893,7 @@ export class Room extends DurableObject<Env> {
       type: "round-update",
       rounds: room.rounds,
       roundSubmitted: room.roundSubmitted,
+      roundStarts: room.roundStarts,
       currentTurnPlayerId: room.currentTurnPlayerId,
     });
 
@@ -945,6 +1029,29 @@ export class Room extends DurableObject<Env> {
       (player) => player.id === room.currentTurnPlayerId,
     );
     const keep = room.players.map((player) => !doomed.has(player.id));
+    const orderBeforeRemoval = room.players.map((player) => player.id);
+
+    // A removed player can still be recorded as the seat that led a past round
+    // off. Handing that round's start to the next seat in the order it was
+    // actually played keeps the surviving seats in the same relative rotation,
+    // which is what the Farkle final-lap rule counts from.
+    room.roundStarts = room.roundStarts.map((starterId) => {
+      if (!starterId || !doomed.has(starterId)) {
+        return starterId;
+      }
+
+      const start = orderBeforeRemoval.indexOf(starterId);
+
+      for (let offset = 1; offset < orderBeforeRemoval.length; offset++) {
+        const candidate =
+          orderBeforeRemoval[(start + offset) % orderBeforeRemoval.length];
+        if (!doomed.has(candidate)) {
+          return candidate;
+        }
+      }
+
+      return "";
+    });
 
     room.players = room.players.filter((_, index) => keep[index]);
     room.rounds = room.rounds.map((round) =>
@@ -1092,6 +1199,7 @@ export class Room extends DurableObject<Env> {
       type: "round-update",
       rounds: this.room.rounds,
       roundSubmitted: this.room.roundSubmitted,
+      roundStarts: this.room.roundStarts,
     });
   }
 
@@ -1125,7 +1233,7 @@ export class Room extends DurableObject<Env> {
     ];
 
     this.removePlayers(removedIds);
-    await this.updateAbandonedRoomAlarm();
+    await this.refreshAlarm();
     await this.persist();
 
     for (const removedId of removedIds) {
@@ -1192,8 +1300,22 @@ export class Room extends DurableObject<Env> {
     if (!this.room.players.some((player) => player.id === playerId)) return;
 
     this.room.currentTurnPlayerId = playerId;
+    // Farkle tables roll dice to decide who leads off, so the host declares the
+    // first player before anyone scores. Declaring into an untouched round moves
+    // where that round begins, which is what the final-round rule counts from.
+    const openRoundIndex = this.room.rounds.length - 1;
+    if (
+      openRoundIndex >= 0 &&
+      this.room.roundSubmitted.every((submitted) => !submitted)
+    ) {
+      this.room.roundStarts[openRoundIndex] = playerId;
+    }
     await this.persist();
-    this.broadcast({ type: "turn-update", currentTurnPlayerId: playerId });
+    this.broadcast({
+      type: "turn-update",
+      currentTurnPlayerId: playerId,
+      roundStarts: this.room.roundStarts,
+    });
   }
 
   private advanceCurrentTurnIfScored(scoredIndexes: number[]): void {
@@ -1296,7 +1418,7 @@ export class Room extends DurableObject<Env> {
       this.room.players[0].isHost = true;
     }
 
-    await this.updateAbandonedRoomAlarm();
+    await this.refreshAlarm();
     await this.persist();
 
     this.broadcast({
@@ -1308,10 +1430,14 @@ export class Room extends DurableObject<Env> {
     await this.advanceRoundIfComplete();
   }
 
-  private async handleRenameSelf(
+  // Renames the sender, one of the players they entered on their own device, or
+  // - for the host - anyone at the table. A guest can only ever reach their own
+  // seat and the seats they added.
+  private async handleRenamePlayer(
     ws: WebSocket,
     attachment: SocketAttachment,
     rawName: string,
+    targetPlayerId?: string,
   ): Promise<void> {
     if (!this.room) {
       return;
@@ -1323,11 +1449,21 @@ export class Room extends DurableObject<Env> {
       return;
     }
 
+    const targetId = targetPlayerId ?? attachment.playerId;
     const player = this.room.players.find(
-      (candidate) => candidate.id === attachment.playerId,
+      (candidate) => candidate.id === targetId,
     );
 
     if (!player) {
+      return;
+    }
+
+    const isSelf = player.id === attachment.playerId;
+    const isOwnGroupMember = player.groupLeaderId === attachment.playerId;
+    const isHostRenaming =
+      attachment.isHost && this.isCurrentHost(attachment.playerId);
+
+    if (!isSelf && !isOwnGroupMember && !isHostRenaming) {
       return;
     }
 
@@ -1336,7 +1472,7 @@ export class Room extends DurableObject<Env> {
     if (
       this.room.players.some(
         (candidate) =>
-          candidate.id !== attachment.playerId &&
+          candidate.id !== player.id &&
           candidate.name.toLocaleLowerCase() === normalizedName,
       )
     ) {
@@ -1353,6 +1489,40 @@ export class Room extends DurableObject<Env> {
     this.broadcast({
       type: "roster-update",
       players: this.room.players,
+    });
+  }
+
+  // Host-only "New Game" inside a live room: same players, same room code,
+  // blank scoreboard back at round 1 with the host holding the first turn.
+  private async handleResetGame(
+    attachment: SocketAttachment,
+  ): Promise<void> {
+    if (
+      !this.room ||
+      !attachment.isHost ||
+      !this.isCurrentHost(attachment.playerId)
+    ) {
+      return;
+    }
+
+    this.room.rounds = [];
+    this.room.roundSubmitted = this.room.players.map(() => false);
+    this.room.roundStarts = [];
+    this.room.onBoard = this.room.players.map(() => this.room!.minScore === 0);
+    this.room.gameOver = false;
+    this.room.currentTurnPlayerId =
+      this.room.players.find((player) => player.isHost)?.id ??
+      this.room.players[0]?.id ??
+      null;
+
+    await this.persist();
+
+    this.broadcast({
+      type: "game-reset",
+      rounds: this.room.rounds,
+      roundSubmitted: this.room.roundSubmitted,
+      roundStarts: this.room.roundStarts,
+      currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
   }
 
@@ -1427,14 +1597,14 @@ export class Room extends DurableObject<Env> {
         type: "round-update",
         rounds: this.room.rounds,
         roundSubmitted: this.room.roundSubmitted,
+        roundStarts: this.room.roundStarts,
       });
 
       return;
     }
 
     if (this.room.rounds.length === 0) {
-      this.room.rounds.push(this.room.players.map(() => null));
-      this.room.roundSubmitted = this.room.players.map(() => false);
+      this.openRound();
     }
 
     const currentRound = this.room.rounds[this.room.rounds.length - 1];
@@ -1457,10 +1627,27 @@ export class Room extends DurableObject<Env> {
       type: "round-update",
       rounds: this.room.rounds,
       roundSubmitted: this.room.roundSubmitted,
+      roundStarts: this.room.roundStarts,
       currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
 
     await this.advanceRoundIfComplete();
+  }
+
+  // Opens a blank round row and records whose turn starts it. The starter is
+  // whoever holds the turn at that moment: the host's declared first player for
+  // round one, and for every round after it the seat the previous round's last
+  // submission handed the turn to.
+  private openRound(): void {
+    if (!this.room) {
+      return;
+    }
+
+    this.room.rounds.push(this.room.players.map(() => null));
+    this.room.roundSubmitted = this.room.players.map(() => false);
+    this.room.roundStarts.push(
+      this.room.currentTurnPlayerId ?? this.room.players[0]?.id ?? "",
+    );
   }
 
   private async advanceRoundIfComplete(): Promise<void> {
@@ -1486,11 +1673,7 @@ export class Room extends DurableObject<Env> {
       return;
     }
 
-    this.room.rounds.push(
-      this.room.players.map(() => null),
-    );
-    this.room.roundSubmitted =
-      this.room.players.map(() => false);
+    this.openRound();
 
     await this.persist();
 
@@ -1498,6 +1681,7 @@ export class Room extends DurableObject<Env> {
       type: "round-advance",
       rounds: this.room.rounds,
       roundSubmitted: this.room.roundSubmitted,
+      roundStarts: this.room.roundStarts,
       currentTurnPlayerId: this.room.currentTurnPlayerId,
     });
   }
@@ -1508,10 +1692,13 @@ export class Room extends DurableObject<Env> {
     }
 
     this.room.disconnectedAt = null;
-    await this.ctx.storage.deleteAlarm();
+    await this.refreshAlarm();
   }
 
-  private async updateAbandonedRoomAlarm(): Promise<void> {
+  // One alarm serves two deadlines: the next grace window to expire, and the
+  // deletion of a room nobody is left in. Whichever comes first wins; `alarm`
+  // re-arms for the other one afterwards.
+  private async refreshAlarm(): Promise<void> {
     if (!this.room) {
       return;
     }
@@ -1520,20 +1707,36 @@ export class Room extends DurableObject<Env> {
       this.room.players.length === 0 ||
       this.room.players.every((player) => !player.connected);
 
-    if (!allDisconnected) {
+    if (allDisconnected) {
+      if (this.room.disconnectedAt === null) {
+        this.room.disconnectedAt = Date.now();
+      }
+    } else {
       this.room.disconnectedAt = null;
+    }
+
+    const deadlines: number[] = [];
+
+    for (const player of this.room.players) {
+      if (player.graceUntil !== null) {
+        deadlines.push(player.graceUntil);
+      }
+    }
+
+    if (this.room.disconnectedAt !== null) {
+      deadlines.push(this.room.disconnectedAt + ABANDONED_ROOM_TIMEOUT_MS);
+    }
+
+    await this.persist();
+
+    if (deadlines.length === 0) {
       await this.ctx.storage.deleteAlarm();
       return;
     }
 
-    if (this.room.disconnectedAt === null) {
-      this.room.disconnectedAt = Date.now();
-    }
-
-    await this.ctx.storage.setAlarm(
-      this.room.disconnectedAt + ABANDONED_ROOM_TIMEOUT_MS,
-    );
+    await this.ctx.storage.setAlarm(Math.min(...deadlines));
   }
+
 
   private async persist(): Promise<void> {
     if (!this.room) {
@@ -1569,6 +1772,7 @@ export class Room extends DurableObject<Env> {
       players: this.room.players,
       rounds: this.room.rounds,
       roundSubmitted: this.room.roundSubmitted,
+      roundStarts: this.room.roundStarts,
       ruleOverrides: this.room.ruleOverrides,
       customRules: this.room.customRules,
       currentTurnPlayerId: this.room.currentTurnPlayerId,
@@ -1728,10 +1932,18 @@ export class Room extends DurableObject<Env> {
 
       case "host-leave":
       case "leave-self":
+      case "ping":
+      case "reset-game":
         return true;
 
       case "rename-self":
-        return "name" in value && typeof value.name === "string";
+        return (
+          "name" in value &&
+          typeof value.name === "string" &&
+          (!("playerId" in value) ||
+            value.playerId === undefined ||
+            typeof value.playerId === "string")
+        );
 
       case "submit-score":
         return (

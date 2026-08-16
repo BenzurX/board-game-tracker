@@ -1,7 +1,7 @@
 // ── App Version ──────────────────────────────────────────
 // Bumped alongside CHANGELOG.md per the pre-push gate - single source of truth
 // for the version shown in Settings and on the home screen.
-const APP_VERSION = '0.21';
+const APP_VERSION = '0.22';
 document.getElementById('settings-version').textContent = `v${APP_VERSION}`;
 document.getElementById('home-version').textContent = `v${APP_VERSION}`;
 
@@ -495,6 +495,10 @@ function resumeSavedGame() {
   history.pushState({ screen: 'screen-setup' }, '', '#screen-setup');
   buildTrackerScreen();
   navigateTo('screen-tracker');
+  // Land on the round in progress rather than round 1, the same way rejoining a
+  // room does. Deferred a frame: the table has no measurable height until the
+  // screen it lives on has been laid out.
+  requestAnimationFrame(() => scrollTableToLatestRound({ smooth: false }));
 }
 
 // ── Screen Navigation ────────────────────────────────────
@@ -565,7 +569,7 @@ window.addEventListener('popstate', e => {
   if (activeScreen === 'screen-tracker' && state.rounds.length > 0 && target !== 'screen-tracker') {
     confirmLeaveAction = 'back';
     history.pushState({ screen: 'screen-tracker' }, '', '#screen-tracker'); // cancel the back nav visually
-    document.getElementById('modal-confirm').classList.remove('hidden');
+    openConfirmLeaveModal();
     return;
   }
 
@@ -761,10 +765,37 @@ document.getElementById('btn-back-setup').addEventListener('click', () => histor
 // button - decides what btn-confirm-leave does once the user confirms.
 let confirmLeaveAction = 'back';
 
+// True when this device can restart the game without tearing the room down:
+// the host, with at least one other player still in it.
+function mpCanResetRoom() {
+  return !!(state.multiplayer && state.mpIsHost && state.players.length > 1);
+}
+
+// The same confirm sheet covers three outcomes, so its wording is set per flow.
+function openConfirmLeaveModal() {
+  const resetting = confirmLeaveAction === 'reset';
+  document.getElementById('confirm-leave-title').textContent =
+    resetting ? 'Start a new game?' : 'Leave game?';
+  document.getElementById('confirm-leave-hint').textContent = resetting
+    ? 'Everyone stays in the room and every score resets to zero.'
+    : 'Your current scores will be lost.';
+  document.getElementById('btn-confirm-leave').textContent =
+    resetting ? 'New Game' : 'Leave';
+  document.getElementById('modal-confirm').classList.remove('hidden');
+}
+
 document.getElementById('confirm-backdrop').addEventListener('click', closeConfirmModal);
 document.getElementById('btn-confirm-stay').addEventListener('click', closeConfirmModal);
 document.getElementById('btn-confirm-leave').addEventListener('click', () => {
   closeConfirmModal();
+
+  // Restarting in place keeps the room, the roster and the saved game - only
+  // the scoreboard goes back to the start.
+  if (confirmLeaveAction === 'reset') {
+    mpSend({ type: 'reset-game' });
+    return;
+  }
+
   clearSavedGame(); // leaving is deliberate - don't offer this game for resume
   if (state.multiplayer) {
     if (state.mpIsHost) { mpLeavingSelf = true; mpSend({ type: 'host-leave' }); }
@@ -790,7 +821,25 @@ function buildTrackerScreen() {
   document.getElementById('tracker-title').textContent = state.gameName;
   document.getElementById('winner-banner').classList.add('hidden');
   hideWinnerColumnFrame();
+  forgetBoardMemory();
+  // The room bar is present in a multiplayer game and absent in a solo one, so
+  // the heights measured for the last game do not describe this one.
+  resetChromeMetrics();
   renderTable();
+}
+
+// A board arriving on screen - new game, resumed game, room joined, host reset -
+// is entirely "new" as far as the render diff is concerned. Dropping the previous
+// board is what stops every cell flashing at once on that first paint.
+function forgetBoardMemory() {
+  boardMemoryPrimed = false;
+  lastTotalsById = new Map();
+  lastCellsByKey = new Map();
+  lastRenderedRoundCount = 0;
+  lastRenderedTurnId = null;
+  // Any total still counting belongs to the board being replaced; its target is
+  // meaningless against the new one.
+  runningTotals.clear();
 }
 
 document.getElementById('btn-refresh').addEventListener('click', async () => {
@@ -813,6 +862,13 @@ document.getElementById('btn-refresh').addEventListener('click', async () => {
 
 function renderTable() {
   const { players, rounds } = state;
+
+  // What changed since the last paint. Everything animated below keys off these
+  // three, and all of them stay false on the first render of a board so a
+  // resumed or joined game does not light up every cell at once.
+  const animate = boardMemoryPrimed && !prefersReducedMotion();
+  const roundAdded = animate && rounds.length > lastRenderedRoundCount;
+  const turnMoved = animate && mpCurrentTurnPlayerId !== lastRenderedTurnId;
 
   // Header
   const headerRow = document.getElementById('player-header-row');
@@ -846,13 +902,17 @@ function renderTable() {
       ? players.find(other => other.id === p.scorerId)
       : null;
     span.title = state.multiplayer
-      ? (proxyScorer ? `${p.name} - scores entered by ${proxyScorer.name}` : p.name)
+      ? (proxyScorer
+          ? `${p.name} - scores entered by ${proxyScorer.name}`
+          : (mpCanRename(p) ? `${p.name} - tap to rename` : p.name))
       : `${p.name} - tap to rename`;
     span.addEventListener('click', () => {
       if (state.multiplayer) {
-        const isSelf = p.id === state.mpPlayerId;
+        // The host gets the full options sheet for every seat; a guest taps
+        // straight into renaming any seat they own (their own, plus anyone they
+        // added on this device).
         if (state.mpIsHost) { mpOpenPlayerOptions(pi); return; }
-        if (isSelf) mpEditOwnName(th, pi);
+        if (mpCanRename(p)) mpEditPlayerName(th, pi);
         return;
       }
       editPlayerName(th, pi);
@@ -869,6 +929,10 @@ function renderTable() {
     wrap.append(dot, span);
     th.appendChild(wrap);
     th.classList.toggle('current-turn', p.id === mpCurrentTurnPlayerId);
+    // Fade the highlight onto the column that just took the turn. At 6-8 players
+    // the turn can jump right across the screen, and a hard cut between two
+    // columns is easy to miss entirely.
+    th.classList.toggle('turn-claim', turnMoved && p.id === mpCurrentTurnPlayerId);
     th.classList.toggle('mp-disconnected-col', state.multiplayer && p.connected === false);
     headerRow.appendChild(th);
   });
@@ -878,6 +942,9 @@ function renderTable() {
   tbody.innerHTML = '';
   rounds.forEach((round, ri) => {
     const tr = document.createElement('tr');
+    // The board scrolls to the newest round the moment it appears; without an
+    // entrance the row is simply already there and the scroll reads as a jump.
+    if (roundAdded && ri === rounds.length - 1) tr.className = 'row-enter';
     tr.innerHTML = `<td class="col-round">${ri + 1}</td>`;
     round.forEach((score, pi) => {
       const td = document.createElement('td');
@@ -895,6 +962,15 @@ function renderTable() {
         td.className = 'score-cell unscored';
         td.textContent = '·';
         td.title = 'Not yet entered';
+      } else if (score === null && state.gameKey === 'farkle') {
+        // Farkle only: rolling 300 when the entry threshold is 500 banks exactly
+        // as much as rolling nothing at all - zero. Marking one F and the other ✗
+        // implied a difference that does not exist at the table, so both read as
+        // a Farkle here. Games with an entry threshold but no Farkle concept keep
+        // the ✗, where "not on the board yet" really is its own state.
+        td.className = 'score-cell farkle';
+        td.textContent = 'F';
+        td.title = 'Farkle (below entry threshold - banked nothing) - tap to edit';
       } else if (score === null) {
         td.className = 'score-cell not-on-board';
         td.textContent = '✗';
@@ -929,7 +1005,19 @@ function renderTable() {
           td.textContent = score.toLocaleString();
         }
       }
-      td.classList.toggle('current-turn', state.players[pi]?.id === mpCurrentTurnPlayerId);
+      const isCurrentTurnCol = state.players[pi]?.id === mpCurrentTurnPlayerId;
+      td.classList.toggle('current-turn', isCurrentTurnCol);
+      td.classList.toggle('turn-claim', turnMoved && isCurrentTurnCol);
+
+      // A score that changed since the last paint - most often another device
+      // entering theirs while you were looking elsewhere - gets a one-shot tint
+      // so the eye lands on it. `has` rather than a truthy check: a cell going
+      // from empty to a real score is exactly the case worth flashing.
+      const cellKey = `${boardKeyFor(state.players[pi], pi)}|${ri}`;
+      if (animate && lastCellsByKey.has(cellKey) && lastCellsByKey.get(cellKey) !== score) {
+        td.classList.add('cell-flash');
+      }
+
       td.addEventListener('click', () => {
         if (state.multiplayer) {
           if (state.mpScoringMode === 'host') {
@@ -954,6 +1042,22 @@ function renderTable() {
     tbody.appendChild(tr);
   });
 
+  // A blank row below the last round. The totals row is stuck to the bottom of
+  // the scrollport, so the newest round is only fully clear of it at the exact
+  // bottom of the scroll - and the exact bottom is also where the action bar
+  // comes back. This row buys the slack to be at one without the other: the
+  // auto-scroll stops SCROLL_TAIL_SLACK short of the end, which puts the newest
+  // round flush above the totals row while the bar stays collapsed. It sits
+  // inside the table rather than being padding on the scrollport so the totals
+  // row keeps sticking to the true bottom edge.
+  if (rounds.length > 0) {
+    const tailRow = document.createElement('tr');
+    tailRow.className = 'scroll-tail';
+    tailRow.setAttribute('aria-hidden', 'true');
+    tailRow.innerHTML = `<td colspan="${players.length + 1}"></td>`;
+    tbody.appendChild(tailRow);
+  }
+
   // Totals footer
   const totalsRow = document.getElementById('totals-row');
   totalsRow.innerHTML = '<td class="col-round totals-label"><span class="totals-label-short">Tot.</span><span class="totals-label-full">Total</span></td>';
@@ -962,8 +1066,23 @@ function renderTable() {
   totals.forEach((total, i) => {
     const td = document.createElement('td');
     td.style.color = state.players[i].color;
-    td.textContent = (leaders.includes(i) ? '👑 ' : '') + total.toLocaleString();
-    td.classList.toggle('current-turn', state.players[i]?.id === mpCurrentTurnPlayerId);
+    const prefix = leaders.includes(i) ? '👑 ' : '';
+    const key = boardKeyFor(state.players[i], i);
+    const priorTotal = lastTotalsById.get(key);
+    const inFlight = runningTotals.get(key);
+    if (animate && inFlight && inFlight.to === total) {
+      // A count already heading for this number: hand it the new cell rather
+      // than concluding nothing changed and painting the final value.
+      countUpTotal(td, key, inFlight.value, total, prefix);
+    } else if (animate && priorTotal !== undefined && priorTotal !== total) {
+      countUpTotal(td, key, priorTotal, total, prefix);
+    } else {
+      runningTotals.delete(key);
+      td.textContent = prefix + total.toLocaleString();
+    }
+    const isCurrentTurnCol = state.players[i]?.id === mpCurrentTurnPlayerId;
+    td.classList.toggle('current-turn', isCurrentTurnCol);
+    td.classList.toggle('turn-claim', turnMoved && isCurrentTurnCol);
     totalsRow.appendChild(td);
   });
 
@@ -971,6 +1090,23 @@ function renderTable() {
     const best = state.scoreDirection === 'low' ? Math.min(...totals) : Math.max(...totals);
     showWinnerColumnFrame(totals.indexOf(best));
   }
+
+  // Snapshot what is now on screen, so the next render can tell what moved.
+  // Rebuilt rather than patched, which drops players who have left instead of
+  // leaving their totals behind to be compared against a reused column.
+  lastTotalsById = new Map(players.map((p, i) => [boardKeyFor(p, i), totals[i]]));
+  lastCellsByKey = new Map();
+  rounds.forEach((round, ri) => {
+    players.forEach((p, pi) => lastCellsByKey.set(`${boardKeyFor(p, pi)}|${ri}`, round[pi]));
+  });
+  lastRenderedRoundCount = rounds.length;
+  lastRenderedTurnId = mpCurrentTurnPlayerId;
+  boardMemoryPrimed = true;
+
+  // Rows have just changed height and count, so the floating button's clearance
+  // and its locked state are both stale until re-derived.
+  measureScoreFabClearance();
+  syncScoreFabState();
 
   // Every state change ends in a re-render, so this is the one save point.
   saveGame();
@@ -1000,10 +1136,19 @@ function editPlayerName(th, pi) {
   });
 }
 
-// Multiplayer name edit for the local player's own column - sends the change
-// to the server for validation/uniqueness instead of writing state directly;
-// the roster-update broadcast (or a name-taken error) reconciles the render.
-function mpEditOwnName(th, pi) {
+// True when this device is allowed to rename that player: their own seat, a
+// seat they added in a group join, or - for the host - anyone at the table.
+function mpCanRename(player) {
+  if (!player) return false;
+  return player.id === state.mpPlayerId ||
+    player.groupLeaderId === state.mpPlayerId ||
+    !!state.mpIsHost;
+}
+
+// Multiplayer name edit - sends the change to the server for validation and
+// uniqueness instead of writing state directly; the roster-update broadcast
+// (or a name-taken error) reconciles the render.
+function mpEditPlayerName(th, pi) {
   const p = state.players[pi];
   const input = document.createElement('input');
   input.type = 'text';
@@ -1018,7 +1163,7 @@ function mpEditOwnName(th, pi) {
 
   const commit = () => {
     const newName = input.value.trim();
-    if (newName && newName !== p.name) mpSend({ type: 'rename-self', name: newName });
+    if (newName && newName !== p.name) mpSend({ type: 'rename-self', name: newName, playerId: p.id });
     renderTable();
   };
   input.addEventListener('blur', commit);
@@ -1103,35 +1248,71 @@ function getLeaders(totals) {
   return leaders.length === totals.length ? [] : leaders;
 }
 
-// Earliest round index where some player's running total first reaches winScore,
-// or -1 if no round has done so yet. Purely derived from state.rounds/winScore, so
-// it comes out identical on every device (host-scoring, each-scoring, or solo)
-// without needing any extra synced state.
-function findWinTriggerRound() {
-  if (!state.winScore || state.winScore <= 0) return -1;
+// The round where some player's running total first reaches winScore, and the
+// seat that got there, or null if nobody has. Purely derived from
+// state.rounds/winScore, so it comes out identical on every device
+// (host-scoring, each-scoring, or solo) without needing any extra synced state.
+// Within the crossing round the seats are read in that round's turn order, so
+// the crosser is whoever got there first in play rather than whoever sits
+// furthest left.
+function findWinTrigger() {
+  if (!state.winScore || state.winScore <= 0) return null;
   const running = state.players.map(() => 0);
   for (let r = 0; r < state.rounds.length; r++) {
     state.players.forEach((_, pi) => { running[pi] += (state.rounds[r][pi] || 0); });
-    if (running.some(t => t >= state.winScore)) return r;
+    // Seats bank their scores in turn order, so the first seat in that order to
+    // be over the target is the one who actually got there first. That is not
+    // the leftmost column once a round starts somewhere other than column one.
+    const crosser = mpTurnOrder(r).find(pi => running[pi] >= state.winScore);
+    if (crosser !== undefined) return { round: r, playerIndex: crosser };
   }
-  return -1;
+  return null;
 }
 
-// How many rounds must be on the board before a winner can be declared, given
-// the round where the target was first crossed. Some games (Farkle) give
-// everyone else one more full round to beat the target once someone crosses it,
-// rather than ending the instant it's hit. The round where the target was
-// crossed doesn't count as that extra round even for players who go after the
-// crosser, since rounds are entered as one shared row (host-scoring or "each"
-// mode) rather than tracked turn-by-turn.
-function roundsNeededToWin(triggerRound) {
-  const extraRound = !!(GAMES[state.gameKey]?.finalRoundOnWin);
-  return triggerRound + (extraRound ? 2 : 1);
+// Whether round `r` is finished. Multiplayer keeps an empty row open for the
+// round in progress, so a later row is what proves the earlier one closed;
+// solo rounds are entered whole, so the row existing is enough.
+function roundIsComplete(r) {
+  if (r < 0) return false;
+  return state.multiplayer ? state.rounds.length > r + 1 : state.rounds.length >= r + 1;
+}
+
+// Whether the last lap has been played out, so a winner can be crowned.
+//
+// The extra round belongs to whoever crossed the target, not to the round they
+// crossed in: if the crosser played fourth of six, the two seats behind them
+// finish that round and the three ahead of them take their turn in the next one
+// - and then it's over. Waiting for the whole next row would hand the crosser
+// and everyone after them a second bite. Position is measured in this round's
+// turn order, not column order, because the host declares who leads off.
+// Only multiplayer can settle mid-row (it tracks who has submitted); solo
+// enters a round at a time, so there it still takes the full extra round.
+function finalLapSettled(trigger) {
+  // Games without a final round end the moment the target is crossed.
+  if (!GAMES[state.gameKey]?.finalRoundOnWin) {
+    return state.rounds.length >= trigger.round + 1;
+  }
+  const order = mpTurnOrder(trigger.round);
+  const crosserPos = Math.max(0, order.indexOf(trigger.playerIndex));
+  // Leading the round off and crossing means everyone else already answered it
+  // inside that same round, so the game ends when the round does.
+  if (crosserPos === 0) return roundIsComplete(trigger.round);
+  const extraRound = trigger.round + 1;
+  if (roundIsComplete(extraRound)) return true;
+  if (!state.multiplayer || state.rounds.length <= extraRound) return false;
+  for (let i = 0; i < crosserPos; i++) {
+    const pi = order[i];
+    // A player who has genuinely dropped out can't be waited on.
+    if (state.players[pi] && state.players[pi].connected === false) continue;
+    if (!mpRoundSubmitted[pi]) return false;
+  }
+  return true;
 }
 
 function checkWin() {
   const banner = document.getElementById('winner-banner');
-  const triggerRound = findWinTriggerRound();
+  const trigger = findWinTrigger();
+  const triggerRound = trigger ? trigger.round : -1;
 
   // No target, or target not reached yet: no winner - reset so a later win re-celebrates
   if (triggerRound === -1) {
@@ -1144,9 +1325,7 @@ function checkWin() {
     return;
   }
 
-  const roundsNeeded = roundsNeededToWin(triggerRound);
-
-  if (state.rounds.length < roundsNeeded) {
+  if (!finalLapSettled(trigger)) {
     banner.classList.add('hidden');
     hideWinnerColumnFrame();
     state.gameOver = false;
@@ -1154,7 +1333,8 @@ function checkWin() {
     mpGameOverSent = false;
     if (!state.finalRoundAnnounced) {
       state.finalRoundAnnounced = true;
-      showToast(`FINAL ROUND STARTED!! Someone scored over ${state.winScore.toLocaleString()} points! One more round for everyone else to beat it.`);
+      const crosser = state.players[trigger.playerIndex];
+      showToast(`FINAL ROUND STARTED!! ${crosser ? crosser.name : 'Someone'} scored over ${state.winScore.toLocaleString()} points! Everyone else gets one more turn to beat it.`);
     }
     return;
   }
@@ -1189,6 +1369,250 @@ function checkWin() {
   saveGame(); // callers render before checkWin runs, so persist the gameOver flag here
 }
 
+// ── Motion ───────────────────────────────────────────────
+// Every animation below is decoration over information the table already shows,
+// so all of them are skipped outright when the OS asks for reduced motion rather
+// than being shortened. Read live, not cached: the setting can change mid-session.
+function prefersReducedMotion() {
+  return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+// The table is rebuilt wholesale on every render, so a CSS transition between
+// two renders can never fire - the nodes it would transition are new. Anything
+// that reacts to a change therefore has to compare against what was on screen
+// last time and hand the fresh node a keyframe animation instead. These three
+// maps are that memory.
+let lastTotalsById = new Map();     // player id -> total as last rendered
+let lastCellsByKey = new Map();     // "playerId|roundIndex" -> score as last rendered
+let lastRenderedRoundCount = 0;
+let lastRenderedTurnId = null;
+// Nothing should animate on the first paint of a resumed or joined game: every
+// value is "new" then, and the whole board would flash at once.
+let boardMemoryPrimed = false;
+
+// Only multiplayer seats carry an id - solo players are built from names and
+// colours alone. Keying the render memory on id alone therefore collapses every
+// solo column onto the same "undefined|0" entry, where the last player written
+// wins and the others compare against a stranger's score. Column index is stable
+// within a solo game, so it stands in.
+function boardKeyFor(player, index) {
+  return (player && player.id) ? player.id : `#${index}`;
+}
+
+// Counts a total up (or down) to its new value. The number people actually watch
+// is the total, so moving it makes the round land; jumping it does not.
+const TOTAL_COUNT_MS = 420;
+
+// Count-ups in flight, keyed the same way the render memory is. Renders happen
+// for reasons that have nothing to do with the total mid-count - the round
+// completing, the turn moving on, a presence update - and each one builds a
+// fresh <td>. Without this record the second render inside the 420ms window
+// looks up the memory, finds it already holding the new total, decides there is
+// nothing to animate and paints the final number, killing the count a few frames
+// in. That hits the last column hardest, because its score is the one that
+// completes the round and triggers the extra render.
+const runningTotals = new Map();
+
+function countUpTotal(td, key, from, to, prefix) {
+  const live = runningTotals.get(key);
+  // Same target as the count already running: keep its clock and its origin and
+  // just point it at the new cell, so a re-render mid-count is invisible.
+  // Different target means the score moved again, so start a fresh count from
+  // the number currently on screen rather than snapping back to an older one.
+  const record = (live && live.to === to) ? live : {
+    from: live ? live.value : from,
+    value: live ? live.value : from,
+    to,
+    start: performance.now(),
+    running: false,
+  };
+  record.td = td;
+  record.prefix = prefix;
+  runningTotals.set(key, record);
+  if (record.running) return;   // existing loop will pick up the new cell
+  record.running = true;
+
+  function step(now) {
+    // Superseded by a later render starting a different count for this column.
+    if (runningTotals.get(key) !== record) return;
+    // The cell is replaced on every render, so a stale animation would be
+    // writing into a detached node.
+    if (!record.td.isConnected) { runningTotals.delete(key); return; }
+    const t = Math.min(1, (now - record.start) / TOTAL_COUNT_MS);
+    // Ease-out: most of the distance early, so it reads as fast even at 420ms.
+    const eased = 1 - Math.pow(1 - t, 3);
+    record.value = Math.round(record.from + (record.to - record.from) * eased);
+    record.td.textContent = record.prefix + record.value.toLocaleString();
+    if (t < 1) requestAnimationFrame(step);
+    else runningTotals.delete(key);
+  }
+  requestAnimationFrame(step);
+}
+
+// Scrolls the score table down to the newest round row. Used when a round is
+// added and when (re)joining a room, so nobody is left looking at round 1 while
+// the table has moved on.
+function scrollTableToLatestRound({ smooth = true } = {}) {
+  const wrap = document.querySelector('.table-scroll-wrap');
+  if (!wrap) return;
+  const tail = document.querySelector('#score-body tr.scroll-tail');
+  const maxScroll = wrap.scrollHeight - wrap.clientHeight;
+  // Stop the height of the tail row short of the true bottom. That lands the
+  // newest round flush above the sticky totals row while leaving the action bar
+  // collapsed - scrolling the whole way would bring the bar back and give up the
+  // space the collapse just freed, which is the opposite of what this is for.
+  const top = tail ? Math.max(0, maxScroll - tail.offsetHeight) : maxScroll;
+  wrap.scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
+}
+
+// Brings the current turn's column into view horizontally. With a full table
+// the active column is often outside the viewport, so a turn several seats away
+// would otherwise pass unnoticed.
+function scrollTableToCurrentTurn({ smooth = true } = {}) {
+  const wrap = document.querySelector('.table-scroll-wrap');
+  if (!wrap || !mpCurrentTurnPlayerId) return;
+  const playerIndex = state.players.findIndex(p => p.id === mpCurrentTurnPlayerId);
+  if (playerIndex === -1) return;
+  const cells = document.querySelectorAll('#player-header-row th');
+  const cell = cells[playerIndex + 1];
+  if (!cell) return;
+  // The round-number column eats the left edge of the viewport, so treat it as
+  // part of the frame rather than as space the player column can sit in.
+  const gutter = cells[0] ? cells[0].offsetWidth : 0;
+  const visibleWidth = wrap.clientWidth - gutter;
+  if (visibleWidth <= 0) return;
+  const alreadyVisible = cell.offsetLeft >= wrap.scrollLeft + gutter &&
+    cell.offsetLeft + cell.offsetWidth <= wrap.scrollLeft + wrap.clientWidth;
+  if (alreadyVisible) return;
+  const centered = cell.offsetLeft - gutter - Math.max(0, (visibleWidth - cell.offsetWidth) / 2);
+  wrap.scrollTo({ left: Math.max(0, centered), behavior: smooth ? 'smooth' : 'auto' });
+}
+
+// ── Tracker chrome auto-hide ─────────────────────────────
+// The title bar, the room bar and the action bar collapse while the board is
+// scrolled away from the end each belongs to, so the middle of a long game is
+// all board. Scrolling back to the top brings the title and room bars back;
+// scrolling to the bottom brings the action bar back.
+
+// How close to an end counts as being at it.
+const CHROME_EDGE_SLACK = 8;
+// Below this much scrollable overflow, collapsing buys nothing and risks the
+// board no longer overflowing at all once the bars are gone - leave them pinned.
+const CHROME_MIN_OVERFLOW = 80;
+// The scrollport's height with nothing collapsed. Remembered rather than read
+// live so the guard above always measures against the same yardstick: measuring
+// the collapsed height would let collapsing change the number that decides
+// whether to collapse, which flickers on a board that only just overflows.
+let chromeExpandedViewport = 0;
+// The action bar's own height, remembered from whenever it was last measured at
+// full size. Taken as a running maximum because a measurement taken mid-collapse
+// catches it part-way through its 220ms transition, and an under-estimate here
+// is exactly what would reintroduce the oscillation this number exists to stop.
+// Reset when the layout changes underneath it.
+let chromeBottomBarHeight = 0;
+
+function resetChromeMetrics() {
+  chromeExpandedViewport = 0;
+  chromeBottomBarHeight = 0;
+}
+
+function updateTrackerChrome() {
+  const screen = document.getElementById('screen-tracker');
+  const wrap = document.querySelector('.table-scroll-wrap');
+  if (!screen || !wrap) return;
+
+  const collapsed = screen.classList.contains('chrome-top-hidden') ||
+    screen.classList.contains('chrome-bottom-hidden');
+  if (!collapsed) chromeExpandedViewport = wrap.clientHeight;
+
+  const overflow = wrap.scrollHeight - (chromeExpandedViewport || wrap.clientHeight);
+  if (overflow <= CHROME_MIN_OVERFLOW) {
+    screen.classList.remove('chrome-top-hidden', 'chrome-bottom-hidden');
+    return;
+  }
+
+  // Top is decided on scrollTop alone, which revealing the bars cannot change:
+  // they expand downwards from a scroll position of zero, so there is no loop.
+  screen.classList.toggle('chrome-top-hidden', wrap.scrollTop > CHROME_EDGE_SLACK);
+
+  // Bottom cannot be decided the same way. "Distance to maxScroll" is measured
+  // against clientHeight, and revealing the action bar shrinks clientHeight by
+  // the bar's own height - so the reveal immediately makes the test read "not at
+  // the bottom any more", which hides the bar, which puts us back at the bottom.
+  // That is the loop: the answer moves the question.
+  //
+  // Measuring the gap from scrollTop to the end of the content instead gives a
+  // number the bar cannot touch, since neither scrollHeight nor scrollTop moves
+  // when it collapses. Comparing that against the viewport as it stands *with
+  // the bar hidden* (the larger of the two) makes one band that holds in both
+  // states: at the collapsed bottom the gap equals that viewport exactly, and
+  // revealing the bar only shrinks the gap further inside the band. Leaving it
+  // then takes scrolling up past the bar's full height, not one pixel.
+  const bottomHidden = screen.classList.contains('chrome-bottom-hidden');
+  const bar = screen.querySelector('.tracker-actions');
+  if (bar && !bottomHidden) {
+    chromeBottomBarHeight = Math.max(chromeBottomBarHeight, bar.offsetHeight);
+  }
+  const hiddenViewport = wrap.clientHeight + (bottomHidden ? 0 : chromeBottomBarHeight);
+  const gapToEnd = wrap.scrollHeight - wrap.scrollTop;
+  screen.classList.toggle('chrome-bottom-hidden',
+    gapToEnd > hiddenViewport + CHROME_EDGE_SLACK);
+}
+
+// The floating Enter Score button stands in for the action bar while that bar is
+// collapsed; CSS handles showing it. This only has to keep it clear of the two
+// rows worth protecting - the sticky totals row and the round being played - and
+// keep it wearing the same locked state as the button it stands in for.
+
+// Measured on layout changes rather than on scroll: reading offsetHeight forces
+// layout, which has no business running on every scroll event.
+function measureScoreFabClearance() {
+  const screen = document.getElementById('screen-tracker');
+  const totalsRow = document.getElementById('totals-row');
+  const rows = document.querySelectorAll('#score-body tr:not(.scroll-tail)');
+  const activeRow = rows[rows.length - 1];
+  if (!screen || !totalsRow || !activeRow) return;
+  screen.style.setProperty('--fab-clear',
+    (totalsRow.offsetHeight + activeRow.offsetHeight + 10) + 'px');
+}
+
+// The floating button is an icon with no text to grey out, so it mirrors the
+// action button rather than deriving the same state twice and risking the two
+// disagreeing about whether this device may score.
+function syncScoreFabState() {
+  const fab = document.getElementById('btn-fab-score');
+  const btn = document.getElementById('btn-add-turn');
+  if (!fab || !btn) return;
+  fab.disabled = btn.disabled;
+  fab.classList.toggle('mp-locked', btn.classList.contains('mp-locked'));
+}
+
+(function watchTrackerChrome() {
+  const wrap = document.querySelector('.table-scroll-wrap');
+  if (!wrap) return;
+  wrap.addEventListener('scroll', updateTrackerChrome, { passive: true });
+  window.addEventListener('resize', () => {
+    // Rotation, a keyboard opening, a font-size change: every remembered height
+    // above is stale, and a stale one is worse than none.
+    resetChromeMetrics();
+    measureScoreFabClearance();
+    updateTrackerChrome();
+  });
+  // A new round row changes whether the board overflows at all, and no scroll
+  // event fires for that.
+  if (typeof ResizeObserver === 'function') {
+    new ResizeObserver(() => {
+      measureScoreFabClearance();
+      updateTrackerChrome();
+    }).observe(document.getElementById('score-table'));
+  }
+  // Delegated rather than duplicated: the action button owns the entry flow,
+  // including the toast that names whose turn it is when this device is locked
+  // out, and that toast is the whole point of it staying clickable while locked.
+  const fab = document.getElementById('btn-fab-score');
+  if (fab) fab.addEventListener('click', () => document.getElementById('btn-add-turn').click());
+})();
+
 function hideWinnerColumnFrame() {
   document.getElementById('winner-column-frame').classList.add('hidden');
 }
@@ -1213,7 +1637,21 @@ window.addEventListener('resize', () => {
 });
 
 // ── Win Confetti (classic burst) ─────────────────────────
+// Tapping the winner banner again used to cancel the burst in flight and start
+// over, so celebrating twice in a row read as an interruption rather than as
+// more confetti. Bursts now stack instead. Three is the cap: it is enough that
+// hammering the banner feels generous, and it bounds the particle count at 450
+// no matter how fast anyone taps. Past three the oldest burst - the one closest
+// to finishing anyway - is dropped to make room.
+const CONFETTI_MAX_BURSTS = 3;
+const CONFETTI_LIFE = 5;
+// How long a burst pushed off the end of the queue takes to fade out. Long
+// enough to read as the confetti thinning, short enough that the burst replacing
+// it is clearly the one that answered the tap.
+const CONFETTI_FADE = 0.35;
+let confettiBursts = [];
 let confettiRAF = null;
+
 function fireConfetti() {
   const canvas = document.getElementById('confetti-canvas');
   if (!canvas) return;
@@ -1221,45 +1659,80 @@ function fireConfetti() {
 
   const dpr = window.devicePixelRatio || 1;
   const W = window.innerWidth, H = window.innerHeight;
-  canvas.width  = W * dpr;
-  canvas.height = H * dpr;
+  // Resizing a canvas clears it, so only do it when the size actually changed -
+  // otherwise a second burst wipes the first one's frame out from under it.
+  if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) {
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+  }
   const ctx = canvas.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const rand = (a, b) => a + Math.random() * (b - a);
-  const parts = Array.from({ length: 150 }, () => ({
-    x: rand(0, W),
-    y: rand(-H * 0.5, 0),
-    w: rand(6, 11),
-    h: rand(8, 15),
-    vx: rand(-0.6, 0.6),
-    vy: rand(2.2, 5),
-    rot: rand(0, Math.PI * 2),
-    vr: rand(-0.25, 0.25),
-    sway: rand(0.5, 1.6),
-    phase: rand(0, Math.PI * 2),
-    color: PLAYER_COLORS[(Math.random() * PLAYER_COLORS.length) | 0],
-  }));
+  confettiBursts.push({
+    t: 0,
+    fade: 0,      // counts up once this burst has been pushed off the end
+    retiring: false,
+    parts: Array.from({ length: 150 }, () => ({
+      x: rand(0, W),
+      y: rand(-H * 0.5, 0),
+      w: rand(6, 11),
+      h: rand(8, 15),
+      vx: rand(-0.6, 0.6),
+      vy: rand(2.2, 5),
+      rot: rand(0, Math.PI * 2),
+      vr: rand(-0.25, 0.25),
+      sway: rand(0.5, 1.6),
+      phase: rand(0, Math.PI * 2),
+      color: PLAYER_COLORS[(Math.random() * PLAYER_COLORS.length) | 0],
+    })),
+  });
+  // Over the cap, the oldest burst is retired rather than dropped on the spot:
+  // yanking 150 pieces out of the frame is a visible hole, and the tap that
+  // caused it should read as adding confetti, not as deleting some. It fades out
+  // over CONFETTI_FADE while the new burst is already falling. Bursts already
+  // retiring do not count against the cap - they are on their way out, and
+  // counting them would retire a live burst early to make room for nothing.
+  const live = confettiBursts.filter(burst => !burst.retiring);
+  if (live.length > CONFETTI_MAX_BURSTS) live[0].retiring = true;
 
-  let t = 0;
-  if (confettiRAF) cancelAnimationFrame(confettiRAF);
+  // One loop drives every burst; a second call joins the existing loop rather
+  // than starting a rival one that would fight it for the same canvas.
+  if (confettiRAF) return;
   (function frame() {
-    ctx.clearRect(0, 0, W, H);
-    t += 0.016;
-    for (const p of parts) {
-      p.x += p.vx + Math.sin(t * 2 + p.phase) * p.sway;
-      p.y += p.vy;
-      p.rot += p.vr;
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle = p.color;
-      ctx.globalAlpha = 0.95;
-      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      ctx.restore();
+    // Cleared in device pixels so it still covers the canvas if a later burst
+    // resized it, rather than trusting the width this loop was started with.
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+    // Retired before drawing rather than after, so the frame that ends the last
+    // burst is a frame that paints nothing and the canvas is left clean.
+    confettiBursts = confettiBursts.filter(burst =>
+      burst.t < CONFETTI_LIFE && burst.fade < CONFETTI_FADE);
+    for (const burst of confettiBursts) {
+      burst.t += 0.016;
+      if (burst.retiring) burst.fade += 0.016;
+      // Squared so the fade starts gently and finishes fast, which reads as the
+      // confetti thinning out rather than as the canvas being dimmed.
+      const alpha = burst.retiring
+        ? 0.95 * Math.pow(1 - burst.fade / CONFETTI_FADE, 2)
+        : 0.95;
+      for (const p of burst.parts) {
+        p.x += p.vx + Math.sin(burst.t * 2 + p.phase) * p.sway;
+        p.y += p.vy;
+        p.rot += p.vr;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = alpha;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
     }
-    if (t < 5) confettiRAF = requestAnimationFrame(frame);
-    else { ctx.clearRect(0, 0, W, H); confettiRAF = null; }
+    if (confettiBursts.length) confettiRAF = requestAnimationFrame(frame);
+    else confettiRAF = null;
   })();
 }
 
@@ -1278,9 +1751,17 @@ function replayCelebration() {
 }
 
 document.getElementById('btn-new-game').addEventListener('click', () => {
+  // A host with other people in the room restarts the game in place instead of
+  // closing it: same room code, same players, board back to round 1.
+  if (mpCanResetRoom()) {
+    if (state.rounds.length === 0) { mpSend({ type: 'reset-game' }); return; }
+    confirmLeaveAction = 'reset';
+    openConfirmLeaveModal();
+    return;
+  }
   if (state.rounds.length > 0) {
     confirmLeaveAction = 'newgame';
-    document.getElementById('modal-confirm').classList.remove('hidden');
+    openConfirmLeaveModal();
     return;
   }
   if (state.multiplayer) {
@@ -1305,9 +1786,9 @@ document.getElementById('btn-add-turn').addEventListener('click', () => {
     return;
   }
   const mpEach = state.multiplayer && state.mpScoringMode === 'each';
-  // In 'each' mode this device enters its own score plus a row for every player
-  // who nominated it as their scorer - and nothing at all if this player has
-  // nominated someone else.
+  // In 'each' mode this device enters the seat whose turn it is plus any of its
+  // other seats queued directly behind that one - and nothing at all if this
+  // player has nominated someone else, or if the turn is somebody else's.
   let mpEachPending = [];
   if (mpEach) {
     const targets = mpEntryTargets();
@@ -1316,9 +1797,13 @@ document.getElementById('btn-add-turn').addEventListener('click', () => {
       showToast(`${scorer ? scorer.name : 'Another player'} is entering your scores.`);
       return;
     }
-    mpEachPending = targets.filter(p => !mpRoundSubmitted[state.players.indexOf(p)]);
+    mpEachPending = mpTurnEntryRun();
     if (mpEachPending.length === 0) {
-      showToast('You must wait for all players to enter their score for the round.');
+      const allIn = targets.every(p => mpRoundSubmitted[state.players.indexOf(p)]);
+      const up = state.players.find(p => p.id === mpCurrentTurnPlayerId);
+      showToast(allIn
+        ? 'You must wait for all players to enter their score for the round.'
+        : (up ? `It's ${up.name}'s turn right now.` : 'Wait for your turn to enter a score.'));
       return;
     }
   }
@@ -1470,10 +1955,7 @@ document.getElementById('btn-save-turn').addEventListener('click', () => {
   closeTurnModal();
   renderTable();
   checkWin();
-  // The sticky totals row only covers rows when the wrap isn't scrolled all
-  // the way down - scroll to the true bottom so the new row lands above it.
-  const scrollWrap = document.querySelector('.table-scroll-wrap');
-  scrollWrap.scrollTo({ top: scrollWrap.scrollHeight, behavior: 'smooth' });
+  scrollTableToLatestRound();
 });
 
 // ── Multiplayer ──────────────────────────────────────────
@@ -1486,6 +1968,7 @@ let mpToggleOn = false;          // setup screen: multiplayer toggle state
 let mpSetupScoringMode = 'each';
 let mpSocket = null;
 let mpRoundSubmitted = [];       // parallel to state.players - who has submitted this round
+let mpRoundStarts = [];          // parallel to state.rounds - playerId who led each round off
 let mpCurrentTurnPlayerId = null;
 let mpPendingJoin = null;        // {roomCode, name?, scoringMode?, gameKey?, rejoinId?} while name modal is open
 let mpPlayerOptionsTarget = null; // playerId the player-options popup currently targets
@@ -1524,6 +2007,40 @@ function mpEntersScoresFor(player) {
 // Every column this device enters, in board order.
 function mpEntryTargets() {
   return state.players.filter(mpEntersScoresFor);
+}
+// The seats of round `ri` as column indexes, in the order they take their turns.
+// A Farkle table rolls off to decide who leads, and the host declares that
+// player, so a round does not have to start at the leftmost column. Column order
+// is the fallback for solo play and for rounds no starter was recorded for.
+function mpTurnOrder(ri) {
+  const order = state.players.map((_, i) => i);
+  if (!state.multiplayer) return order;
+  const starterId = ri < mpRoundStarts.length ? mpRoundStarts[ri] : mpCurrentTurnPlayerId;
+  const start = state.players.findIndex(p => p.id === starterId);
+  if (start <= 0) return order;
+  return order.slice(start).concat(order.slice(0, start));
+}
+// The seats this device may enter a score for right now: the seat whose turn it
+// is, plus every seat immediately after it in this round's turn order that this
+// device also scores for. The run stops dead at the first seat another device
+// plays, so a group of three whose third member leads off enters that one score
+// and waits - the other two have not had their turn yet.
+function mpTurnEntryRun() {
+  const order = mpTurnOrder(Math.max(0, state.rounds.length - 1));
+  const currentIndex = state.players.findIndex(p => p.id === mpCurrentTurnPlayerId);
+  const startPos = order.indexOf(currentIndex);
+  if (startPos === -1) return [];
+  const run = [];
+  for (let i = startPos; i < order.length; i++) {
+    const pi = order[i];
+    const player = state.players[pi];
+    if (!player || !mpEntersScoresFor(player)) break;
+    // The server hands the turn straight past these, so they don't end the run;
+    // they just have nothing left to enter.
+    if (mpRoundSubmitted[pi] || player.connected === false) continue;
+    run.push(player);
+  }
+  return run;
 }
 // A player who is already scoring for someone else can't hand their own entry
 // off to a third player - the server enforces this too.
@@ -1605,12 +2122,119 @@ function mpWsUrl(roomCode) {
   return MP_WORKER_URL.replace(/^http/, 'ws') + `/room/${roomCode}/ws`;
 }
 
+// Keeping the socket busy stops an intermediary (or a throttled background tab)
+// from quietly dropping it, which used to read as the player having left.
+const MP_PING_INTERVAL_MS = 25000;
+// Silent retries before giving up and asking the player to reconnect by hand.
+const MP_MAX_RECONNECT_ATTEMPTS = 4;
+let mpPingTimer = null;
+let mpLastMessageAt = 0;
+let mpReconnectTimer = null;
+let mpReconnectAttempts = 0;
+// Sockets this device closed on purpose. Tracked per socket rather than as a
+// flag, because `close` fires a turn later: by the time a deliberately closed
+// socket reports in, a replacement may already be live, and a shared flag would
+// have been reset long before.
+const mpDeliberateCloses = new WeakSet();
+
+function mpCloseSocket(socket) {
+  if (!socket) return;
+  mpDeliberateCloses.add(socket);
+  try { socket.close(); } catch (e) { /* already closing */ }
+}
+
+function mpStartKeepalive() {
+  mpStopKeepalive();
+  mpLastMessageAt = Date.now();
+  mpPingTimer = setInterval(() => {
+    if (!mpSocket || mpSocket.readyState !== WebSocket.OPEN) return;
+    // A socket that has gone quiet in both directions is half-open: the browser
+    // still calls it OPEN but nothing is getting through. Close it so the
+    // reconnect path can run instead of sitting on a dead connection.
+    if (Date.now() - mpLastMessageAt > MP_PING_INTERVAL_MS * 3) {
+      try { mpSocket.close(); } catch (e) { /* already closing */ }
+      return;
+    }
+    mpSend({ type: 'ping' });
+  }, MP_PING_INTERVAL_MS);
+}
+
+function mpStopKeepalive() {
+  if (mpPingTimer) { clearInterval(mpPingTimer); mpPingTimer = null; }
+}
+
+// Drops a pending retry without touching the budget - a retry that is starting
+// must not wipe the count of retries already spent, or the backoff never grows
+// and the disconnected modal is never reached.
+function mpClearReconnectTimer() {
+  if (mpReconnectTimer) { clearTimeout(mpReconnectTimer); mpReconnectTimer = null; }
+}
+
+// Full reset, for when the device is genuinely back in (or out of) a room.
+function mpCancelReconnect() {
+  mpClearReconnectTimer();
+  mpReconnectAttempts = 0;
+}
+
+// Silent reconnect with backoff. Only once those are exhausted does the player
+// get told - a two-second blip shouldn't put a modal on screen.
+function mpScheduleReconnect() {
+  if (mpReconnectTimer || !state.multiplayer) return;
+  if (mpReconnectAttempts >= MP_MAX_RECONNECT_ATTEMPTS) { mpShowDisconnectedModal(); return; }
+  const delay = Math.min(8000, 1000 * Math.pow(2, mpReconnectAttempts));
+  mpReconnectAttempts += 1;
+  mpReconnectTimer = setTimeout(() => {
+    mpReconnectTimer = null;
+    mpReconnectNow();
+  }, delay);
+}
+
+function mpReconnectNow() {
+  const session = mpLoadSession();
+  if (!state.multiplayer || !session || !session.roomCode) return;
+  mpConnect({ roomCode: session.roomCode, rejoinId: session.playerId, name: session.name });
+}
+
+function mpShowDisconnectedModal() {
+  document.getElementById('modal-disconnected').classList.remove('hidden');
+}
+
+function mpHideDisconnectedModal() {
+  document.getElementById('modal-disconnected').classList.add('hidden');
+}
+
+// One tap back into the game. A full reload is the surest way back in: the saved
+// session rejoins automatically on boot, and anything the stale page was holding
+// on to goes with it.
+document.getElementById('btn-disconnected-reconnect').addEventListener('click', () => {
+  mpHideDisconnectedModal();
+  window.location.reload();
+});
+
+// A backgrounded tab is where sockets die most often, so re-check the moment the
+// player comes back to it rather than waiting out the backoff.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !state.multiplayer) return;
+  if (mpSocket && mpSocket.readyState === WebSocket.OPEN) return;
+  mpCancelReconnect();
+  mpReconnectNow();
+});
+
 function mpConnect(join) {
-  if (mpSocket) { try { mpSocket.close(); } catch (e) { /* already closing */ } mpSocket = null; }
+  // Only the pending retry goes: the attempt budget belongs to the outage, and
+  // this call may itself be one of those retries.
+  mpClearReconnectTimer();
+  if (mpSocket) {
+    mpCloseSocket(mpSocket);
+    mpSocket = null;
+  }
   mpAwaitingJoinConfirm = true;
+  let opened = false;
   const ws = new WebSocket(mpWsUrl(join.roomCode));
   mpSocket = ws;
   ws.addEventListener('open', () => {
+    opened = true;
+    mpStartKeepalive();
     ws.send(JSON.stringify({
       type: 'join',
       name: join.name,
@@ -1632,12 +2256,29 @@ function mpConnect(join) {
     mpHandleMessage(msg);
   });
   ws.addEventListener('close', () => {
-    if (mpSocket === ws) mpSocket = null;
+    const wasCurrent = mpSocket === ws;
+    if (wasCurrent) mpSocket = null;
+    // A superseded socket reporting in late must not touch the live connection:
+    // the keepalive timer and the reconnect budget belong to whatever socket is
+    // current now, not to this one.
+    if (!wasCurrent || mpDeliberateCloses.has(ws)) return;
+    mpStopKeepalive();
+
+    // Already seated in the room: this is a dropped connection, not a rejected
+    // join. Retry quietly, and only surface the modal once retries run out.
+    if (state.multiplayer) {
+      mpAwaitingJoinConfirm = false;
+      mpScheduleReconnect();
+      return;
+    }
+
     if (mpAwaitingJoinConfirm) {
       // The server closes the socket outright for a rejected join it can't recover
       // from (e.g. rejoining a room that expired/was cleaned up) - room-full and
       // name-taken are sent as 'error' messages on a socket that stays open instead.
+      // A socket that never opened at all is a network failure, not a rejection.
       mpAwaitingJoinConfirm = false;
+      if (!opened) { mpShowDisconnectedModal(); return; }
       mpClearSession();
       openJoinRoomModal();
       mpShowJoinRoomError('That room is no longer available. Try a different code.');
@@ -1650,16 +2291,21 @@ function mpSend(payload) {
 }
 
 function mpHandleMessage(msg) {
+  // Any inbound traffic proves the socket is alive, not just a pong - so an
+  // older Worker that doesn't answer pings still reads as connected.
+  mpLastMessageAt = Date.now();
   switch (msg.type) {
+    case 'pong': break;
     case 'joined': mpOnJoined(msg); break;
+    case 'game-reset': mpOnGameReset(msg); break;
     case 'error': mpOnError(msg); break;
     case 'roster-update':
       mpApplyRoster(msg.players);
       if ('currentTurnPlayerId' in msg) mpApplyCurrentTurn(msg.currentTurnPlayerId);
       break;
-    case 'round-update': mpApplyRounds(msg.rounds, msg.roundSubmitted, msg.currentTurnPlayerId); break;
-    case 'round-advance': mpApplyRounds(msg.rounds, msg.roundSubmitted, msg.currentTurnPlayerId); break;
-    case 'turn-update': mpApplyCurrentTurn(msg.currentTurnPlayerId); break;
+    case 'round-update': mpApplyRounds(msg.rounds, msg.roundSubmitted, msg.currentTurnPlayerId, { roundStarts: msg.roundStarts }); break;
+    case 'round-advance': mpApplyRounds(msg.rounds, msg.roundSubmitted, msg.currentTurnPlayerId, { roundStarts: msg.roundStarts }); break;
+    case 'turn-update': mpApplyCurrentTurn(msg.currentTurnPlayerId, { roundStarts: msg.roundStarts }); break;
     case 'game-over': mpOnGameOver(); break;
     case 'celebrate': mpOnCelebrate(); break;
     case 'player-removed': mpOnPlayerRemoved(msg.playerId); break;
@@ -1677,8 +2323,26 @@ function mpApplyRules(ruleOverrides, customRules) {
   if (!modalRules.classList.contains('hidden')) openRulesModal();
 }
 
+// Host restarted the game in place: same room, same roster, blank board.
+function mpOnGameReset(msg) {
+  state.gameOver = false;
+  state.celebrated = false;
+  state.finalRoundAnnounced = false;
+  mpGameOverSent = false;
+  document.getElementById('winner-banner').classList.add('hidden');
+  hideWinnerColumnFrame();
+  hideTurnToast();
+  // The blank board is not a change to react to - every cell is "different" from
+  // the game that just ended, and flashing all of them would be noise.
+  forgetBoardMemory();
+  mpApplyRounds(msg.rounds, msg.roundSubmitted, msg.currentTurnPlayerId, { announce: false, roundStarts: msg.roundStarts });
+  showToast('The host started a new game. Scores are back to zero.');
+}
+
 function mpOnJoined(msg) {
   mpAwaitingJoinConfirm = false;
+  mpCancelReconnect();
+  mpHideDisconnectedModal();
   state.multiplayer = true;
   state.mpRoomCode = msg.roomCode;
   state.mpScoringMode = msg.scoringMode;
@@ -1702,7 +2366,7 @@ function mpOnJoined(msg) {
   mpApplyRoster(msg.players);
   // Silent on join/rejoin: the highlighted column already says whose turn it is,
   // and a rejoin is not a turn transition.
-  mpApplyRounds(msg.rounds, msg.roundSubmitted || msg.players.map(() => false), msg.currentTurnPlayerId, { announce: false });
+  mpApplyRounds(msg.rounds, msg.roundSubmitted || msg.players.map(() => false), msg.currentTurnPlayerId, { announce: false, roundStarts: msg.roundStarts });
 
   const me = msg.players.find(p => p.id === msg.playerId);
   mpSaveSession(msg.roomCode, msg.playerId, me ? me.name : '');
@@ -1714,6 +2378,13 @@ function mpOnJoined(msg) {
   navigateTo('screen-tracker');
   mpRenderRoomBar();
   mpUpdateEnterScoreButtonState();
+
+  // Someone rejoining mid-game should land on the live round, not scroll down
+  // from round 1 to find it. Deferred a frame so the table has been laid out.
+  requestAnimationFrame(() => {
+    scrollTableToLatestRound({ smooth: false });
+    scrollTableToCurrentTurn({ smooth: false });
+  });
 
   // The nominated scorer can have left (or taken on a scorer themselves) in the
   // gap between the roster fetch and the join - the server silently drops the
@@ -1761,10 +2432,14 @@ function reconcileRosterColumns(priorPlayers, nextPlayers, rounds, roundSubmitte
   };
 }
 
-function mpApplyRounds(rounds, roundSubmitted, currentTurnPlayerId = mpCurrentTurnPlayerId, { announce = true } = {}) {
+function mpApplyRounds(rounds, roundSubmitted, currentTurnPlayerId = mpCurrentTurnPlayerId, { announce = true, roundStarts } = {}) {
+  const roundAdded = rounds.length > state.rounds.length;
   state.rounds = rounds;
   state.onBoard = state.players.map(() => true);
   mpRoundSubmitted = roundSubmitted || [];
+  // Absent on payloads from a Worker that predates turn-order tracking; keeping
+  // the last known list is better than falling back to column order mid-game.
+  if (Array.isArray(roundStarts)) mpRoundStarts = roundStarts;
   const nextTurn = currentTurnPlayerId || null;
   const turnChanged = nextTurn !== mpCurrentTurnPlayerId;
   mpCurrentTurnPlayerId = nextTurn;
@@ -1772,16 +2447,26 @@ function mpApplyRounds(rounds, roundSubmitted, currentTurnPlayerId = mpCurrentTu
     renderTable();
     mpUpdateEnterScoreButtonState();
     checkWin();
+    // A new round pushes the live row below the fold for everyone at once.
+    if (roundAdded) scrollTableToLatestRound();
+    if (turnChanged) scrollTableToCurrentTurn();
   }
   // After checkWin, so a turn that arrives with the winning score stays silent.
   if (announce && turnChanged) mpAnnounceTurn(nextTurn);
 }
 
-function mpApplyCurrentTurn(playerId, { announce = true } = {}) {
+function mpApplyCurrentTurn(playerId, { announce = true, roundStarts } = {}) {
   const nextTurn = playerId || null;
   const turnChanged = nextTurn !== mpCurrentTurnPlayerId;
   mpCurrentTurnPlayerId = nextTurn;
-  if (document.getElementById('screen-tracker').classList.contains('active')) renderTable();
+  // The host declaring the first player rewrites where an untouched round begins.
+  if (Array.isArray(roundStarts)) mpRoundStarts = roundStarts;
+  if (document.getElementById('screen-tracker').classList.contains('active')) {
+    renderTable();
+    // Whose turn it is decides whether this device may enter a score at all.
+    mpUpdateEnterScoreButtonState();
+    if (turnChanged) scrollTableToCurrentTurn();
+  }
   if (announce && turnChanged) mpAnnounceTurn(nextTurn);
 }
 
@@ -1795,9 +2480,9 @@ function mpApplyCurrentTurn(playerId, { announce = true } = {}) {
 // the winner is crowned stays silent.
 function mpGameDecided() {
   if (state.gameOver) return true;
-  const triggerRound = findWinTriggerRound();
-  if (triggerRound === -1) return false;
-  return state.rounds.length >= roundsNeededToWin(triggerRound);
+  const trigger = findWinTrigger();
+  if (!trigger) return false;
+  return finalLapSettled(trigger);
 }
 
 // Announces only the transition into a turn this device is responsible for -
@@ -1829,14 +2514,15 @@ function mpUpdateEnterScoreButtonState() {
       btn.disabled = false;
       btn.classList.toggle('mp-locked', !state.gameOver);
     }
+    syncScoreFabState();
     return;
   }
   btn.textContent = 'Enter Score';
   const targets = mpEntryTargets();
-  // Locked when someone else enters this player's scores, or when every column
-  // this device is responsible for is already in for the round.
-  const nothingLeft = targets.length === 0 ||
-    targets.every(p => !!mpRoundSubmitted[state.players.indexOf(p)]);
+  // Locked when someone else enters this player's scores, when every column this
+  // device is responsible for is already in for the round, or when the turn is
+  // sitting on a seat this device doesn't play - nobody scores ahead of turn.
+  const nothingLeft = targets.length === 0 || mpTurnEntryRun().length === 0;
   if (state.gameOver) {
     btn.disabled = true;
     btn.classList.remove('mp-locked');
@@ -1845,6 +2531,7 @@ function mpUpdateEnterScoreButtonState() {
     btn.disabled = false;
     btn.classList.toggle('mp-locked', nothingLeft);
   }
+  syncScoreFabState();
 }
 
 function mpOnError(msg) {
@@ -1914,16 +2601,23 @@ function mpOnRoomClosed() {
 
 function mpLeaveMultiplayer({ graceful = false } = {}) {
   mpClearSession();
+  mpCancelReconnect();
+  mpStopKeepalive();
+  mpHideDisconnectedModal();
   const socket = mpSocket;
   mpSocket = null;
   if (socket) {
+    // Marked deliberate now, not inside the timeout: the socket is spoken for
+    // from this moment, even though the close itself waits for the leave
+    // message to flush.
+    mpDeliberateCloses.add(socket);
     if (graceful) {
       setTimeout(() => {
-        try { socket.close(); } catch (e) { /* already closing */ }
+        mpCloseSocket(socket);
         mpLeavingSelf = false;
       }, 250);
     } else {
-      try { socket.close(); } catch (e) { /* already closing */ }
+      mpCloseSocket(socket);
     }
   }
   state.multiplayer = false;
@@ -1931,6 +2625,7 @@ function mpLeaveMultiplayer({ graceful = false } = {}) {
   state.mpPlayerId = null;
   state.mpIsHost = false;
   mpCurrentTurnPlayerId = null;
+  mpRoundStarts = [];
   hideTurnToast();
   if (!graceful) mpLeavingSelf = false;
   mpRenderRoomBar();
@@ -1946,10 +2641,20 @@ function mpClearSession() {
   localStorage.removeItem(MP_SESSION_KEY);
 }
 
+// crypto.randomUUID only exists in a secure context, so it is missing on the
+// plain-http LAN preview. Without a fallback the throw happens inside the
+// socket's open handler, which swallows it and leaves the join never sent.
+function mpRandomId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `dev-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
 function mpDeviceId() {
   let id = localStorage.getItem(MP_DEVICE_ID_KEY);
   if (!id) {
-    id = crypto.randomUUID();
+    id = mpRandomId();
     localStorage.setItem(MP_DEVICE_ID_KEY, id);
   }
   return id;
@@ -2307,6 +3012,15 @@ document.getElementById('btn-cancel-player-options').addEventListener('click', c
 document.getElementById('btn-declare-turn').addEventListener('click', () => {
   mpSend({ type: 'set-current-turn', playerId: mpPlayerOptionsTarget });
   closePlayerOptionsModal();
+});
+document.getElementById('btn-rename-player').addEventListener('click', () => {
+  const pi = state.players.findIndex(pl => pl.id === mpPlayerOptionsTarget);
+  closePlayerOptionsModal();
+  if (pi === -1) return;
+  // The header cell is rebuilt on every render, so look it up after closing
+  // rather than holding a reference from when the sheet opened.
+  const th = document.querySelectorAll('#player-header-row th')[pi + 1];
+  if (th) mpEditPlayerName(th, pi);
 });
 function closePlayerOptionsModal() {
   document.getElementById('modal-player-options').classList.add('hidden');

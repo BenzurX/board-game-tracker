@@ -28,6 +28,15 @@ Both Claude and Codex edit this repo's docs asynchronously. Tag entries so autho
 - Preserve the other agent's entries and their tags; correct stale facts explicitly rather than silently deleting
 - Untagged pre-existing content stays valid; no retroactive tagging needed
 
+## Tracker screen vocabulary (Ben's names for the three bars)
+Ben refers to the tracker screen's three bars by name and by letter, and may use either. Map them to the code as follows:
+
+- **Title Bar (A)** - `#screen-tracker > .screen-header`. The main header: game title, back button, `?` rules button, refresh button, settings gear.
+- **Subtitle Bar / Room Code Bar (B)** - `#mp-room-bar`. Room code, invite/share button, score-assigner (✍) button. Multiplayer only; hidden in solo games.
+- **Footer Bar (C)** - `.tracker-actions`. Enter Score and New Game buttons, pinned to the bottom of the score screen.
+
+All three collapse when the board is scrolled away from the end each belongs to (`chrome-top-hidden` covers A and B, `chrome-bottom-hidden` covers C). The floating ⊕ button (`#btn-fab-score`) is C's stand-in while C is collapsed.
+
 ## Testing
 - `node tests/regressions.mjs` - no install step, no dependencies. Mostly source-text assertions (it reads `app.js`, `index.html`, and `worker/src/room.ts` as strings) plus one real unit test of `reconcileRosterColumns` via `node:vm`
 - Because the assertions match on source text, renaming a function or reformatting a matched line will fail the suite even when behaviour is unchanged - update the assertion to match the new source, don't drop it

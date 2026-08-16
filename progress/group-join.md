@@ -35,5 +35,5 @@ The device-identity reconnect reservations landed in the same release. Group mem
 
 ## Not done
 
-- Group members cannot be renamed by the leader; only a player can rename themselves. A typo in a member's name currently needs a removal to fix.
+- ~~Group members cannot be renamed by the leader; only a player can rename themselves. A typo in a member's name currently needs a removal to fix.~~ **Lifted in v0.22.** `rename-self` now carries an explicit `playerId` and the Worker's `handleRenamePlayer` authorizes self, own group member (`groupLeaderId` matches the sender), or current host. See `progress/multiplayer-resilience.md`.
 - Not yet tested on real devices end to end - see `PROGRESS.md` Next Session.

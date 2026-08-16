@@ -131,6 +131,35 @@ html, body {
 }
 .screen.active { display: flex; }
 
+/* ── Scrollbars ────────────────────────────────────────── */
+/* Built from the same custom properties as everything else, so switching theme
+   or mode repaints them with no JS. Firefox only understands the two-keyword
+   `scrollbar-color` form and WebKit/Chromium only the pseudo-elements, which is
+   why both are declared. The transparent border plus `background-clip` is what
+   insets the thumb - a scrollbar thumb has no margin of its own. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-dim) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--accent-dim);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  background-clip: padding-box;
+}
+
 /* ── Responsive Breakpoints ────────────────────────────── */
 /* Tablet: center and cap width */
 @media (min-width: 640px) {
@@ -558,6 +587,24 @@ html, body {
 .btn-secondary:active { transform: scale(0.97); }
 .btn-secondary:hover  { background: var(--card-hover); }
 
+/* Press feedback on everything else that is tappable. The two buttons above had
+   it already; the round chips, the back button and the danger button did not, so
+   a tap on those registered as nothing until the resulting screen changed. Kept
+   short - this should read as the button taking the press, not as an animation. */
+.btn-danger,
+.btn-rules,
+.btn-qr,
+.btn-back {
+  transition: background 0.15s, transform 0.08s;
+}
+.btn-danger:active,
+.btn-rules:active,
+.btn-qr:active,
+.btn-back:active {
+  transform: scale(0.94);
+}
+
+
 .full-width { width: 100%; }
 
 /* ── Tracker Screen ────────────────────────────────────── */
@@ -595,6 +642,9 @@ html, body {
 #screen-tracker.active {
   height: 100dvh;
   overflow: hidden;
+  /* Anchors the floating Enter Score button, which has to sit over the board
+     rather than inside the scrollport - anything inside would scroll away. */
+  position: relative;
 }
 
 /* Score table */
@@ -811,6 +861,178 @@ html, body {
   }
 }
 
+/* ── Tracker chrome auto-hide ──────────────────────────── */
+/* Vertical space is the scarcest thing on a phone, and the title bar, room bar
+   and action bar together claim most of a short screen before a single score row
+   is drawn. Each collapses once the board is scrolled away from the end it
+   belongs to, and comes back by scrolling to that end. `max-height` carries the
+   transition because none of the three has a fixed height - the open value is an
+   upper bound, never a measurement, so it must stay comfortably above the
+   tallest any of them gets (the room bar wraps to two lines on a narrow phone). */
+#screen-tracker .screen-header,
+#screen-tracker .mp-room-bar,
+#screen-tracker .tracker-actions {
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 220ms ease, padding 220ms ease, opacity 160ms ease,
+              border-width 220ms ease;
+}
+#screen-tracker.chrome-top-hidden .screen-header,
+#screen-tracker.chrome-top-hidden .mp-room-bar,
+#screen-tracker.chrome-bottom-hidden .tracker-actions {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Blank slack under the last round so the auto-scroll can land the newest round
+   clear of the sticky totals row without reaching the true bottom, where the
+   action bar would come back. Its height is what the auto-scroll subtracts, read
+   from the element rather than duplicated as a constant in JS. */
+#score-body tr.scroll-tail td {
+  height: 20px;
+  padding: 0;
+  border: none;
+}
+
+/* The floating Enter Score button. It is the action bar's stand-in, so its
+   visibility is the exact inverse: it appears only while `chrome-bottom-hidden`
+   is on. That keeps the rule in CSS - no second scroll listener, and no moment
+   where the bar and the button both offer the same action.
+
+   Bottom left, over the round-number gutter, which is the only column where
+   covering a cell costs nothing. It sits `--fab-clear` off the bottom, measured
+   in JS as the sticky totals row plus the active round row: the total is what
+   players check and the active round is the one being played, so neither may be
+   covered. Row heights move with font size, so the distance cannot be a
+   constant. The fallback matters only for the frame before the first measure. */
+.btn-fab-score {
+  position: absolute;
+  left: 12px;
+  bottom: calc(var(--fab-clear, 88px) + env(safe-area-inset-bottom));
+  z-index: 6;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: none;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  /* Hidden by default: scaled and faded rather than display:none, so it can
+     animate out instead of vanishing under the returning action bar. */
+  opacity: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 200ms cubic-bezier(0.2, 1.3, 0.5, 1),
+              background 160ms ease;
+}
+/* Resting translucent so the round numbers underneath stay readable through it,
+   going solid the moment it is touched or focused. */
+#screen-tracker.chrome-bottom-hidden .btn-fab-score {
+  opacity: 0.6;
+  transform: scale(1);
+  pointer-events: auto;
+}
+#screen-tracker.chrome-bottom-hidden .btn-fab-score:hover,
+#screen-tracker.chrome-bottom-hidden .btn-fab-score:focus-visible {
+  opacity: 1;
+}
+#screen-tracker.chrome-bottom-hidden .btn-fab-score:active {
+  opacity: 1;
+  transform: scale(0.92);
+}
+/* Same treatment the action bar gets when this device may not score yet: still
+   tappable, so tapping can say whose turn it is. */
+.btn-fab-score.mp-locked {
+  background: var(--card);
+  color: var(--text-muted);
+  box-shadow: none;
+}
+.btn-fab-score:disabled {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-tracker .screen-header,
+  #screen-tracker .mp-room-bar,
+  #screen-tracker .tracker-actions,
+  .btn-fab-score {
+    transition: none;
+  }
+}
+
+/* ── Board animations ──────────────────────────────────── */
+/* All three are keyframes rather than transitions on purpose: the table is
+   rebuilt wholesale on every render, so the nodes a transition would animate
+   between never coexist. app.js works out what changed and hands the fresh node
+   the class; the animation plays as it is inserted. */
+
+/* A new round arriving. Slides from just above so it reads as being pushed onto
+   the end of the board, in step with the scroll that follows it. */
+@keyframes row-enter {
+  from { opacity: 0; transform: translateY(-7px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#score-table tbody tr.row-enter td {
+  animation: row-enter 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* A score that changed since the last paint. Tints and fades rather than
+   holding, so it draws the eye once and then leaves the number alone.
+
+   An overlay rather than an animated background, for the same reason as the
+   turn highlight below: `.current-turn` and `.score-cell:hover` both set the
+   background `!important`, and an important declaration beats an animation, so
+   a background keyframe would silently do nothing on exactly the cells most
+   worth flashing - correcting the current player's own score, or any cell under
+   the cursor as the table rebuilds. `::before` so it can coexist with the turn
+   overlay on `::after` when both land on the same cell. */
+@keyframes cell-flash {
+  to { opacity: 0; }
+}
+#score-table tbody td.cell-flash { position: relative; }
+#score-table tbody td.cell-flash::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: cell-flash 620ms ease-out forwards;
+}
+
+/* The highlight landing on the column that just took the turn. Also an overlay,
+   for the `!important` reason above.
+
+   Scoped to tbody deliberately: the header and totals cells are `position:
+   sticky`, and this class outlives its own animation until the next render, so
+   giving them `position: relative` would knock the sticky header or totals row
+   loose mid-scroll. Those cells are already positioned, so their overlay anchors
+   correctly without any position of its own. */
+#score-table tbody td.turn-claim { position: relative; }
+#score-table .turn-claim::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-bright);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: turn-claim 300ms ease-out forwards;
+}
+@keyframes turn-claim {
+  to { opacity: 0; }
+}
+
+/* Reduced-motion coverage for all of the above lives in one block at the very
+   end of this file, after every rule it has to beat. */
+
 /* ── Modals ────────────────────────────────────────────── */
 .modal {
   position: fixed;
@@ -848,7 +1070,10 @@ html, body {
   gap: 16px;
   max-height: 90dvh;
   overflow-y: auto;
-  animation: sheet-up 0.22s ease;
+  /* Snappy deceleration, deliberately not an overshoot curve: the sheet is
+     anchored to the bottom edge, so travelling past its resting point would
+     open a gap underneath it against the backdrop. */
+  animation: sheet-up 0.26s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .modal-sheet--rules   { max-height: 80dvh; }
 .modal-sheet--confirm { padding-bottom: max(28px, env(safe-area-inset-bottom)); }
@@ -1068,11 +1293,14 @@ html, body {
 }
 .player-name-modal-input:focus { border-color: var(--accent); }
 
+/* Label sits against the dropdown rather than pinned to the opposite edge: with
+   the row's full width between them the label reads as a heading for the whole
+   modal instead of a label for the select. */
 .group-size-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-end;
+  gap: 8px;
   margin-top: 12px;
   margin-bottom: 2px;
 }
@@ -1208,7 +1436,9 @@ html, body {
   font-size: 0.88rem;
   font-weight: 600;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-  max-width: min(90vw, 380px);
+  /* 418px rather than 380px: the final-round toast is the longest string the app
+     shows and was orphaning its last word onto a line of its own. */
+  max-width: min(90vw, 418px);
   text-align: center;
   z-index: 1000;
   opacity: 0;
@@ -1392,6 +1622,15 @@ html, body {
 }
 .modal-actions .btn-secondary { flex: 1; }
 .modal-actions .btn-primary   { flex: 2; }
+
+/* Player options: one action per row, Cancel last and on its own, so a
+   destructive button never sits shoulder to shoulder with the way out. */
+.player-options-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.player-options-stack #btn-cancel-player-options { margin-top: 4px; }
 
 /* Rules modal */
 .modal-top-bar {
@@ -1742,3 +1981,35 @@ html, body {
 }
 .mode-btn:hover:not(.active),
 .dir-btn:hover:not(.active) { background: var(--card-hover); }
+
+/* ── Reduced motion ────────────────────────────────────── */
+/* Deliberately the last block in this file. Several of the rules below have to
+   beat same-specificity declarations that appear later than where they would
+   naturally sit (`.btn-danger:active` and `.btn-qr:active` are both defined well
+   after the button section), and a media query carries no extra weight of its
+   own - only source order settles it. Anything animated added later belongs
+   here, not in a media query next to the rule it guards. */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary:active,
+  .btn-secondary:active,
+  .btn-danger:active,
+  .btn-rules:active,
+  .btn-qr:active,
+  .btn-back:active,
+  .btn-fab-score:active {
+    transform: none;
+  }
+
+  #score-table tbody tr.row-enter td,
+  .winner-banner.celebrate,
+  .modal-sheet {
+    animation: none;
+  }
+
+  /* Both overlays exist only to fade out. With the animation off they would sit
+     there permanently tinting the cell, so they have to go entirely. */
+  #score-table tbody td.cell-flash::before,
+  #score-table .turn-claim::after {
+    display: none;
+  }
+}
