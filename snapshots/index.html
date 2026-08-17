@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Tracker — Version History</title>
+  <title>Game Tracker - Version History</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -235,7 +235,7 @@
       line-height: 1.45;
     }
     .v-bullets li::before {
-      content: '—';
+      content: '-';
       position: absolute;
       left: 0;
       color: var(--accent);
@@ -283,18 +283,43 @@
   <div class="page-header">
     <div><a class="back-link" href="../index.html">&#8592; Back to App</a></div>
     <div class="page-title">&#127922; Game Tracker</div>
-    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>12 snapshots</strong> captured</div>
+    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>13 snapshots</strong> captured</div>
   </div>
 
   <div class="timeline">
 
-    <!-- v0.20 — current -->
-    <div class="version-entry current">
+    <!-- v0.23 - current, milestone -->
+    <div class="version-entry current milestone">
+      <div class="v-dot">&#9733;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.23</span>
+          <span class="v-current-chip">CURRENT</span>
+          <span class="v-milestone-chip">MILESTONE</span>
+          <span class="v-date">August 17, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Multiplayer that survives a locked phone, and a board that gets out of the way</div>
+          <ul class="v-bullets">
+            <li>A room now holds your seat through a refresh, a screen lock or a throttled background tab: a five-minute presence grace window in the Worker, a ping/pong keepalive with silent backoff reconnects, and a blocking Reconnect dialog only once the retries genuinely run out</li>
+            <li>Play follows itself - a new round scrolls every device to the live row, a turn change centres that player's column, and a shimmering your-turn card announces the handoff on the device that has to act</li>
+            <li>Score entry is gated on whose turn it is, New Game inside a live room restarts in place on the same code and roster, and Farkle's final lap is now measured in turn order rather than column order</li>
+            <li>The title, room-code and action bars now collapse together three seconds after you stop scrolling and return on any real touch, wheel or key - the app's own auto-scrolls no longer flash them back at you, and a floating &#8853; button covers the gap</li>
+            <li>Board animations carry information rather than decoration: totals count up, new rounds slide in, changed cells tint once, all of it inert under reduced-motion</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.23/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.20 -->
+    <div class="version-entry">
       <div class="v-dot">&#9679;</div>
       <div class="v-card">
         <div class="v-card-head">
           <span class="v-badge">v0.20</span>
-          <span class="v-current-chip">CURRENT</span>
           <span class="v-date">August 9, 2026</span>
         </div>
         <div class="v-card-body">
@@ -353,7 +378,7 @@
       </div>
     </div>
 
-    <!-- v0.17 — no separate snapshot -->
+    <!-- v0.17 - no separate snapshot -->
     <div class="version-entry">
       <div class="v-dot">&#9670;</div>
       <div class="v-card">
@@ -373,7 +398,7 @@
       </div>
     </div>
 
-    <!-- v0.16 — no separate snapshot -->
+    <!-- v0.16 - no separate snapshot -->
     <div class="version-entry">
       <div class="v-dot">&#9670;</div>
       <div class="v-card">
@@ -393,7 +418,7 @@
       </div>
     </div>
 
-    <!-- v0.15 — no separate snapshot -->
+    <!-- v0.15 - no separate snapshot -->
     <div class="version-entry">
       <div class="v-dot">&#9670;</div>
       <div class="v-card">
@@ -413,7 +438,7 @@
       </div>
     </div>
 
-    <!-- v0.14 — milestone -->
+    <!-- v0.14 - milestone -->
     <div class="version-entry milestone">
       <div class="v-dot">&#9733;</div>
       <div class="v-card">
@@ -460,7 +485,7 @@
       </div>
     </div>
 
-    <!-- v0.12 — milestone -->
+    <!-- v0.12 - milestone -->
     <div class="version-entry milestone">
       <div class="v-dot">&#9733;</div>
       <div class="v-card">
@@ -481,7 +506,7 @@
       </div>
     </div>
 
-    <!-- v0.11 — milestone -->
+    <!-- v0.11 - milestone -->
     <div class="version-entry milestone">
       <div class="v-dot">&#9733;</div>
       <div class="v-card">
@@ -502,7 +527,7 @@
       </div>
     </div>
 
-    <!-- v0.10 — no separate snapshot, bundled into the v0.11 commit -->
+    <!-- v0.10 - no separate snapshot, bundled into the v0.11 commit -->
     <div class="version-entry">
       <div class="v-dot">&#9670;</div>
       <div class="v-card">
@@ -542,7 +567,7 @@
       </div>
     </div>
 
-    <!-- v0.08 — no separate snapshot, bundled into the v0.09 commit -->
+    <!-- v0.08 - no separate snapshot, bundled into the v0.09 commit -->
     <div class="version-entry">
       <div class="v-dot">&#9670;</div>
       <div class="v-card">
@@ -563,7 +588,7 @@
       </div>
     </div>
 
-    <!-- v0.07 — no separate snapshot, bundled into the v0.09 commit -->
+    <!-- v0.07 - no separate snapshot, bundled into the v0.09 commit -->
     <div class="version-entry">
       <div class="v-dot">&#9670;</div>
       <div class="v-card">
@@ -603,7 +628,7 @@
       </div>
     </div>
 
-    <!-- v0.05 — no separate snapshot, bundled into the v0.06 commit -->
+    <!-- v0.05 - no separate snapshot, bundled into the v0.06 commit -->
     <div class="version-entry">
       <div class="v-dot">&#9670;</div>
       <div class="v-card">
@@ -622,7 +647,7 @@
       </div>
     </div>
 
-    <!-- v0.04 — milestone -->
+    <!-- v0.04 - milestone -->
     <div class="version-entry milestone">
       <div class="v-dot">&#9733;</div>
       <div class="v-card">
@@ -632,12 +657,12 @@
           <span class="v-date">July 6, 2026</span>
         </div>
         <div class="v-card-body">
-          <div class="v-headline">Second game type — Custom Game (Skyjo), golf scoring, confetti</div>
+          <div class="v-headline">Second game type - Custom Game (Skyjo), golf scoring, confetti</div>
           <ul class="v-bullets">
-            <li>Custom Game tracker — freeform round-by-round score sheet for games like Skyjo, no fixed rules</li>
+            <li>Custom Game tracker - freeform round-by-round score sheet for games like Skyjo, no fixed rules</li>
             <li>Golf scoring toggle (highest or lowest wins), negative scores, and an optional no-limit target</li>
             <li>Win confetti burst with a winner-banner pop; honors reduced-motion</li>
-            <li>Opt-in "track who goes out first" — flags the round closer (&#9873;) next to their score</li>
+            <li>Opt-in "track who goes out first" - flags the round closer (&#9873;) next to their score</li>
             <li>Fixed a theme class-name collision that could blank the theme to a white screen</li>
           </ul>
         </div>
@@ -659,7 +684,7 @@
           <div class="v-headline">PWA service worker · version tracking system</div>
           <ul class="v-bullets">
             <li>Service worker added for offline-first asset caching and PWA auto-update on Android</li>
-            <li>CHANGELOG.md, README.md, and CLAUDE.md added — flat decimal version scheme, pre-push gate enforced</li>
+            <li>CHANGELOG.md, README.md, and CLAUDE.md added - flat decimal version scheme, pre-push gate enforced</li>
             <li>Version history page with timeline and per-snapshot live links</li>
           </ul>
         </div>
@@ -678,10 +703,10 @@
           <span class="v-date">June 28, 2026</span>
         </div>
         <div class="v-card-body">
-          <div class="v-headline">Full feature release — themes, editing, entry threshold</div>
+          <div class="v-headline">Full feature release - themes, editing, entry threshold</div>
           <ul class="v-bullets">
             <li>Three color themes (Ember, Ocean, Forest) &times; dark/light mode; Ocean dark is default</li>
-            <li>Entry threshold mechanic — must score &ge; 500 in one turn to get on the board</li>
+            <li>Entry threshold mechanic - must score &ge; 500 in one turn to get on the board</li>
             <li>Inline editing for player names and individual score cells</li>
             <li>Confirmation modal on back, Rules button on setup screen, custom house-rule notes</li>
             <li>Responsive breakpoints (tablet 700px, desktop 1080px), Commissioner font, full UI polish</li>
@@ -702,7 +727,7 @@
           <span class="v-date">June 27, 2026</span>
         </div>
         <div class="v-card-body">
-          <div class="v-headline">Initial scaffold — the beginning</div>
+          <div class="v-headline">Initial scaffold - the beginning</div>
           <ul class="v-bullets">
             <li>Single-page app: Home &rarr; Setup &rarr; Score Tracker screens</li>
             <li>Farkle with running totals and first-to-10,000 win condition</li>

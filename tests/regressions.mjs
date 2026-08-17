@@ -114,8 +114,18 @@ assert.match(app, /const crosser = mpTurnOrder\(r\)\.find\(pi => running\[pi\] >
   'the crosser is the first seat in turn order over the target, not the leftmost column - two seats can cross in one rotated round');
 assert.match(app, /function finalLapSettled\(trigger\)[\s\S]*?const order = mpTurnOrder\(trigger\.round\)[\s\S]*?for \(let i = 0; i < crosserPos; i\+\+\)/,
   'the Farkle final round must end once the seats that played before the crosser have played again, measured in turn order, not after a whole extra row');
-assert.match(app, /if \(crosserPos === 0\) return roundIsComplete\(trigger\.round\)/,
-  'a crosser who led the round off ends the game with that round - everyone already answered inside it');
+assert.match(app, /if \(state\.multiplayer && crosserPos === 0\) return roundIsComplete\(trigger\.round\)/,
+  'a multiplayer crosser who led the round off ends the game with that round - everyone already answered inside it. Solo is excluded: a solo round is entered whole, so nobody has answered the crossing yet and a real extra round is still owed');
+assert.match(app, /const isBlank = !state\.rounds\[ri\] \|\| state\.rounds\[ri\]\[pi\] === null;\s*if \(isOpenRound && isBlank && finalLapClosedSeats\(\)\.has\(pi\)\) return;/,
+  'tapping an empty cell must not walk around the final-lap exclusion the Enter Score modal enforces - correcting a played score stays allowed');
+assert.match(app, /if \(finalLapClosedSeats\(\)\.has\(state\.players\.indexOf\(player\)\)\) return;/,
+  'the your-turn card must not announce a seat the final lap has closed - the Worker still cycles the turn onto it');
+assert.match(app, /function finalLapClosedSeats\(\)[\s\S]*?if \(state\.rounds\.length - 1 <= trigger\.round\) return closed;[\s\S]*?for \(let i = crosserPos; i < order\.length; i\+\+\) closed\.add\(order\[i\]\)/,
+  'once the extra round opens, every seat from the crosser onward in turn order is done - the Worker still offers them the turn, so the client must refuse');
+assert.match(app, /if \(mpRoundSubmitted\[pi\] \|\| player\.connected === false \|\| closed\.has\(pi\)\) continue;/,
+  'a device holding several seats must not be offered a score for one the final lap has closed - this is the bug where a host owning 1-3 was still asked for the crosser');
+assert.match(app, /const hostPending = mpEach\s*\?\s*\[\]\s*:\s*state\.players\.filter\(\(_, pi\) => !hostClosed\.has\(pi\)\)/,
+  'host-scoring rooms enter the whole round at once, so the final-lap exclusion must be applied to the host list too');
 assert.match(index, /id="turn-toast-backdrop"/,
   'the your-turn toast must dim the screen behind it');
 assert.match(app, /getElementById\('turn-toast-backdrop'\)\.addEventListener\('click', hideTurnToast\)/,
