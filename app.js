@@ -1,7 +1,7 @@
 // ── App Version ──────────────────────────────────────────
 // Bumped alongside CHANGELOG.md per the pre-push gate - single source of truth
 // for the version shown in Settings and on the home screen.
-const APP_VERSION = '0.22';
+const APP_VERSION = '0.23';
 document.getElementById('settings-version').textContent = `v${APP_VERSION}`;
 document.getElementById('home-version').textContent = `v${APP_VERSION}`;
 
@@ -516,6 +516,11 @@ function showScreen(id) {
   // Overflow can only be measured once the screen is actually laid out (not display:none).
   if (id === 'screen-setup') requestAnimationFrame(() => setupBasicRulesToggle());
   if (id === 'screen-tracker') requestWakeLock(); else releaseWakeLock();
+  // Arriving at the board shows all three bars, then starts the same countdown a
+  // manual scroll would; leaving cancels it so it cannot fire against a screen
+  // that is no longer on show.
+  if (id === 'screen-tracker') requestAnimationFrame(() => revealTrackerChrome());
+  else { clearTimeout(chromeHideTimer); chromeHideTimer = 0; }
 }
 
 // ── Screen Wake Lock ─────────────────────────────────────
@@ -1457,10 +1462,8 @@ function scrollTableToLatestRound({ smooth = true } = {}) {
   if (!wrap) return;
   const tail = document.querySelector('#score-body tr.scroll-tail');
   const maxScroll = wrap.scrollHeight - wrap.clientHeight;
-  // Stop the height of the tail row short of the true bottom. That lands the
-  // newest round flush above the sticky totals row while leaving the action bar
-  // collapsed - scrolling the whole way would bring the bar back and give up the
-  // space the collapse just freed, which is the opposite of what this is for.
+  // Stop the height of the tail row short of the true bottom, which lands the
+  // newest round flush above the sticky totals row rather than tucked under it.
   const top = tail ? Math.max(0, maxScroll - tail.offsetHeight) : maxScroll;
   wrap.scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
 }
@@ -1489,74 +1492,129 @@ function scrollTableToCurrentTurn({ smooth = true } = {}) {
 }
 
 // ── Tracker chrome auto-hide ─────────────────────────────
-// The title bar, the room bar and the action bar collapse while the board is
-// scrolled away from the end each belongs to, so the middle of a long game is
-// all board. Scrolling back to the top brings the title and room bars back;
-// scrolling to the bottom brings the action bar back.
+// The title bar, the room bar and the action bar collapse together after a few
+// seconds of the player not scrolling by hand, so a long game settles into being
+// all board. Touching the board - a finger drag, a wheel, an arrow key - brings
+// all three straight back and restarts the countdown.
+//
+// Deliberately driven by input rather than by scroll position: the app scrolls
+// the board itself whenever a round lands or the turn moves, and those scrolls
+// must not flash the bars back at a player who never asked for them. A `scroll`
+// listener cannot tell the two apart, so the reveal hangs off the input events
+// only a person can produce.
 
-// How close to an end counts as being at it.
-const CHROME_EDGE_SLACK = 8;
-// Below this much scrollable overflow, collapsing buys nothing and risks the
-// board no longer overflowing at all once the bars are gone - leave them pinned.
+// Quiet time before the bars collapse again.
+const CHROME_IDLE_MS = 3000;
+// How long after the last scroll event a manual gesture is still considered to
+// be running. Covers touch momentum, which keeps scrolling long after touchend
+// with no further input event to hang the countdown on.
+const CHROME_MOMENTUM_MS = 150;
+// Below this much scrollable overflow, collapsing buys nothing - and worse, with
+// nothing to scroll there is no gesture left that could bring the bars back, so
+// they would be gone for the rest of the game. Leave them pinned.
 const CHROME_MIN_OVERFLOW = 80;
 // The scrollport's height with nothing collapsed. Remembered rather than read
 // live so the guard above always measures against the same yardstick: measuring
 // the collapsed height would let collapsing change the number that decides
 // whether to collapse, which flickers on a board that only just overflows.
 let chromeExpandedViewport = 0;
-// The action bar's own height, remembered from whenever it was last measured at
-// full size. Taken as a running maximum because a measurement taken mid-collapse
-// catches it part-way through its 220ms transition, and an under-estimate here
-// is exactly what would reintroduce the oscillation this number exists to stop.
+// Combined height of the title and room bars, remembered from whenever they were
+// last measured at full size. Taken as a running maximum because a measurement
+// taken mid-collapse catches them part-way through their 220ms transition, and
+// an under-estimate here shows up as the board sliding under the player's finger.
 // Reset when the layout changes underneath it.
-let chromeBottomBarHeight = 0;
+let chromeTopBarsHeight = 0;
+let chromeHideTimer = 0;
+let chromeMomentumTimer = 0;
+// True from the first input event of a gesture until the scrolling it caused has
+// stopped. While it is set, scroll events count as continued manual scrolling.
+let chromeManualScrolling = false;
 
 function resetChromeMetrics() {
   chromeExpandedViewport = 0;
-  chromeBottomBarHeight = 0;
+  chromeTopBarsHeight = 0;
 }
 
+// Collapsing the top bars grows the scrollport upwards by their height, which
+// would slide the board up the screen by that much even though scrollTop never
+// moved. Cancelling that out against scrollTop keeps whatever the player was
+// reading exactly where it was. The action bar needs no such correction: it
+// collapses off the bottom edge, so the top of the scrollport does not move.
+function setTrackerChromeCollapsed(collapsed) {
+  const screen = document.getElementById('screen-tracker');
+  const wrap = document.querySelector('.table-scroll-wrap');
+  if (!screen || !wrap) return;
+  const wasCollapsed = screen.classList.contains('chrome-top-hidden');
+  if (wasCollapsed === collapsed) return;
+
+  if (!collapsed) {
+    // Measure while they are still at full size - after the class goes on there
+    // is nothing left to measure.
+    const header = screen.querySelector('.screen-header');
+    const roomBar = screen.querySelector('#mp-room-bar');
+    const visible = el => el && el.offsetHeight > 0 ? el.offsetHeight : 0;
+    chromeTopBarsHeight = Math.max(chromeTopBarsHeight, visible(header) + visible(roomBar));
+  }
+
+  screen.classList.toggle('chrome-top-hidden', collapsed);
+  screen.classList.toggle('chrome-bottom-hidden', collapsed);
+
+  if (chromeTopBarsHeight > 0) {
+    const shift = collapsed ? -chromeTopBarsHeight : chromeTopBarsHeight;
+    wrap.scrollTop = Math.max(0, wrap.scrollTop + shift);
+  }
+}
+
+// The countdown only ever runs while there is enough board to be worth hiding
+// chrome for; on a short board the bars stay put and no timer is armed.
+function scheduleTrackerChromeHide() {
+  clearTimeout(chromeHideTimer);
+  chromeHideTimer = 0;
+  if (!trackerChromeMayCollapse()) return;
+  chromeHideTimer = setTimeout(() => {
+    chromeHideTimer = 0;
+    if (!trackerChromeMayCollapse()) return;
+    setTrackerChromeCollapsed(true);
+  }, CHROME_IDLE_MS);
+}
+
+function trackerChromeMayCollapse() {
+  const wrap = document.querySelector('.table-scroll-wrap');
+  if (!wrap || activeScreen !== 'screen-tracker') return false;
+  const overflow = wrap.scrollHeight - (chromeExpandedViewport || wrap.clientHeight);
+  return overflow > CHROME_MIN_OVERFLOW;
+}
+
+// The one entry point for "a person just did something": brings the bars back
+// and restarts the countdown. Also called when a bar itself is touched, so the
+// chrome never slides out from under a finger reaching for Enter Score.
+function revealTrackerChrome() {
+  setTrackerChromeCollapsed(false);
+  scheduleTrackerChromeHide();
+}
+
+// Re-checks only the short-board guard - the collapse decision itself belongs to
+// the timer. Runs when the board's size changes, which is the one thing that can
+// turn a collapsible board into a non-collapsible one behind the timer's back.
 function updateTrackerChrome() {
   const screen = document.getElementById('screen-tracker');
   const wrap = document.querySelector('.table-scroll-wrap');
   if (!screen || !wrap) return;
 
-  const collapsed = screen.classList.contains('chrome-top-hidden') ||
-    screen.classList.contains('chrome-bottom-hidden');
+  const collapsed = screen.classList.contains('chrome-top-hidden');
   if (!collapsed) chromeExpandedViewport = wrap.clientHeight;
 
-  const overflow = wrap.scrollHeight - (chromeExpandedViewport || wrap.clientHeight);
-  if (overflow <= CHROME_MIN_OVERFLOW) {
-    screen.classList.remove('chrome-top-hidden', 'chrome-bottom-hidden');
+  if (!trackerChromeMayCollapse()) {
+    clearTimeout(chromeHideTimer);
+    chromeHideTimer = 0;
+    setTrackerChromeCollapsed(false);
     return;
   }
-
-  // Top is decided on scrollTop alone, which revealing the bars cannot change:
-  // they expand downwards from a scroll position of zero, so there is no loop.
-  screen.classList.toggle('chrome-top-hidden', wrap.scrollTop > CHROME_EDGE_SLACK);
-
-  // Bottom cannot be decided the same way. "Distance to maxScroll" is measured
-  // against clientHeight, and revealing the action bar shrinks clientHeight by
-  // the bar's own height - so the reveal immediately makes the test read "not at
-  // the bottom any more", which hides the bar, which puts us back at the bottom.
-  // That is the loop: the answer moves the question.
-  //
-  // Measuring the gap from scrollTop to the end of the content instead gives a
-  // number the bar cannot touch, since neither scrollHeight nor scrollTop moves
-  // when it collapses. Comparing that against the viewport as it stands *with
-  // the bar hidden* (the larger of the two) makes one band that holds in both
-  // states: at the collapsed bottom the gap equals that viewport exactly, and
-  // revealing the bar only shrinks the gap further inside the band. Leaving it
-  // then takes scrolling up past the bar's full height, not one pixel.
-  const bottomHidden = screen.classList.contains('chrome-bottom-hidden');
-  const bar = screen.querySelector('.tracker-actions');
-  if (bar && !bottomHidden) {
-    chromeBottomBarHeight = Math.max(chromeBottomBarHeight, bar.offsetHeight);
-  }
-  const hiddenViewport = wrap.clientHeight + (bottomHidden ? 0 : chromeBottomBarHeight);
-  const gapToEnd = wrap.scrollHeight - wrap.scrollTop;
-  screen.classList.toggle('chrome-bottom-hidden',
-    gapToEnd > hiddenViewport + CHROME_EDGE_SLACK);
+  // A board that has just grown past the threshold - a round landed on what was
+  // a short game - has no countdown running, because there was nothing to arm
+  // one for. Start it now rather than leaving the bars pinned until the player
+  // happens to scroll.
+  if (!collapsed && !chromeHideTimer) scheduleTrackerChromeHide();
 }
 
 // The floating Enter Score button stands in for the action bar while that bar is
@@ -1590,7 +1648,42 @@ function syncScoreFabState() {
 (function watchTrackerChrome() {
   const wrap = document.querySelector('.table-scroll-wrap');
   if (!wrap) return;
-  wrap.addEventListener('scroll', updateTrackerChrome, { passive: true });
+
+  // The events a person makes and the app cannot: a wheel, a finger on the
+  // board, a key that scrolls. Programmatic scrollTo produces none of them,
+  // which is exactly why the reveal hangs off these and not off `scroll`.
+  const SCROLL_KEYS = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown',
+    'Home', 'End', ' ', 'Spacebar']);
+  function manualScroll() {
+    chromeManualScrolling = true;
+    clearTimeout(chromeMomentumTimer);
+    chromeMomentumTimer = setTimeout(() => { chromeManualScrolling = false; }, CHROME_MOMENTUM_MS);
+    revealTrackerChrome();
+  }
+  wrap.addEventListener('wheel', manualScroll, { passive: true });
+  wrap.addEventListener('touchstart', manualScroll, { passive: true });
+  wrap.addEventListener('touchmove', manualScroll, { passive: true });
+  wrap.addEventListener('keydown', e => { if (SCROLL_KEYS.has(e.key)) manualScroll(); });
+
+  // Momentum after the finger leaves keeps the gesture alive: each scroll event
+  // it produces pushes the countdown out, so the bars are still there when the
+  // board finally comes to rest rather than vanishing mid-glide.
+  wrap.addEventListener('scroll', () => {
+    if (chromeManualScrolling) manualScroll();
+  }, { passive: true });
+
+  // Reaching for a button on a bar counts as activity too, or the bar collapses
+  // out from under the finger already travelling towards it.
+  const screen = document.getElementById('screen-tracker');
+  if (screen) {
+    ['.screen-header', '#mp-room-bar', '.tracker-actions'].forEach(sel => {
+      const bar = screen.querySelector(sel);
+      if (!bar) return;
+      bar.addEventListener('pointerdown', () => revealTrackerChrome());
+      bar.addEventListener('focusin', () => revealTrackerChrome());
+    });
+  }
+
   window.addEventListener('resize', () => {
     // Rotation, a keyboard opening, a font-size change: every remembered height
     // above is stale, and a stale one is worse than none.

@@ -935,7 +935,7 @@ html, body {
 /* Resting translucent so the round numbers underneath stay readable through it,
    going solid the moment it is touched or focused. */
 #screen-tracker.chrome-bottom-hidden .btn-fab-score {
-  opacity: 0.6;
+  opacity: 0.72;
   transform: scale(1);
   pointer-events: auto;
 }

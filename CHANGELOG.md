@@ -4,6 +4,17 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.23 - 2026-08-17
+
+### Changed
+- `Claude:` Tracker bars now hide on an idle timer instead of on scroll position. The title bar, room-code bar and action bar share one collapse state and go three seconds after the last manual scroll, and any real input on the board - wheel, finger drag, or a scrolling key - brings all three back at once and restarts the countdown. The reveal deliberately hangs off input events rather than the `scroll` event: the app scrolls the board itself whenever a round lands or the turn moves, and a `scroll` listener cannot tell those apart from a person, so auto-scroll used to flash the bars back at players who never asked for them. Touch momentum counts as part of the gesture (scroll events keep the countdown alive for 150ms past the last one), so the bars no longer vanish mid-glide.
+- `Claude:` Collapsing the top bars now corrects `scrollTop` by their measured height. The bars are in flow, so collapsing them grows the scrollport upwards and would slide the board up the screen even though nothing scrolled - harmless when the collapse only ever fired at a scroll edge, visible now that it fires mid-board. The action bar needs no correction, since it collapses off the bottom edge and does not move the top of the scrollport.
+- `Claude:` The floating ⊕ button rests at 72% opacity (was 60%) and its glyph grew from 22px to 30px inside the same 54px circle.
+
+### Removed
+- `Claude:` The position-derived collapse logic and the oscillation guards it needed (`CHROME_EDGE_SLACK`, the `gapToEnd`/`hiddenViewport` band, `chromeBottomBarHeight`). With the decision no longer read from any measurement the collapse itself moves, there is no loop left to guard against. Their regression assertions are replaced rather than dropped: the suite now covers input-only reveal, the momentum grace period, the `scrollTop` correction, the shared collapse state, and the short-board guard.
+- `Claude:` The auto-scroll's tail-row slack is unchanged, but its reason has narrowed - it exists to keep the newest round clear of the sticky totals row, no longer to avoid landing at a bottom that would summon the action bar.
+
 ## 0.22 - 2026-08-16
 
 ### Added

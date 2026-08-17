@@ -219,12 +219,14 @@ assert.match(style, /#screen-tracker\.chrome-top-hidden \.screen-header,[\s\S]*?
   'the tracker bars must collapse to reclaim vertical space when scrolled away from their end');
 assert.match(app, /if \(!collapsed\) chromeExpandedViewport = wrap\.clientHeight;/,
   'the collapse guard must measure the expanded viewport, or a board that only just overflows flickers');
-assert.match(app, /screen\.classList\.toggle\('chrome-top-hidden', wrap\.scrollTop > CHROME_EDGE_SLACK\)/,
-  'the title and room bars must return when the board is scrolled back to the top');
+assert.match(app, /screen\.classList\.toggle\('chrome-top-hidden', collapsed\);\s*screen\.classList\.toggle\('chrome-bottom-hidden', collapsed\);/,
+  'all three bars share one collapse state - they hide and return together on the idle timer');
+assert.match(app, /function revealTrackerChrome\(\) \{\s*setTrackerChromeCollapsed\(false\);\s*scheduleTrackerChromeHide\(\);/,
+  'any manual activity must both bring the bars back and restart the countdown');
 
 assert.match(index, /id="btn-fab-score"[^>]*aria-label="Enter Score"/,
   'the floating Enter Score button is an icon, so it needs a label for screen readers');
-assert.match(style, /#screen-tracker\.chrome-bottom-hidden \.btn-fab-score \{[\s\S]*?opacity: 0\.6;/,
+assert.match(style, /#screen-tracker\.chrome-bottom-hidden \.btn-fab-score \{[\s\S]*?opacity: 0\.72;/,
   'the floating button must appear only while the action bar is collapsed, resting translucent');
 assert.match(app, /fab\.addEventListener\('click', \(\) => document\.getElementById\('btn-add-turn'\)\.click\(\)\)/,
   'the floating button must delegate to the action button, or the off-turn toast is lost');
@@ -277,14 +279,22 @@ assert.match(app, /\} else if \(score === null && state\.gameKey === 'farkle'\) 
 assert.match(app, /\} else if \(score === null\) \{\s*td\.className = 'score-cell not-on-board';/,
   'games with an entry threshold but no Farkle must keep the ✗');
 
-// The bar-collapse decision must not be readable from a measurement the collapse
-// itself changes, or it oscillates.
-assert.match(app, /const gapToEnd = wrap\.scrollHeight - wrap\.scrollTop;/,
-  'the action bar decision must measure from scrollTop to the end of the content - clientHeight moves when the bar itself collapses, which is the oscillation');
-assert.match(app, /const hiddenViewport = wrap\.clientHeight \+ \(bottomHidden \? 0 : chromeBottomBarHeight\);/,
-  'the band must be sized against the viewport with the bar hidden, so both states agree on where the bottom is');
-assert.match(app, /chromeBottomBarHeight = Math\.max\(chromeBottomBarHeight, bar\.offsetHeight\);/,
-  'a bar height sampled mid-transition under-reads; an under-estimate is exactly what brings the flicker back');
+// The bars now hide on an idle timer rather than on scroll position, so the old
+// oscillation guards (a band measured from scrollTop to the end of the content)
+// no longer exist to protect - the collapse is no longer read from any
+// measurement the collapse itself moves. What has to hold instead:
+assert.match(app, /wrap\.addEventListener\('touchstart', manualScroll, \{ passive: true \}\)/,
+  'the reveal must hang off real input events - a scroll listener cannot tell an auto-scroll from a finger');
+assert.match(app, /wrap\.addEventListener\('scroll', \(\) => \{\s*if \(chromeManualScrolling\) manualScroll\(\);/,
+  'scroll events may only count as activity while a manual gesture is live, or every auto-scroll would reveal the bars');
+assert.match(app, /chromeMomentumTimer = setTimeout\(\(\) => \{ chromeManualScrolling = false; \}, CHROME_MOMENTUM_MS\)/,
+  'touch momentum outlives touchend - without the grace period the bars vanish mid-glide');
+assert.match(app, /const shift = collapsed \? -chromeTopBarsHeight : chromeTopBarsHeight;\s*wrap\.scrollTop = Math\.max\(0, wrap\.scrollTop \+ shift\)/,
+  'collapsing the top bars grows the scrollport upwards - without the scrollTop correction the board slides under the finger');
+assert.match(app, /chromeTopBarsHeight = Math\.max\(chromeTopBarsHeight, visible\(header\) \+ visible\(roomBar\)\)/,
+  'a bar height sampled mid-transition under-reads, and an under-read correction is a visible jump');
+assert.match(app, /function trackerChromeMayCollapse\(\)[\s\S]*?return overflow > CHROME_MIN_OVERFLOW;/,
+  'a board too short to scroll must never hide its bars - there would be no gesture left to bring them back');
 assert.match(app, /resize[\s\S]{0,200}?resetChromeMetrics\(\);/,
   'remembered heights must be dropped on resize - a stale one is worse than none');
 
