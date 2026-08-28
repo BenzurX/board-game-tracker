@@ -4,6 +4,18 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ---
 
+## 0.24 - 2026-08-27
+
+### Fixed
+- `Claude:` A custom game set to "Lowest wins (golf)" now actually crowns the lowest total. The direction was read with an unscoped `document.querySelector('.dir-btn.active')`, and `.dir-btn` is a shared button style the multiplayer section uses too - its active button ("Solo / Same Device") sits earlier in the document and carries no `data-dir`, so the lookup returned `undefined` and every custom game silently fell back to highest-wins. The query is now scoped to `#scoring-section .dir-btn.active[data-dir]`. The winner logic itself was already correct: crossing the target only ends the game, and the winner is then whichever total is best for the scoring direction, which in golf is usually not the player who crossed.
+- `Claude:` Negative scores can now be entered on a phone. Mobile keypads have no minus key and no `inputmode` value adds one (`tel` offers + * #, `decimal` offers a period), so a ± button now sits beside each score field and flips the sign of what is typed - tapping it on an empty field leaves a bare "-" for the digits to land after. It appears only where negatives are legal: custom games and the built-in games that allow them. Both entry paths have it, the Enter Score modal and the tap-a-cell inline editor, so a mistyped cell can be corrected to a negative too. The toggle deliberately does not take focus (`preventDefault` on pointerdown and mousedown), because the inline editor commits on blur and would otherwise close before the tap landed.
+
+### Changed
+- `Claude:` Score fields are `type="text"` with `inputmode="numeric"` instead of `type="number"`. The keypad is unchanged, but a number input silently rejects the lone "-" that exists while a negative is still being typed. Consequences handled in code: `min`/`max` no longer clamp, so both entry paths clamp to ±99999 themselves, and a field holding only "-" is read as blank rather than as 0. One visible loss: Farkle's desktop spinner arrows no longer step by 50 (`step` was a number-input attribute) - entered values are unaffected, since scores are still rounded to the nearest 50 on commit.
+- `Claude:` Nine regression assertions added covering both fixes: the scoped direction lookup, winner-by-best-total rather than by whoever crossed, and the sign toggle's markup, focus behaviour and parsing rules.
+
+---
+
 ## 0.23 - 2026-08-17
 
 ### Changed

@@ -11,12 +11,13 @@ A lightweight score-tracking web app for board games and dice games. No install,
 - **11 built-in games** - Farkle, Yahtzee, Left Right Center, Liar's Dice, Cribbage, Euchre, Crazy Eights, Poker, Gin Rummy, Three Thirteen, and Qwirkle, each with its own scoring rules and win condition
 - **Generic Game** - a freeform score sheet for games like Skyjo: name the game, log a score per round, no fixed rules
   - **Golf scoring toggle** - highest total wins, or lowest wins (golf)
-  - **Negative scores** and an optional **no-limit target** (set to 0 to just track scores)
+  - **Negative scores** and an optional **no-limit target** (set to 0 to just track scores). The target only ends the game - the winner is then whichever total is best for the chosen direction, so in golf the player who crossed it is usually not the one who wins
   - **"Track who goes out first"** - opt-in per game; flags the round closer (⚑) next to their score
 - **2–8 players** with distinct color-coded columns; tap your color dot on setup or mid-game to change it, including in multiplayer
 - **Inline editing** - tap any score cell or player name to edit mid-game
 - **Score cell marks** - `·` for a turn nobody has entered yet, `F` in Farkle for a turn that banked nothing (a Farkle, or a score that missed the entry threshold - the two are the same at the table), and `✗` in other games with an entry threshold, where being on the board is a state of its own
 - **Enter Scores modal** - enter one or more players' scores for a round in one step; fields begin empty and blanks are skipped, while explicit zeroes are recorded. Each player's current total appears alongside their input, with a quick rules shortcut in the header
+- **± sign toggle** - wherever negative scores are legal, a ± button sits beside each score field and flips the sign of what is typed. Phone keypads have no minus key and no `inputmode` setting adds one, so this is how a negative is entered on mobile; it works the same in the Enter Scores modal and in the tap-a-cell inline editor
 - **Board animations** - totals count up to their new value, a new round slides in, a score that changed since you last looked flashes once, and the turn highlight fades onto the column that just took the turn. All of it is information, not decoration, and all of it is skipped under `prefers-reduced-motion`
 - **Winner banner + confetti** - detects the win, then fires a confetti burst (honors `prefers-reduced-motion`); tapping the banner adds another, up to three at once, synced to everyone in multiplayer
 - **Basic Rules on setup** - picking a game goes straight to setup, with the game's intro shown above the player list (clamped to 4 lines with a "Show more/less" toggle) and a "See Scoring and Custom Rules" button
@@ -88,7 +89,7 @@ CHANGELOG.md       - history of changes
 
 Currently implemented:
 - **Farkle** - dice game, first to 10,000 points (configurable), minimum 500 to get on the board (configurable); once someone crosses the target, everyone else gets one more turn to beat it before a winner is declared - whoever played after them finishes the current round, and whoever played before them takes their turn in the next one. Turn order counts from whoever led the round off, not from the leftmost column, so a player who goes first and crosses the target ends the game when that round completes
-- **Generic Game** - freeform round-by-round score sheet (e.g. Skyjo), with high/low (golf) scoring, negative scores, optional target, and opt-in round-closer tracking
+- **Generic Game** - freeform round-by-round score sheet (e.g. Skyjo), with high/low (golf) scoring, negative scores (entered with the ± toggle), optional target, and opt-in round-closer tracking
 
 More games planned (round-by-round and category-based scoring).
 

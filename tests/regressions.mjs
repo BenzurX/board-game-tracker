@@ -321,4 +321,32 @@ assert.match(app, /if \(confettiRAF\) return;/,
 assert.doesNotMatch(app, /cancelAnimationFrame\(confettiRAF\)/,
   'firing confetti must no longer cancel the burst already in flight');
 
+// A custom game's scoring direction must be read from the scoring section only.
+// `.dir-btn` is a shared button style the multiplayer section also uses, and its
+// active button (Solo / Same Device) sits earlier in the document with no
+// `data-dir`, so an unscoped query made every golf game score as highest-wins.
+assert.match(app, /document\.querySelector\('#scoring-section \.dir-btn\.active\[data-dir\]'\)\?\.dataset\.dir \|\| 'high'/,
+  "the custom game's direction must be read from #scoring-section's active [data-dir] button, not the first .dir-btn.active in the document");
+// Crossing the target ends the game; it does not decide who won. In golf the
+// crosser is usually the loser, so the winner is always the best total.
+assert.match(app, /const best = state\.scoreDirection === 'low' \? Math\.min\(\.\.\.totals\) : Math\.max\(\.\.\.totals\);\s*const winIdx = totals\.indexOf\(best\);/,
+  'the winner is the best total by scoring direction, never whoever crossed the target');
+
+// Mobile keypads have no minus key, so score fields carry a ± button and are
+// text inputs (a number input cannot hold the bare "-" mid-typing).
+assert.doesNotMatch(app, /class="turn-score-input"[^>]*type="number"/,
+  'score inputs must not be type=number - a number input rejects the lone "-" the ± button leaves behind');
+assert.match(app, /<input type="text" class="turn-score-input"[^>]*inputmode="numeric"/,
+  'the Enter Score field stays on the numeric keypad even as a text input');
+assert.match(app, /if \(allowNeg\) row\.appendChild\(makeSignToggle\(row\.querySelector\('\.turn-score-input'\)\)\);/,
+  'the sign toggle is added to Enter Score rows wherever negatives are legal');
+assert.match(app, /if \(allowNeg\) wrap\.appendChild\(makeSignToggle\(input\)\);/,
+  'the inline cell editor gets the same sign toggle - a phone must be able to correct a cell to a negative');
+assert.match(app, /btn\.addEventListener\('pointerdown', e => e\.preventDefault\(\)\);\s*btn\.addEventListener\('mousedown', e => e\.preventDefault\(\)\);/,
+  'the toggle must not take focus: the inline editor commits on blur, so a focus-stealing tap would close it before the click landed');
+assert.match(app, /if \(text === '' \|\| text === '-'\) return null;/,
+  'a field holding only "-" is blank, not zero - reading it mid-edit must not commit a score');
+assert.match(app, /Math\.max\(allowNeg \? -SCORE_INPUT_MAX : 0, Math\.min\(SCORE_INPUT_MAX, /,
+  'text inputs have no min/max attributes, so both entry paths must clamp the range themselves');
+
 console.log('Regression checks passed');
