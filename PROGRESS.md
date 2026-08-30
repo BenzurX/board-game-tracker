@@ -35,9 +35,9 @@ The three tracker bars now collapse together three seconds after the last manual
 Two fixes to how a custom game is scored: golf direction was being read from an unscoped `.dir-btn.active` query that matched the multiplayer section's button first, so every golf game crowned the highest total, and score fields now carry a ± button because no mobile keypad offers a minus key. The switch from `type="number"` to `type="text"` is what makes the sign toggle work at all - read the detail file before putting the number input back.
 → [progress/score-entry-fixes.md](progress/score-entry-fixes.md)
 
-## Pip Redesign (built 2026-08-27 to 2026-08-29, shipped in v0.25)
-`design` `sound` `worker` `shipped`
-Full visual rebuild from a Claude Design handoff: one Pip theme in two modes, eight ink-on-accent player colours, a single physical button model, the die as the player counter across all three setup flows, and a procedural Web Audio layer with a pop and a victory fanfare. The review pass found the Worker had never moved to the new palette, which had been silently rejecting every colour change players made - read the detail file before touching the token aliases, the rotation rule, or where the fanfare fires.
+## Pip Redesign (built 2026-08-27 to 2026-08-29, shipped 2026-08-29 in v0.25 - milestone)
+`design` `sound` `worker` `milestone` `shipped`
+Major visual UI/UX rework, and the largest single change since Multiplayer Rooms. Full visual rebuild from a Claude Design handoff: one Pip theme in two modes, eight ink-on-accent player colours, a single physical button model, the die as the player counter across all three setup flows, and a procedural Web Audio layer with a pop and a victory fanfare. The review pass found the Worker had never moved to the new palette, which had been silently rejecting every colour change players made - read the detail file before touching the token aliases, the rotation rule, or where the fanfare fires.
 → [progress/pip-redesign.md](progress/pip-redesign.md)
 
 ## Next Session

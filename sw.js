@@ -1,4 +1,4 @@
-const CACHE = 'board-game-tracker-v52';
+const CACHE = 'board-game-tracker-v53';
 const APP_VERSION = '0.25';
 
 const ASSETS = [

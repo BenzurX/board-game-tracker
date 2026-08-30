@@ -1,6 +1,6 @@
 # Pip Redesign
 
-Built 2026-08-27 to 2026-08-29, shipped in v0.25. A full visual rebuild of the app from a Claude Design handoff (`design_handoff_pip/`), plus a new sound layer.
+Built 2026-08-27 to 2026-08-29, shipped 2026-08-29 in v0.25, a milestone release. A major visual UI/UX rework: the app rebuilt from a Claude Design handoff (`design_handoff_pip/`), plus a new sound layer.
 
 ## What shipped
 

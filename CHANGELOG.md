@@ -6,7 +6,7 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 
 ## 0.25 - 2026-08-29
 
-The Pip redesign: a full visual rebuild from a Claude Design handoff, plus sound. Every screen changed, so this entry is grouped by area rather than by file.
+Milestone release: a major visual UI/UX rework. The Pip redesign rebuilds the app from a Claude Design handoff and adds sound. Every screen changed, so this entry is grouped by area rather than by file.
 
 ### Added
 - `Claude:` **Sound.** `sfx.js` is a new procedural Web Audio layer - no audio files ship, every sound is synthesized, so the app stays offline-capable and each effect is tunable in source. Two sounds exist: a soft rising `pop` on every button press, and `victory` on a win. Both run through a five-step pitch variant picked at random per play (±2 semitones), because a button pressed twenty times in a row must not sound like the same recording twenty times. The AudioContext is created lazily on the first gesture to satisfy browser autoplay policy; before that `play()` is a silent no-op rather than an error. Master gain is capped at 0.3 and scaled by a new Volume slider in Settings, so 100% is a designed ceiling rather than raw 1.0.
