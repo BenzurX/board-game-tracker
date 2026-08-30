@@ -874,12 +874,16 @@ html, body {
 
 /* ── Tracker Screen ────────────────────────────────────── */
 .winner-banner {
-  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-bright) 100%);
-  color: var(--on-accent);
-  font-size: 1rem;
-  font-weight: 700;
+  background: var(--p4);
+  color: var(--p4-fg);
+  border-bottom: var(--accent-border) solid var(--p4-bd);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   text-align: center;
-  padding: 12px 20px;
+  padding: 13px 20px;
   cursor: pointer;
 }
 .winner-banner.hidden { display: none; }
@@ -977,13 +981,12 @@ html, body {
 }
 
 #score-table thead th {
+  font-family: var(--font-ui);
   font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-weight: 900;
   padding-top: 14px;
   padding-bottom: 14px;
-  border-bottom: 2px solid var(--border);
+  border-bottom: var(--accent-border) solid var(--surface-2);
   position: sticky;
   top: 0;
   background: color-mix(in srgb, var(--bg) 80%, transparent);
@@ -993,9 +996,11 @@ html, body {
   z-index: 2;
 }
 
-#score-table tbody tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
-#score-table tbody tr:hover td           { background: rgba(255,255,255,0.05); }
-#score-table tbody td                    { border-bottom: 1px solid var(--border); }
+/* Zebra rows are the table's whole job: alternating grounds, no row borders,
+   so the eye tracks across a row without a rule cutting it up. */
+#score-table tbody tr:nth-child(odd) td  { background: var(--row-a); }
+#score-table tbody tr:nth-child(even) td { background: var(--row-b); }
+#score-table tbody tr:hover td           { filter: brightness(1.08); }
 #score-table .current-turn {
   background: color-mix(in srgb, var(--accent) 42%, var(--bg)) !important;
   box-shadow: inset 3px 0 var(--accent-bright), inset -3px 0 var(--accent-bright);
@@ -1005,13 +1010,15 @@ html, body {
 
 .col-round {
   text-align: left;
-  color: var(--text-muted);
-  font-size: 0.82rem;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 0.78rem;
   padding-left: 14px;
-  min-width: 34px;
+  min-width: 40px;
 }
 
-.score-cell { font-weight: 600; font-size: 1.05rem; cursor: pointer; }
+.score-cell { font-family: var(--font-ui); font-weight: 800; font-size: 1.05rem; cursor: pointer; }
 .score-cell-inner { display: inline-flex; align-items: center; justify-content: center; }
 .closer-flag { margin-left: 5px; font-size: 1.05rem; line-height: 1; }
 .closer-flag-spacer { margin-left: 0; margin-right: 5px; visibility: hidden; }
@@ -1027,13 +1034,14 @@ html, body {
 }
 
 .score-edit-input {
-  width: 72px;
-  background: none;
-  border: none;
-  border-bottom: 1.5px solid var(--accent);
+  width: 78px;
+  background: var(--ground);
+  border: 2px solid var(--p2);
+  border-radius: var(--r-chip);
   color: var(--text);
+  font-family: var(--font-ui);
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 900;
   text-align: center;
   outline: none;
   padding: 2px 4px;
@@ -1051,22 +1059,24 @@ html, body {
 }
 .sign-toggle {
   flex-shrink: 0;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--card);
-  color: var(--text-muted);
+  border: 2px solid var(--border);
+  border-radius: var(--r-chip);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-ui);
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 900;
   line-height: 1;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
 .sign-toggle:active {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--p2-bd);
+  background: var(--p2);
+  color: var(--p2-fg);
 }
 
 .player-header-inner {
@@ -1077,22 +1087,46 @@ html, body {
 }
 
 .player-color-dot--header {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
-.player-name-label { cursor: pointer; transition: opacity 0.15s; }
-.player-name-label:hover { opacity: 0.7; }
+.player-name-label {
+  position: relative;
+  display: inline-block;
+  padding: 6px 11px;
+  border-radius: var(--r-chip);
+  border: var(--accent-border) solid var(--chip-bd, var(--border));
+  background: var(--chip, var(--surface-2));
+  color: var(--chip-fg, var(--text));
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 0.82rem;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+@media (hover: hover) {
+  .player-name-label:hover { filter: var(--hover); }
+}
+.player-name-label.is-leader::after {
+  content: '\1F451';
+  position: absolute;
+  top: -11px;
+  right: -6px;
+  font-size: 0.85rem;
+  line-height: 1;
+  pointer-events: none;
+}
 
 .name-edit-input {
-  background: none;
-  border: none;
-  border-bottom: 1.5px solid var(--accent);
-  color: inherit;
+  background: var(--ground);
+  border: 2px solid var(--p2);
+  border-radius: var(--r-chip);
+  color: var(--text);
+  font-family: var(--font-ui);
   font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-weight: 900;
   text-align: center;
   width: 80px;
   outline: none;
@@ -1100,12 +1134,13 @@ html, body {
 }
 
 #score-table tfoot td {
-  font-weight: 800;
+  font-family: var(--font-ui);
+  font-weight: 900;
   font-size: 1.15rem;
-  border-top: 2px solid var(--border);
+  border-top: var(--accent-border) solid var(--border);
   padding-top: 14px;
   padding-bottom: 14px;
-  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  background: color-mix(in srgb, var(--surface-2) 88%, transparent);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.25);
@@ -1116,10 +1151,18 @@ html, body {
 .totals-label {
   text-align: left;
   padding-left: 14px;
-  font-size: 0.72rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
+  letter-spacing: 0.24em;
+  color: var(--muted);
+}
+
+#score-table tfoot td.is-leader {
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
 }
 
 .totals-label-short { font-size: 0.82rem; }
@@ -1130,7 +1173,7 @@ html, body {
   padding: 10px 12px;
   padding-bottom: max(10px, env(safe-area-inset-bottom));
   background: var(--surface);
-  border-top: 1px solid var(--border);
+  border-top: var(--accent-border) solid var(--surface-2);
 }
 .tracker-actions .btn-primary  { flex: 2; }
 .tracker-actions .btn-secondary { flex: 1; }
@@ -1206,29 +1249,29 @@ html, body {
   left: 12px;
   bottom: calc(var(--fab-clear, 88px) + env(safe-area-inset-bottom));
   z-index: 6;
-  width: 54px;
-  height: 54px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  border: none;
+  border: var(--accent-border) solid var(--p1-bd);
   display: grid;
   place-items: center;
-  background: var(--accent);
-  color: var(--on-accent);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  background: var(--p1);
+  color: var(--p1-fg);
+  box-shadow: var(--shadow);
   cursor: pointer;
   /* Hidden by default: scaled and faded rather than display:none, so it can
      animate out instead of vanishing under the returning action bar. */
   opacity: 0;
-  transform: scale(0.6);
+  transform: scale(0.6) rotate(-3deg);
   pointer-events: none;
   transition: opacity 160ms ease, transform 200ms cubic-bezier(0.2, 1.3, 0.5, 1),
-              background 160ms ease;
+              background 160ms ease, box-shadow var(--dur-press) var(--ease);
 }
 /* Resting translucent so the round numbers underneath stay readable through it,
    going solid the moment it is touched or focused. */
 #screen-tracker.chrome-bottom-hidden .btn-fab-score {
   opacity: 0.72;
-  transform: scale(1);
+  transform: scale(1) rotate(-3deg);
   pointer-events: auto;
 }
 #screen-tracker.chrome-bottom-hidden .btn-fab-score:hover,
@@ -1237,7 +1280,8 @@ html, body {
 }
 #screen-tracker.chrome-bottom-hidden .btn-fab-score:active {
   opacity: 1;
-  transform: scale(0.92);
+  transform: scale(1) rotate(-3deg) translateY(5px);
+  box-shadow: var(--shadow-none);
 }
 /* Same treatment the action bar gets when this device may not score yet: still
    tappable, so tapping can say whose turn it is. */

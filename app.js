@@ -338,6 +338,10 @@ const PLAYER_COLOR_BORDERS = {
 // Text on any accent fill is always ink. Never cream, never white.
 const PLAYER_INK = '#21131F';
 
+function playerBorderColor(color) {
+  return PLAYER_COLOR_BORDERS[color] || 'rgba(33, 19, 31, 0.35)';
+}
+
 // ── Player Color Picker ──────────────────────────────────
 // Shared popover used by both the setup screen's player dots and the tracker
 // header's color dot, so there's one color-picking UI in the whole app.
@@ -910,6 +914,9 @@ function renderTable() {
   const roundAdded = animate && rounds.length > lastRenderedRoundCount;
   const turnMoved = animate && mpCurrentTurnPlayerId !== lastRenderedTurnId;
 
+  const totals = getTotals();
+  const leaders = getLeaders(totals);
+
   // Header
   const headerRow = document.getElementById('player-header-row');
   headerRow.innerHTML = '<th class="col-round">Rd.</th>';
@@ -937,7 +944,10 @@ function renderTable() {
     const span = document.createElement('span');
     span.className = 'player-name-label';
     span.classList.toggle('mp-disconnected-name', state.multiplayer && p.connected === false);
-    span.style.color = p.color;
+    span.classList.toggle('is-leader', leaders.includes(pi));
+    span.style.setProperty('--chip', p.color);
+    span.style.setProperty('--chip-bd', playerBorderColor(p.color));
+    span.style.setProperty('--chip-fg', PLAYER_INK);
     const proxyScorer = state.multiplayer && p.scorerId
       ? players.find(other => other.id === p.scorerId)
       : null;
@@ -1109,12 +1119,13 @@ function renderTable() {
   // Totals footer
   const totalsRow = document.getElementById('totals-row');
   totalsRow.innerHTML = '<td class="col-round totals-label"><span class="totals-label-short">Tot.</span><span class="totals-label-full">Total</span></td>';
-  const totals = getTotals();
-  const leaders = getLeaders(totals);
   totals.forEach((total, i) => {
     const td = document.createElement('td');
     td.style.color = state.players[i].color;
-    const prefix = leaders.includes(i) ? '👑 ' : '';
+    // The crown now hangs off the leader's header chip, so the total carries
+    // the same fact as an underline instead - never colour on its own.
+    td.classList.toggle('is-leader', leaders.includes(i));
+    const prefix = '';
     const key = boardKeyFor(state.players[i], i);
     const priorTotal = lastTotalsById.get(key);
     const inFlight = runningTotals.get(key);
