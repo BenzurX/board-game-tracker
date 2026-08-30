@@ -1,0 +1,2335 @@
+/* ══ PIP - Design Tokens ═══════════════════════════════════
+   Values come from design_handoff_pip/theme.css and are authoritative: do not
+   retune a colour here without changing that file too. One theme, two modes.
+   The three old themes (Ember/Ocean/Forest) were removed in v0.25 - the palette
+   is now part of the identity rather than a preference.
+
+   Each mode block declares the Pip names first, then maps the legacy semantic
+   names (--bg, --card, --accent ...) onto them. The legacy names are what the
+   rest of this file was written against, so the mapping is what lets a 2000-line
+   stylesheet adopt the new palette without a rename sweep. New rules should
+   prefer the Pip names. */
+
+/* ── Variables - Shared (mode-independent) ─────────────── */
+:root {
+  /* Player accents - ONE set for both modes. Bright fill + ink text, never
+     cream text. The deep hue is a 3px border, not a second fill palette.
+     Contrast figure is fill vs the ink text colour. */
+  --p1: #F2604C; --p1-fg: #21131F; --p1-bd: #B23A28;  /* punch      5.5:1 */
+  --p2: #F5B02E; --p2-fg: #21131F; --p2-bd: #8A5709;  /* marigold   9.4:1 */
+  --p3: #A8C64F; --p3-fg: #21131F; --p3-bd: #4F6B14;  /* pistachio  9.2:1 */
+  --p4: #3FBE9A; --p4-fg: #21131F; --p4-bd: #0F6F58;  /* jade       7.6:1 */
+  --p5: #4FC3E8; --p5-fg: #21131F; --p5-bd: #14607F;  /* lagoon     8.8:1 */
+  --p6: #7C93EE; --p6-fg: #21131F; --p6-bd: #3A4EAF;  /* cornflower 6.1:1 */
+  --p7: #C48BF0; --p7-fg: #21131F; --p7-bd: #6B33A8;  /* orchid     7.1:1 */
+  --p8: #F576A8; --p8-fg: #21131F; --p8-bd: #A82F6A;  /* bubblegum  6.8:1 */
+  --accent-border: 3px;
+
+  /* The lightness of these hues deliberately varies (marigold L~0.80,
+     cornflower L~0.62). That spread, not hue, is what keeps four filled chips
+     apart in one table header for red-green colour blindness. Do not level it. */
+
+  --success: #3FBE9A;
+  --danger:  #F2604C;
+  --danger-bd: #B23A28;
+
+  /* Type */
+  --font-display: 'Lilita One', cursive;
+  --font-ui: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Shape */
+  --r-action: 999px;  /* buttons, chips, pills */
+  --r-card:   20px;   /* cards, game tiles     */
+  --r-sheet:  24px;   /* bottom sheets         */
+  --r-chip:   12px;   /* table chips, inputs   */
+  --r-swatch: 10px;   /* smallest allowed      */
+  --radius:    20px;  /* legacy alias -> card  */
+  --radius-sm: 12px;  /* legacy alias -> chip  */
+
+  /* Motion */
+  --press:      translateY(5px);
+  --press-tile: translateY(6px);
+  --hover:      brightness(1.06) saturate(1.03);
+  --dur-hover:  120ms;
+  --dur-press:  90ms;
+  --ease:       cubic-bezier(.2, .7, .3, 1);
+  --tilt:       1.5deg;
+  --tap:        44px;
+  --tap-action: 52px;
+}
+
+/* ── Variables - Pip Dark (mulberry plum) ──────────────── */
+html[data-theme="pip"][data-mode="dark"] {
+  --ground:    #21131F;
+  --surface:   #2C1A29;
+  --surface-2: #3A2436;
+  --border:    #4B3145;
+  --text:      #F7EFE1;   /* 15.5:1 on ground */
+  --muted:     #C0A7B4;   /*  7.9:1 on ground */
+  --row-a:     #291728;
+  --row-b:     #221320;
+
+  /* elevation - hard offset, zero blur */
+  --shadow:        0 5px 0 rgba(0, 0, 0, .55);
+  --shadow-tile:   0 6px 0 rgba(0, 0, 0, .55);
+  --shadow-sheet:  0 -8px 0 rgba(0, 0, 0, .35);
+  --shadow-screen: 0 10px 0 rgba(0, 0, 0, .4);
+  --shadow-none:   0 0 0 rgba(0, 0, 0, .55);
+
+  /* ambient background */
+  --amb-1: #3FBE9A; --amb-2: #F576A8; --amb-3: #F5B02E;
+  --amb-o1: .14; --amb-o2: .11; --amb-o3: .09;
+  --grain: rgba(247, 239, 225, .5); --grain-o: .045;
+
+  /* logo: the plate is a filled ghost on plum */
+  --logo-plate:  #2A1826;
+  --logo-ghost:  #3D2739;
+  --logo-stroke: #3A2436;
+  --logo-pip:    var(--p4);
+
+  /* legacy semantic aliases */
+  --bg:            var(--ground);
+  --card:          var(--surface-2);
+  --card-hover:    #462C41;
+  --accent:        var(--p2);
+  --accent-bright: #FFC14F;
+  --accent-dim:    rgba(245, 176, 46, .22);
+  --on-accent:     #21131F;
+  --text-muted:    var(--muted);
+}
+
+/* ── Variables - Pip Light (cream paper) ───────────────── */
+html[data-theme="pip"][data-mode="light"] {
+  --ground:    #F7EFE1;
+  --surface:   #FFFAF1;
+  --surface-2: #F0E3D2;
+  --border:    #E2D0BC;
+  --text:      #21131F;   /* 15.5:1 on ground */
+  --muted:     #6E5460;   /*  5.9:1 on ground */
+  --row-a:     #FFFAF1;
+  --row-b:     #F0E4D4;
+
+  /* Accents are inherited unchanged from the shared block. The deep hues stay
+     available as accent TEXT on paper (totals, wordmark letters) - never fills. */
+  --p1-ink: #B23A28; --p2-ink: #8A5709; --p3-ink: #4F6B14; --p4-ink: #0F6F58;
+  --p5-ink: #14607F; --p6-ink: #3A4EAF; --p7-ink: #6B33A8; --p8-ink: #A82F6A;
+
+  --shadow:        0 5px 0 rgba(33, 19, 31, .22);
+  --shadow-tile:   0 6px 0 rgba(33, 19, 31, .22);
+  --shadow-sheet:  0 -8px 0 rgba(33, 19, 31, .18);
+  --shadow-screen: 0 10px 0 rgba(33, 19, 31, .22);
+  --shadow-none:   0 0 0 rgba(33, 19, 31, .22);
+
+  --amb-1: #0F6F58; --amb-2: #A82F6A; --amb-3: #8A5709;
+  --amb-o1: .07; --amb-o2: .06; --amb-o3: .05;
+  --grain: rgba(33, 19, 31, .5); --grain-o: .03;
+
+  /* logo: same drawing, plate becomes a keyline and the pip goes deep jade */
+  --logo-plate:  transparent;
+  --logo-ghost:  rgba(33, 19, 31, .2);
+  --logo-stroke: rgba(33, 19, 31, .28);
+  --logo-pip:    var(--p4-bd);
+
+  --bg:            var(--ground);
+  --card:          var(--surface-2);
+  --card-hover:    #E7D7C2;
+  --accent:        var(--p2);
+  --accent-bright: #E09A15;
+  --accent-dim:    rgba(245, 176, 46, .28);
+  --on-accent:     #21131F;
+  --text-muted:    var(--muted);
+}
+
+/* ── Reset & Base ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+.hidden { display: none !important; }
+
+html, body {
+  height: 100%;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  background: var(--ground);
+  color: var(--text);
+  /* The handoff specifies 15px body text, but every rem value in this file was
+     tuned against a 17px root. Keeping the root at 17px preserves those and
+     lands body copy at roughly the intended optical size in Nunito, which runs
+     smaller than the old system stack at the same pixel height. */
+  font-size: 17px;
+  line-height: 1.4;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* Every number a player compares against another number is tabular. Nunito was
+   chosen over a rounded display face specifically because it has real tabular
+   figures, so columns of scores line up digit for digit. */
+#score-table, .totals-label, input[type="number"], .win-row,
+.turn-total, .standings-row, .volume-value, .home-version, .settings-version {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ── Screen System ─────────────────────────────────────── */
+.screen {
+  display: none;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: 0;
+  width: 100%;
+  /* Lifts every screen above the fixed ambient host, which sits at z-index 0. */
+  position: relative;
+  z-index: 1;
+}
+.screen.active { display: flex; }
+
+/* ── Ambient Background ────────────────────────────────── */
+/* Three blurred radial ellipses plus a dot grain on one fixed, non-interactive
+   host behind the app. Total contrast against the ground stays under 1.15:1 - it
+   should be barely perceptible, felt rather than seen.
+
+   Motion is transform-only on an already-rasterised blurred layer, so the blur
+   is painted once and the compositor moves it: no layout, no repaint, no
+   per-frame JS. Do not reimplement this with canvas. The three loop lengths
+   (46s / 62s / 120s) are deliberately not multiples of each other, so the
+   composition never settles into a repeating beat. */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ambient i {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+}
+.ambient i:nth-child(1) {
+  top: -14%; left: -16%; width: 76%; height: 52%;
+  background: radial-gradient(circle, var(--amb-1) 0%, transparent 70%);
+  filter: blur(46px);
+  opacity: var(--amb-o1);
+  animation: amb-a 46s ease-in-out infinite;
+}
+.ambient i:nth-child(2) {
+  bottom: 2%; right: -20%; width: 78%; height: 44%;
+  background: radial-gradient(circle, var(--amb-2) 0%, transparent 70%);
+  filter: blur(52px);
+  opacity: var(--amb-o2);
+  animation: amb-b 62s ease-in-out infinite;
+}
+.ambient i:nth-child(3) {
+  top: 44%; left: 20%; width: 60%; height: 34%; border-radius: 44%;
+  background: radial-gradient(circle, var(--amb-3) 0%, transparent 72%);
+  filter: blur(44px);
+  opacity: var(--amb-o3);
+  animation: amb-c 120s linear infinite;
+}
+.ambient u {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background-image: radial-gradient(var(--grain) .5px, transparent .5px);
+  background-size: 3px 3px;
+  opacity: var(--grain-o);
+}
+
+@keyframes amb-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(7%, 5%, 0) scale(1.12); }
+}
+@keyframes amb-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50%      { transform: translate3d(-6%, -4%, 0) scale(.94); }
+}
+@keyframes amb-c {
+  0%   { transform: translate3d(0, 0, 0) rotate(0); }
+  100% { transform: translate3d(0, 0, 0) rotate(360deg); }
+}
+
+/* ── Scrollbars ────────────────────────────────────────── */
+/* Built from the same custom properties as everything else, so switching theme
+   or mode repaints them with no JS. Firefox only understands the two-keyword
+   `scrollbar-color` form and WebKit/Chromium only the pseudo-elements, which is
+   why both are declared. The transparent border plus `background-clip` is what
+   insets the thumb - a scrollbar thumb has no margin of its own. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-dim) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--accent-dim);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  background-clip: padding-box;
+}
+
+/* ── Responsive Breakpoints ────────────────────────────── */
+/* Tablet: center and cap width */
+@media (min-width: 640px) {
+  .screen {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .modal-sheet {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .game-grid {
+    padding: 24px;
+  }
+}
+
+/* Desktop: allow more breathing room */
+@media (min-width: 1024px) {
+  .screen {
+    max-width: 1080px;
+  }
+  .modal-sheet {
+    max-width: 1080px;
+  }
+}
+
+/* ── App Header (Home) ─────────────────────────────────── */
+.app-header {
+  position: relative;
+  padding: 40px 24px 22px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Micro label: the one type role that is all tracking. Sits above the mark so
+   the wordmark itself never has to explain what the app is. */
+.app-eyebrow {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* The PiP mark. The dot of the i is the centre pip of a five-face die, and the
+   ghost plate behind the word is the die itself. Everything is drawn from
+   theme tokens, so cream mode reuses the same artwork with the plate reduced
+   to a keyline - there is no second light-mode file. */
+.app-logo {
+  display: block;
+  width: 168px;
+  height: auto;
+}
+.app-logo .logo-letter { fill: var(--text); }
+.app-logo .logo-plate  { fill: var(--logo-plate); stroke: var(--logo-stroke); }
+.app-logo .logo-ghost  { fill: var(--logo-ghost); }
+.app-logo .logo-pip    { fill: var(--logo-pip); }
+
+.app-subtitle {
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ── Game Grid ─────────────────────────────────────────── */
+/* Each tile is a sticker: an accent fill with ink text, a 3px border in that
+   accent's own deep hue, a hard tile shadow, and a small fixed rotation. The
+   rotation is per-tile and deliberately uneven so the grid reads hand-placed;
+   it is safe here because nothing on this screen is a run of comparable
+   numbers. Content is bottom-aligned so the names sit on a common baseline
+   however tall the tile grows. */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  padding: 20px 16px 28px;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 118px;
+  padding: 16px 14px 14px;
+  background: var(--tile, var(--surface-2));
+  border: var(--accent-border) solid var(--tile-bd, var(--border));
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-tile);
+  cursor: pointer;
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) var(--ease),
+              box-shadow var(--dur-press) var(--ease);
+  text-align: left;
+  color: var(--tile-fg, var(--text));
+  transform: rotate(var(--tile-rot, 0deg));
+}
+.game-card:not(.coming-soon):active {
+  transform: rotate(var(--tile-rot, 0deg)) var(--press-tile);
+  box-shadow: var(--shadow-none);
+}
+@media (hover: hover) {
+  .game-card:not(.coming-soon):hover { filter: var(--hover); }
+}
+.game-card:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
+
+/* Tile identities. Colour and tilt are fixed per game so the grid looks the
+   same on every launch - a random tilt would make the home screen feel
+   unstable between visits. */
+.game-card[data-game="farkle"]        { --tile: var(--p4); --tile-bd: var(--p4-bd); --tile-fg: var(--p4-fg); --tile-rot: -1.5deg; }
+.game-card[data-game="yahtzee"]       { --tile: var(--p8); --tile-bd: var(--p8-bd); --tile-fg: var(--p8-fg); --tile-rot:  1.2deg; }
+.game-card[data-game="lrc"]           { --tile: var(--p2); --tile-bd: var(--p2-bd); --tile-fg: var(--p2-fg); --tile-rot:  1.5deg; }
+.game-card[data-game="liarsdice"]     { --tile: var(--p3); --tile-bd: var(--p3-bd); --tile-fg: var(--p3-fg); --tile-rot: -1.2deg; }
+.game-card[data-game="cribbage"]      { --tile: var(--p6); --tile-bd: var(--p6-bd); --tile-fg: var(--p6-fg); --tile-rot:  1.4deg; }
+.game-card[data-game="euchre"]        { --tile: var(--p1); --tile-bd: var(--p1-bd); --tile-fg: var(--p1-fg); --tile-rot: -1.4deg; }
+.game-card[data-game="crazyeights"]   { --tile: var(--p5); --tile-bd: var(--p5-bd); --tile-fg: var(--p5-fg); --tile-rot:  1.3deg; }
+.game-card[data-game="poker"]         { --tile: var(--p7); --tile-bd: var(--p7-bd); --tile-fg: var(--p7-fg); --tile-rot: -1.3deg; }
+.game-card[data-game="ginrummy"]      { --tile: var(--p8); --tile-bd: var(--p8-bd); --tile-fg: var(--p8-fg); --tile-rot: -1.5deg; }
+.game-card[data-game="threethirteen"] { --tile: var(--p3); --tile-bd: var(--p3-bd); --tile-fg: var(--p3-fg); --tile-rot:  1.5deg; }
+.game-card[data-game="qwirkle"]       { --tile: var(--p2); --tile-bd: var(--p2-bd); --tile-fg: var(--p2-fg); --tile-rot: -1.2deg; }
+.game-card[data-game="generic"]       { --tile: var(--p4); --tile-bd: var(--p4-bd); --tile-fg: var(--p4-fg); --tile-rot:  1.2deg; }
+
+/* The placeholder tile stays neutral: it is not a game, so it does not earn a
+   colour. A dashed border says "slot reserved" without shouting. */
+.game-card.coming-soon {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--border);
+  color: var(--muted);
+  box-shadow: none;
+  opacity: 0.75;
+  cursor: default;
+  pointer-events: none;
+  transform: none;
+}
+
+.game-icon  { font-size: 1.5rem; line-height: 1; margin-bottom: 2px; }
+.game-name  { font-family: var(--font-ui); font-size: 1rem; font-weight: 900; line-height: 1.1; }
+.game-desc  { font-family: var(--font-ui); font-size: 0.72rem; font-weight: 700; line-height: 1.25; opacity: 0.9; }
+.game-card.coming-soon .game-desc { opacity: 1; color: var(--muted); }
+
+/* Section header: micro label followed by a 3px rounded rule that eats the rest
+   of the row. */
+.category-divider {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.category-divider:first-child { margin-top: 0; }
+.category-divider::after {
+  content: '';
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+/* ── Screen Header ─────────────────────────────────────── */
+.screen-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px 12px;
+  background: var(--surface);
+  border-bottom: 3px solid var(--surface-2);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.screen-header h2 {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.28rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+/* Back is the one header control that carries an accent fill - it is the only
+   one with a destination, so it earns the colour. */
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--p2);
+  border: var(--accent-border) solid var(--p2-bd);
+  border-radius: 50%;
+  color: var(--p2-fg);
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+  width: var(--tap);
+  height: var(--tap);
+  min-width: var(--tap);
+  padding: 0;
+  white-space: nowrap;
+}
+.btn-back-icon { flex-shrink: 0; }
+.btn-back-label { display: none; }
+.player-name-full { display: none; }
+.totals-label-full { display: none; }
+
+@media (min-width: 640px) {
+  .btn-back {
+    border-radius: var(--r-action);
+    width: auto;
+    height: var(--tap);
+    min-width: 0;
+    padding: 6px 14px;
+  }
+  .btn-back-label { display: inline; }
+  .player-name-short { display: none; }
+  .player-name-full { display: inline; }
+  .totals-label-short { display: none; }
+  .totals-label-full { display: inline; }
+}
+
+.header-spacer { width: 60px; }
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-rules {
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  border: var(--accent-border) solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 400;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.icon-gear { width: 16px; height: 16px; flex-shrink: 0; }
+
+.btn-settings-header { display: flex; align-items: center; justify-content: center; }
+.btn-refresh { display: flex; align-items: center; justify-content: center; }
+
+/* ── Setup Screen ──────────────────────────────────────── */
+.setup-body {
+  flex: 1;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.setup-section { display: flex; flex-direction: column; gap: 12px; }
+
+.section-label {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--muted);
+}
+
+/* Player input rows */
+#player-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.player-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slide-in 0.18s ease;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.player-color-dot {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 3px rgba(33, 19, 31, 0.25);
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+/* The swatch keeps its 32px look but takes a 40px hit area, which is what a
+   finger needs. 40 rather than 44 so the pad stays inside the row's 10px flex
+   gap and never steals a tap from the name input beside it. */
+.player-color-dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+}
+/* A tap leaves :hover stuck on a touchscreen, so the grow is desktop-only. */
+@media (hover: hover) {
+  .player-color-dot:hover { transform: scale(1.08); }
+  .color-swatch-btn:hover { transform: scale(1.12); }
+}
+.player-color-dot:active { transform: scale(0.94); }
+.player-color-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── Color Picker Popover ──────────────────────────────── */
+.color-popover {
+  position: fixed;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+  background: var(--surface);
+  border: 3px solid var(--border);
+  border-radius: var(--r-chip);
+  padding: 10px;
+  box-shadow: var(--shadow);
+}
+.color-swatch-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 3px rgba(33, 19, 31, 0.25);
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.color-swatch-btn.selected { box-shadow: inset 0 0 0 3px rgba(33, 19, 31, 0.25), 0 0 0 3px var(--text); }
+
+.player-name-input {
+  flex: 1;
+  background: var(--ground);
+  border: 2px solid var(--border);
+  border-radius: var(--r-chip);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 12px 14px;
+  min-height: var(--tap);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.player-name-input:focus { border-color: var(--accent); }
+.player-name-input::placeholder { color: var(--text-muted); }
+
+/* ── Player count: the die is the control ──────────────── */
+/* The face is a real die face for 2-6, then keeps going to 8 - one pip per
+   player, each pip in that player's own colour, so the count and the roster
+   are the same picture. Rotation is safe here: pips are a quantity you read at
+   a glance, not a column of numbers you compare. */
+.count-die-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 6px 0 2px;
+}
+
+.count-step {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: var(--accent-border) solid var(--p2-bd);
+  background: var(--p2);
+  color: var(--p2-fg);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.6rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) var(--ease),
+              box-shadow var(--dur-press) var(--ease),
+              opacity 0.15s;
+}
+.count-step:active:not(:disabled) {
+  transform: var(--press);
+  box-shadow: var(--shadow-none);
+}
+.count-step:disabled {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+@media (hover: hover) {
+  .count-step:hover:not(:disabled) { filter: var(--hover); }
+}
+
+.count-die-wrap { flex-shrink: 0; }
+
+/* Cream in both modes: this is the identity's die, not a themed surface. */
+.count-die {
+  width: 132px;
+  height: 132px;
+  border-radius: 30px;
+  background: #F7EFE1;
+  border: var(--accent-border) solid rgba(33, 19, 31, 0.14);
+  box-shadow: var(--shadow-tile);
+  transform: rotate(-11deg);
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.die-cell {
+  border-radius: 50%;
+  transition: background 0.18s var(--ease), transform 0.18s var(--ease);
+  transform: scale(0.2);
+}
+.die-cell.is-on {
+  transform: scale(1);
+  box-shadow: inset 0 0 0 3px rgba(33, 19, 31, 0.25);
+}
+
+.count-label {
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+/* A smaller die for the join sheet, where it shares the modal with two or more
+   name fields and cannot take a third of the screen. */
+.count-die-row--compact { gap: 16px; margin-top: 14px; }
+.count-die-row--compact .count-step { width: 44px; height: 44px; font-size: 1.35rem; }
+.count-die-row--compact .count-die {
+  width: 104px;
+  height: 104px;
+  border-radius: 24px;
+  padding: 14px;
+  gap: 5px;
+}
+.count-label--compact { font-size: 1.1rem; margin-top: 6px; }
+
+/* Game name input (custom games) */
+.game-name-input {
+  background: var(--ground);
+  border: 2px solid var(--border);
+  border-radius: var(--r-chip);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 12px 14px;
+  min-height: var(--tap);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.game-name-input:focus { border-color: var(--accent); }
+.game-name-input::placeholder { color: var(--text-muted); }
+
+/* Win condition row */
+.win-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+.win-label { color: var(--muted); font-family: var(--font-ui); font-size: 0.9rem; font-weight: 700; }
+#win-score,
+#min-score {
+  width: 100px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid var(--p2);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 1.2rem;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+  padding: 2px 4px;
+}
+
+.setup-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding-left: 2px;
+}
+
+/* ── Buttons ───────────────────────────────────────────── */
+/* One physical model for every control in the app: the element sits on a hard
+   offset shadow with zero blur, and a press moves it down by exactly the shadow
+   offset while the shadow collapses to nothing - the button lands in its own
+   shadow instead of scaling. Accent-filled controls always carry a 3px border in
+   their own deep hue; neutral controls carry no accent border. Hover is a filter
+   only, never a transform, and is gated on `hover: hover` so a phone shows the
+   press and nothing else. */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  min-height: var(--tap-action);
+  border-radius: var(--r-action);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 13px 24px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) ease-out,
+              box-shadow var(--dur-press) ease-out;
+}
+
+.btn-primary {
+  background: var(--p2);
+  color: var(--p2-fg);
+  border: var(--accent-border) solid var(--p2-bd);
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: none;
+  padding: 15px 26px;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: var(--on-accent);
+  border: var(--accent-border) solid var(--danger-bd);
+}
+
+.btn-primary:active,
+.btn-secondary:active,
+.btn-danger:active {
+  transform: var(--press);
+  box-shadow: var(--shadow-none);
+}
+
+@media (hover: hover) {
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-danger:hover,
+  .btn-rules:hover,
+  .btn-qr:hover,
+  .btn-back:hover {
+    filter: var(--hover);
+  }
+}
+
+/* The round header controls are the same model at chip scale: 44px tap target,
+   3px border, and the same land-in-your-shadow press. */
+.btn-rules,
+.btn-qr,
+.btn-back {
+  box-shadow: var(--shadow);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) ease-out,
+              box-shadow var(--dur-press) ease-out;
+}
+.btn-rules:active,
+.btn-qr:active,
+.btn-back:active {
+  transform: var(--press);
+  box-shadow: var(--shadow-none);
+}
+
+
+.full-width { width: 100%; }
+
+/* ── Tracker Screen ────────────────────────────────────── */
+.winner-banner {
+  background: var(--p4);
+  color: var(--p4-fg);
+  border-bottom: var(--accent-border) solid var(--p4-bd);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 13px 20px;
+  cursor: pointer;
+}
+.winner-banner.hidden { display: none; }
+.winner-banner.celebrate { animation: winner-pop 0.5s cubic-bezier(.18,.89,.32,1.28); }
+
+@keyframes winner-pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  60%  { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* Confetti overlay - above screens, below modals */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Tracker screen scrolls internally (not the page) so the table's sticky
+   header sticks below the screen header instead of both competing for the
+   same top:0 and the thead ending up hidden underneath it. */
+#screen-tracker.active {
+  height: 100dvh;
+  overflow: hidden;
+  /* Anchors the floating Enter Score button, which has to sit over the board
+     rather than inside the scrollport - anything inside would scroll away. */
+  position: relative;
+}
+
+/* Score table */
+.table-scroll-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* No padding: sticky elements stick at the scrollport's padding edge, so any
+     top/bottom padding here would leave a gap rows could scroll past behind them. */
+  padding: 0;
+}
+
+@property --winner-chroma-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.winner-column-frame {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  padding: 4px;
+  border-radius: 12px;
+  background: conic-gradient(
+    from var(--winner-chroma-angle),
+    #ff3d77,
+    #ffcc33,
+    #4dff88,
+    #36cfff,
+    #a855f7,
+    #ff3d77
+  );
+  filter: drop-shadow(0 0 4px rgba(83, 223, 255, 0.34));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: winner-chroma-rotate 2.4s linear infinite;
+}
+.winner-column-frame.hidden { display: none; }
+
+@keyframes winner-chroma-rotate {
+  to { --winner-chroma-angle: 360deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .winner-column-frame { animation: none; }
+}
+
+#score-table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+#score-table th,
+#score-table td {
+  padding: 10px 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#score-table thead th {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  border-bottom: var(--accent-border) solid var(--surface-2);
+  position: sticky;
+  top: 0;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+
+/* Zebra rows are the table's whole job: alternating grounds, no row borders,
+   so the eye tracks across a row without a rule cutting it up. */
+#score-table tbody tr:nth-child(odd) td  { background: var(--row-a); }
+#score-table tbody tr:nth-child(even) td { background: var(--row-b); }
+#score-table tbody tr:hover td           { filter: brightness(1.08); }
+/* The tint marks the column; its outline is drawn by .turn-column-frame, which
+   can round its corners where an inset shadow never could. The sticky header
+   and footer keep their own drop shadow so rows still pass under them. */
+#score-table .current-turn { background: transparent; }
+#score-table thead .current-turn { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25); }
+#score-table tfoot .current-turn { box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.25); }
+
+.turn-column-frame {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  border: var(--accent-border) solid var(--turn-color, var(--p2));
+  border-radius: 12px;
+  /* Translucent so the scores underneath stay readable through it. The fill and
+     the border are the same custom property, so they cannot drift apart. */
+  background: color-mix(in srgb, var(--turn-color, var(--p2)) 26%, transparent);
+  transition: left 220ms var(--ease), width 220ms var(--ease),
+              border-color 220ms var(--ease), background 220ms var(--ease);
+}
+.turn-column-frame.hidden { display: none; }
+
+.col-round {
+  text-align: left;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding-left: 14px;
+  min-width: 40px;
+}
+
+.score-cell { font-family: var(--font-ui); font-weight: 800; font-size: 1.05rem; cursor: pointer; }
+.score-cell-inner { display: inline-flex; align-items: center; justify-content: center; }
+.closer-flag { margin-left: 5px; font-size: 1.05rem; line-height: 1; }
+.closer-flag-spacer { margin-left: 0; margin-right: 5px; visibility: hidden; }
+.score-cell:hover { background: var(--accent-dim) !important; }
+.score-cell.farkle    { color: var(--danger); font-style: italic; font-weight: 900; }
+.score-cell.not-on-board {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.score-cell.unscored {
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.score-edit-input {
+  width: 78px;
+  background: var(--ground);
+  border: 2px solid var(--p2);
+  border-radius: var(--r-chip);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 1.05rem;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+  padding: 2px 4px;
+  -moz-appearance: textfield;
+}
+.score-edit-input::-webkit-outer-spin-button,
+.score-edit-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* Sign toggle. Phone keypads have no minus key, so this button is the only way
+   to enter a negative score on mobile - it appears wherever negatives are legal. */
+.score-edit-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.sign-toggle {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: var(--r-chip);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.sign-toggle:active {
+  border-color: var(--p2-bd);
+  background: var(--p2);
+  color: var(--p2-fg);
+}
+
+.player-header-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.player-color-dot--header {
+  width: 16px;
+  height: 16px;
+}
+.player-color-dot--header::before { width: 30px; height: 30px; }
+
+.player-name-label {
+  position: relative;
+  display: inline-block;
+  padding: 6px 11px;
+  border-radius: var(--r-chip);
+  border: var(--accent-border) solid var(--chip-bd, var(--border));
+  background: var(--chip, var(--surface-2));
+  color: var(--chip-fg, var(--text));
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 0.82rem;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+@media (hover: hover) {
+  .player-name-label:hover { filter: var(--hover); }
+}
+.player-name-label.is-leader::after {
+  content: '\1F451';
+  position: absolute;
+  top: -11px;
+  right: -6px;
+  font-size: 0.85rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.name-edit-input {
+  background: var(--ground);
+  border: 2px solid var(--p2);
+  border-radius: var(--r-chip);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-align: center;
+  width: 80px;
+  outline: none;
+  padding: 2px 4px;
+}
+
+#score-table tfoot td {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 1.15rem;
+  border-top: var(--accent-border) solid var(--border);
+  padding-top: 14px;
+  padding-bottom: 14px;
+  background: color-mix(in srgb, var(--surface-2) 88%, transparent);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.25);
+  position: sticky;
+  bottom: 0;
+}
+
+.totals-label {
+  text-align: left;
+  padding-left: 14px;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--muted);
+}
+
+#score-table tfoot td.is-leader {
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+
+.totals-label-short { font-size: 0.82rem; }
+
+.tracker-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: var(--accent-border) solid var(--surface-2);
+}
+.tracker-actions .btn-primary  { flex: 2; }
+.tracker-actions .btn-secondary { flex: 1; }
+.tracker-actions .btn-primary,
+.tracker-actions .btn-secondary {
+  padding: 11px 14px;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 640px) {
+  .tracker-actions {
+    gap: 12px;
+    padding: 16px 20px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  .tracker-actions .btn-primary,
+  .tracker-actions .btn-secondary {
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+}
+
+/* ── Tracker chrome auto-hide ──────────────────────────── */
+/* Vertical space is the scarcest thing on a phone, and the title bar, room bar
+   and action bar together claim most of a short screen before a single score row
+   is drawn. Each collapses once the board is scrolled away from the end it
+   belongs to, and comes back by scrolling to that end. `max-height` carries the
+   transition because none of the three has a fixed height - the open value is an
+   upper bound, never a measurement, so it must stay comfortably above the
+   tallest any of them gets (the room bar wraps to two lines on a narrow phone). */
+#screen-tracker .screen-header,
+#screen-tracker .mp-room-bar,
+#screen-tracker .tracker-actions {
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 220ms ease, padding 220ms ease, opacity 160ms ease,
+              border-width 220ms ease;
+}
+#screen-tracker.chrome-top-hidden .screen-header,
+#screen-tracker.chrome-top-hidden .mp-room-bar,
+#screen-tracker.chrome-bottom-hidden .tracker-actions {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Blank slack under the last round so the auto-scroll can land the newest round
+   clear of the sticky totals row without reaching the true bottom, where the
+   action bar would come back. Its height is what the auto-scroll subtracts, read
+   from the element rather than duplicated as a constant in JS. */
+#score-body tr.scroll-tail td {
+  height: 20px;
+  padding: 0;
+  border: none;
+}
+
+/* The floating Enter Score button. It is the action bar's stand-in, so its
+   visibility is the exact inverse: it appears only while `chrome-bottom-hidden`
+   is on. That keeps the rule in CSS - no second scroll listener, and no moment
+   where the bar and the button both offer the same action.
+
+   Bottom left, over the round-number gutter, which is the only column where
+   covering a cell costs nothing. It sits `--fab-clear` off the bottom, measured
+   in JS as the sticky totals row plus the active round row: the total is what
+   players check and the active round is the one being played, so neither may be
+   covered. Row heights move with font size, so the distance cannot be a
+   constant. The fallback matters only for the frame before the first measure. */
+.btn-fab-score {
+  position: absolute;
+  left: 12px;
+  bottom: calc(var(--fab-clear, 88px) + env(safe-area-inset-bottom));
+  z-index: 6;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: var(--accent-border) solid var(--p1-bd);
+  display: grid;
+  place-items: center;
+  background: var(--p1);
+  color: var(--p1-fg);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  /* Hidden by default: scaled and faded rather than display:none, so it can
+     animate out instead of vanishing under the returning action bar. */
+  opacity: 0;
+  transform: scale(0.6) rotate(-3deg);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 200ms cubic-bezier(0.2, 1.3, 0.5, 1),
+              background 160ms ease, box-shadow var(--dur-press) var(--ease);
+}
+/* Resting translucent so the round numbers underneath stay readable through it,
+   going solid the moment it is touched or focused. */
+#screen-tracker.chrome-bottom-hidden .btn-fab-score {
+  opacity: 0.72;
+  transform: scale(1) rotate(-3deg);
+  pointer-events: auto;
+}
+#screen-tracker.chrome-bottom-hidden .btn-fab-score:hover,
+#screen-tracker.chrome-bottom-hidden .btn-fab-score:focus-visible {
+  opacity: 1;
+}
+#screen-tracker.chrome-bottom-hidden .btn-fab-score:active {
+  opacity: 1;
+  transform: scale(1) rotate(-3deg) translateY(5px);
+  box-shadow: var(--shadow-none);
+}
+/* Same treatment the action bar gets when this device may not score yet: still
+   tappable, so tapping can say whose turn it is. */
+.btn-fab-score.mp-locked {
+  background: var(--card);
+  color: var(--text-muted);
+  box-shadow: none;
+}
+.btn-fab-score:disabled {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-tracker .screen-header,
+  #screen-tracker .mp-room-bar,
+  #screen-tracker .tracker-actions,
+  .btn-fab-score {
+    transition: none;
+  }
+}
+
+/* ── Board animations ──────────────────────────────────── */
+/* All three are keyframes rather than transitions on purpose: the table is
+   rebuilt wholesale on every render, so the nodes a transition would animate
+   between never coexist. app.js works out what changed and hands the fresh node
+   the class; the animation plays as it is inserted. */
+
+/* A new round arriving. Slides from just above so it reads as being pushed onto
+   the end of the board, in step with the scroll that follows it. */
+@keyframes row-enter {
+  from { opacity: 0; transform: translateY(-7px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#score-table tbody tr.row-enter td {
+  animation: row-enter 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* A score that changed since the last paint. Tints and fades rather than
+   holding, so it draws the eye once and then leaves the number alone.
+
+   An overlay rather than an animated background, for the same reason as the
+   turn highlight below: `.current-turn` and `.score-cell:hover` both set the
+   background `!important`, and an important declaration beats an animation, so
+   a background keyframe would silently do nothing on exactly the cells most
+   worth flashing - correcting the current player's own score, or any cell under
+   the cursor as the table rebuilds. `::before` so it can coexist with the turn
+   overlay on `::after` when both land on the same cell. */
+@keyframes cell-flash {
+  to { opacity: 0; }
+}
+#score-table tbody td.cell-flash { position: relative; }
+#score-table tbody td.cell-flash::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: cell-flash 620ms ease-out forwards;
+}
+
+/* The highlight landing on the column that just took the turn. Also an overlay,
+   for the `!important` reason above.
+
+   Scoped to tbody deliberately: the header and totals cells are `position:
+   sticky`, and this class outlives its own animation until the next render, so
+   giving them `position: relative` would knock the sticky header or totals row
+   loose mid-scroll. Those cells are already positioned, so their overlay anchors
+   correctly without any position of its own. */
+#score-table tbody td.turn-claim { position: relative; }
+#score-table .turn-claim::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-bright);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: turn-claim 300ms ease-out forwards;
+}
+@keyframes turn-claim {
+  to { opacity: 0; }
+}
+
+/* Reduced-motion coverage for all of the above lives in one block at the very
+   end of this file, after every rule it has to beat. */
+
+/* ── Modals ────────────────────────────────────────────── */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+}
+.modal.hidden { display: none; }
+.modal--top { align-items: flex-start; }
+.modal--top .modal-sheet {
+  border-radius: 0 0 var(--radius) var(--radius);
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+  padding-top: max(24px, env(safe-area-inset-top));
+  animation-name: sheet-down;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.modal-sheet {
+  position: relative;
+  width: 100%;
+  background: var(--surface);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-top: 1px solid var(--border);
+  padding: 24px 20px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  /* Snappy deceleration, deliberately not an overshoot curve: the sheet is
+     anchored to the bottom edge, so travelling past its resting point would
+     open a gap underneath it against the backdrop. */
+  animation: sheet-up 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-sheet--rules   { max-height: 80dvh; }
+.modal-sheet--confirm { padding-bottom: max(28px, env(safe-area-inset-bottom)); }
+.modal-sheet--confirm .modal-hint { font-size: 1rem; color: var(--text); }
+
+@keyframes sheet-up {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes sheet-down {
+  from { transform: translateY(-40px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-bright);
+}
+
+.modal-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.modal-title-row .modal-title { margin: 0; }
+.modal-title-row .btn-rules {
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+}
+
+.modal-hint {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: -4px;
+}
+
+/* Turn score inputs */
+.turn-player-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+.turn-player-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.turn-player-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.turn-player-total {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+.turn-header-row {
+  padding-bottom: 2px;
+}
+.turn-header-total {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.turn-header-spacer {
+  width: 90px;
+  flex-shrink: 0;
+}
+/* Matches the input plus the ± button and the gap between them, so the
+   "Total" heading stays over the totals column when the toggle is shown. */
+.turn-header-spacer.with-sign {
+  width: 124px;
+}
+.turn-score-input {
+  width: 90px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 10px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.turn-score-input:focus { border-color: var(--accent); }
+.turn-player-row .sign-toggle {
+  width: 34px;
+  height: 40px;
+}
+
+/* "Who went out first?" chip selector */
+.turn-closer { display: flex; flex-direction: column; gap: 8px; }
+.went-out-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.closer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 2px solid transparent;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.closer-chip .chip-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.closer-chip.sel { border-color: var(--accent); background: var(--accent-dim); }
+/* ── Multiplayer ─────────────────────────────────────────── */
+.home-join-row { padding: 0 20px 4px; }
+
+.mp-room-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 20px;
+}
+.mp-room-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--r-action);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  font-family: var(--font-ui);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+.mp-room-code .room-code-prefix {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.btn-scorer { margin-left: auto; }
+
+.scorer-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.scorer-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 2px solid transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.scorer-option.sel { border-color: var(--accent); background: var(--accent-dim); }
+.scorer-option:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.mp-disconnected-col { opacity: 0.7; }
+.player-name-label.mp-disconnected-name { text-decoration: line-through; }
+
+.join-room-code-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  padding: 14px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-align: center;
+  text-transform: uppercase;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.player-name-modal-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  padding: 14px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.player-name-modal-input:focus { border-color: var(--accent); }
+
+.group-name-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.group-name-fields .player-name-modal-input { margin-top: 0; font-size: 1.05rem; }
+.mp-error { color: var(--danger, #e8533a); }
+
+.btn-text {
+  background: none;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-text:hover { background: var(--accent-dim); }
+
+/* Invite is jade, Scorer is punch - two filled chips on the shared button
+   model, each with its own deep border, tilted the way the handoff's room
+   strip is. Nothing here is a number being compared, so the tilt is safe. */
+.btn-qr {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: var(--tap);
+  background: var(--p4);
+  border: var(--accent-border) solid var(--p4-bd);
+  color: var(--p4-fg);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 900;
+  padding: 8px 16px;
+  border-radius: var(--r-action);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transform: rotate(-1.5deg);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) var(--ease),
+              box-shadow var(--dur-press) var(--ease);
+}
+.btn-qr:active {
+  transform: rotate(-1.5deg) var(--press);
+  box-shadow: var(--shadow-none);
+}
+@media (hover: hover) {
+  .btn-qr:hover { filter: var(--hover); }
+}
+
+.btn-scorer {
+  background: var(--p1);
+  border-color: var(--p1-bd);
+  color: var(--p1-fg);
+  transform: rotate(1.5deg);
+}
+.btn-scorer:active { transform: rotate(1.5deg) var(--press); }
+
+.qr-canvas-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+.qr-canvas-wrap svg { width: 100%; max-width: 260px; height: auto; }
+.invite-link-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+.invite-link {
+  min-width: 0;
+  padding: 10px 12px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+}
+.invite-action { padding: 10px 12px; font-size: 0.85rem; }
+@media (max-width: 480px) {
+  .invite-link-row { grid-template-columns: 1fr 1fr; }
+  .invite-link { grid-column: 1 / -1; }
+}
+
+.qr-room-code-display {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: var(--accent);
+  margin-top: 4px;
+}
+.qr-room-code-display .room-code-prefix { color: var(--text-muted); font-weight: 600; }
+
+.mp-locked { opacity: 0.5; cursor: not-allowed; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  transform: translateX(-50%) translateY(12px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  /* 418px rather than 380px: the final-round toast is the longest string the app
+     shows and was orphaning its last word onto a line of its own. */
+  max-width: min(90vw, 418px);
+  text-align: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+.toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.toast.closable { text-align: left; }
+.toast-close {
+  flex: none;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px;
+}
+.toast-close:hover { color: var(--text); }
+
+/* ── "Your turn" announcement (multiplayer) ─────────────── */
+/* Its own element rather than a pseudo-element on the card: the card is
+   transform-positioned, which would make a fixed child resolve against the card
+   instead of the viewport. Tapping it dismisses, same as tapping the card. */
+.turn-toast-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1099;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.turn-toast-backdrop.hidden { display: none; }
+.turn-toast-backdrop.visible { opacity: 1; }
+
+.turn-toast {
+  /* Shared by the title shimmer and the border shimmer, so the two sweeps read
+     as one highlight passing over the whole card. */
+  --turn-shimmer-hi: color-mix(in srgb, #fff 70%, var(--accent-bright));
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.88);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 26px 34px;
+  max-width: min(86vw, 340px);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 6px var(--accent-dim), 0 18px 50px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  cursor: pointer;
+  z-index: 1100;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.35);
+}
+.turn-toast.hidden { display: none; }
+.turn-toast.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* Border shimmer. The ring is a gradient rectangle masked down to just the 1px
+   border band (fill minus content-box), so the same sweep that runs through the
+   title also runs around the edge. Gated behind @supports because without mask
+   compositing the fallback is a gradient slab covering the card - the plain
+   accent border above stays in that case. */
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  .turn-toast {
+    border-color: transparent;
+    background-clip: padding-box;
+  }
+  .turn-toast::before {
+    content: '';
+    position: absolute;
+    inset: -1px; /* reaches back over the transparent border band */
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(100deg,
+      var(--accent) 0%,
+      var(--accent) 40%,
+      var(--turn-shimmer-hi) 50%,
+      var(--accent) 60%,
+      var(--accent) 100%);
+    background-size: 250% 100%;
+    background-position: 140% 0;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+  .turn-toast.visible::before { animation: turn-toast-shimmer 1.7s ease-in-out 0.2s 2; }
+}
+.turn-toast-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.turn-toast-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.85rem;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  /* Shimmer: the gradient is clipped to the glyphs, then slid across them. */
+  background: linear-gradient(100deg,
+    var(--accent-bright) 0%,
+    var(--accent-bright) 40%,
+    var(--turn-shimmer-hi) 50%,
+    var(--accent-bright) 60%,
+    var(--accent-bright) 100%);
+  background-size: 250% 100%;
+  background-position: 140% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.turn-toast.visible .turn-toast-title { animation: turn-toast-shimmer 1.7s ease-in-out 0.2s 2; }
+@keyframes turn-toast-shimmer {
+  from { background-position: 140% 0; }
+  to   { background-position: -40% 0; }
+}
+.turn-toast-name { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+@media (prefers-reduced-motion: reduce) {
+  .turn-toast { transition: opacity 0.25s; }
+  .turn-toast.visible .turn-toast-title,
+  .turn-toast.visible::before { animation: none; background-position: 50% 0; }
+}
+
+@keyframes update-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.update-toast {
+  position: fixed;
+  left: 50%;
+  top: max(14px, calc(env(safe-area-inset-top, 0px) + 10px));
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 16px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transform: translateX(-50%);
+  animation: update-toast-in 0.3s ease-out;
+  white-space: nowrap;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.update-toast.hidden { display: none; }
+.update-reload {
+  padding: 7px 15px;
+  color: var(--p2-fg);
+  background: var(--p2);
+  border: var(--accent-border) solid var(--p2-bd);
+  border-radius: var(--r-action);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--p2-bd);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) ease-out,
+              box-shadow var(--dur-press) ease-out;
+}
+.update-reload:active {
+  transform: translateY(3px);
+  box-shadow: var(--shadow-none);
+}
+@media (hover: hover) {
+  .update-reload:hover { filter: var(--hover); }
+}
+.update-dismiss {
+  padding: 4px;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.update-dismiss:hover { color: var(--text); }
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+.modal-actions .btn-secondary { flex: 1; }
+.modal-actions .btn-primary   { flex: 2; }
+.modal-actions .btn-danger    { flex: 2; }
+
+/* Player options: one action per row, Cancel last and on its own, so a
+   destructive button never sits shoulder to shoulder with the way out. */
+.player-options-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.player-options-stack #btn-cancel-player-options { margin-top: 4px; }
+
+/* Rules modal */
+.modal-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.15s;
+}
+.btn-close:hover { color: var(--text); }
+
+.rules-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mp-rules-callout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-bright);
+  line-height: 1.4;
+}
+.mp-rules-callout::before {
+  content: '\1F465';
+  font-size: 1rem;
+}
+
+.rule-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+.rule-item .rule-text { flex: 1; }
+
+.rule-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.rule-intro .rule-text { flex: 1; white-space: pre-wrap; }
+
+.rule-item.customized,
+.rule-intro.customized { border: 1px solid var(--accent); }
+
+.rule-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.btn-revert-rule {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  transition: color 0.15s;
+}
+.btn-revert-rule:hover { color: var(--text); }
+
+/* Shared edit-pencil button: built-in rule lines, the intro paragraph, and
+   custom (house) notes all lead with this same square, rounded-corner button. */
+.btn-rule-edit {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  margin-top: 1px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.btn-rule-edit:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+
+.rule-edit-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: inherit;
+  padding: 8px 10px;
+  outline: none;
+  resize: vertical;
+  min-height: 2.2em;
+}
+
+.btn-reset-rules {
+  align-self: flex-start;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.btn-reset-rules:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+
+.custom-rules-section { display: flex; flex-direction: column; gap: 10px; }
+.custom-rules-heading {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+#custom-rules-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.custom-rule-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  animation: slide-in 0.18s ease;
+}
+.custom-rule-item span { flex: 1; }
+.btn-delete-rule {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--danger);
+  background: none;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.btn-delete-rule:hover { color: var(--on-accent); background: var(--danger); }
+
+.add-rule-row {
+  display: flex;
+  gap: 10px;
+}
+#custom-rule-input {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.95rem;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+#custom-rule-input:focus { border-color: var(--accent); }
+#custom-rule-input::placeholder { color: var(--text-muted); }
+
+/* ── Home Settings Button ──────────────────────────────── */
+.btn-settings-home {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+}
+
+/* Top left, on the gear's centre line - the header title starts below both,
+   so neither can collide with it on narrow screens. */
+.home-version {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+/* ── Settings Modal ────────────────────────────────────── */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-version {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+}
+
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.volume-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+.volume-value {
+  min-width: 2.6em;
+  text-align: right;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-btn,
+.dir-btn {
+  flex: 1;
+  min-height: var(--tap);
+  padding: 12px;
+  border-radius: var(--r-action);
+  border: var(--accent-border) solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 900;
+  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) var(--ease),
+              box-shadow var(--dur-press) var(--ease),
+              background 0.15s, border-color 0.15s;
+}
+.mode-btn.active,
+.dir-btn.active {
+  background: var(--p2);
+  border-color: var(--p2-bd);
+  color: var(--p2-fg);
+}
+.mode-btn:active,
+.dir-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.18);
+}
+@media (hover: hover) {
+  .mode-btn:hover,
+  .dir-btn:hover { filter: var(--hover); }
+}
+
+/* ── Reduced motion ────────────────────────────────────── */
+/* Deliberately the last block in this file. Several of the rules below have to
+   beat same-specificity declarations that appear later than where they would
+   naturally sit (`.btn-qr:active` and `.update-reload:active` are both defined
+   well after the button section), and a media query carries no extra weight of
+   its own - only source order settles it. Anything animated added later belongs
+   here, not in a media query next to the rule it guards. */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary:active,
+  .btn-secondary:active,
+  .btn-danger:active,
+  .btn-rules:active,
+  .btn-qr:active,
+  .btn-back:active,
+  .btn-fab-score:active,
+  .update-reload:active {
+    transform: none;
+  }
+
+  /* The ambient blobs freeze in place as a static tint. They are not hidden -
+     nothing should appear or disappear when a person turns motion off, the
+     background simply stops drifting. */
+  .ambient i { animation: none; }
+
+  #score-table tbody tr.row-enter td,
+  .winner-banner.celebrate,
+  .modal-sheet {
+    animation: none;
+  }
+
+  /* Both overlays exist only to fade out. With the animation off they would sit
+     there permanently tinting the cell, so they have to go entirely. */
+  #score-table tbody td.cell-flash::before,
+  #score-table .turn-claim::after {
+    display: none;
+  }
+}

@@ -283,18 +283,42 @@
   <div class="page-header">
     <div><a class="back-link" href="../index.html">&#8592; Back to App</a></div>
     <div class="page-title">&#127922; Game Tracker</div>
-    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>14 snapshots</strong> captured</div>
+    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>15 snapshots</strong> captured</div>
   </div>
 
   <div class="timeline">
 
-    <!-- v0.24 - current -->
+    <!-- v0.25 - current -->
     <div class="version-entry current">
       <div class="v-dot">&#9679;</div>
       <div class="v-card">
         <div class="v-card-head">
-          <span class="v-badge">v0.24</span>
+          <span class="v-badge">v0.25</span>
           <span class="v-current-chip">CURRENT</span>
+          <span class="v-date">August 29, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Pip: a full visual rebuild, a die for the player count, and sound</div>
+          <ul class="v-bullets">
+            <li>One new theme in dark and light, eight player colours that always carry dark ink, and a single physical button model - every control sits on a hard shadow and drops into it when pressed</li>
+            <li>The player count is now a die with &#177; buttons: 2 to 8 players, pips lighting in each player&#39;s own colour. The same die runs solo setup, hosting a room, and joining one</li>
+            <li>Sound: a soft pop on every press and a victory fanfare on a win, both synthesized in the browser with five pitch variants so they never sound repetitive. Volume lives in Settings</li>
+            <li>Multiplayer seat colours were broken server-side - the Worker still held the old palette, so every colour change a player made was silently rejected. Fixed, and now guarded by a test</li>
+            <li>Rounded turn indicator, score chips with a crown on the leader, &quot;Rd.&quot; instead of &quot;#&quot;, and the Basic Rules panel dropped from setup since the rules popup already carries it</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.25/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.24 -->
+    <div class="version-entry">
+      <div class="v-dot">&#9679;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.24</span>
           <span class="v-date">August 27, 2026</span>
         </div>
         <div class="v-card-body">
