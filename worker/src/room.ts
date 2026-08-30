@@ -207,9 +207,15 @@ const REJOIN_RESERVATION_MS = 10 * 60 * 1000;
 // quietly closed - none of those mean the person left the table.
 const PRESENCE_GRACE_MS = 5 * 60 * 1000;
 const PLAYER_REMOVED_CLOSE_CODE = 4001;
+// MUST stay identical to PLAYER_COLORS in app.js, same values in the same
+// order. The server assigns seat colours from this list and validates every
+// update-color against it, so a divergence means auto-assigned seats get
+// colours the client has no deep border or ink pairing for, AND every manual
+// colour change the client sends is silently rejected. tests/regressions.mjs
+// asserts the two arrays match.
 const PLAYER_COLORS = [
-  "#3a9ee8", "#5cb85c", "#f0a820", "#a855f7",
-  "#14b8a6", "#e8533a", "#ec4899", "#6366f1",
+  "#3FBE9A", "#F576A8", "#7C93EE", "#A8C64F",
+  "#F5B02E", "#F2604C", "#4FC3E8", "#C48BF0",
 ];
 
 export class Room extends DurableObject<Env> {

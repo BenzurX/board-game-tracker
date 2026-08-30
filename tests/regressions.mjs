@@ -92,6 +92,18 @@ assert.match(app, /function paintDieFace\(die, count, colors\)/,
   'the setup die and the join die must paint faces through one function');
 assert.doesNotMatch(index, /Players on this device|You'll enter scores for everyone on this device/,
   'the old players-on-this-device lines must be removed');
+// The Worker assigns seat colours from its own copy of the palette and validates
+// every update-color against it. When the app moved to the Pip palette and the
+// Worker did not, auto-assigned seats got colours the client had no ink/border
+// pairing for, and every manual colour change was silently rejected server-side.
+// Nothing caught it, so this compares the two lists directly.
+const clientPalette = (app.match(/const PLAYER_COLORS = \[([\s\S]*?)\];/) || [])[1] || '';
+const workerPalette = (worker.match(/const PLAYER_COLORS = \[([\s\S]*?)\];/) || [])[1] || '';
+const hexes = (text) => (text.match(/#[0-9a-fA-F]{6}/g) || []).map((h) => h.toUpperCase());
+assert.ok(hexes(clientPalette).length === 8, 'the client palette must list eight player colours');
+assert.deepStrictEqual(hexes(workerPalette), hexes(clientPalette),
+  'the Worker player palette must match app.js exactly, in the same order');
+
 assert.match(app, /const MP_MAX_GROUP_SIZE = 8/,
   'the client must allow one device to represent all eight room seats');
 assert.match(worker, /const MAX_GROUP_SIZE = 8/,
