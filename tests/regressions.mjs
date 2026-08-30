@@ -369,4 +369,26 @@ assert.match(app, /if \(text === '' \|\| text === '-'\) return null;/,
 assert.match(app, /Math\.max\(allowNeg \? -SCORE_INPUT_MAX : 0, Math\.min\(SCORE_INPUT_MAX, /,
   'text inputs have no min/max attributes, so both entry paths must clamp the range themselves');
 
+// .btn-danger was defined twice: once with the shared physical button model and
+// again 600 lines later as a flat square chip. The later block won every
+// declaration it repeated, including font-weight 700 on Lilita One, a
+// single-weight face the browser then synthetically smeared. The variant block
+// may only carry what makes danger danger - fill, ink, border - and must never
+// restate type, radius, padding or press, which belong to the shared model.
+// A standalone block is preceded by the close of the previous rule; the shared
+// group list's last selector is also `.btn-danger {` on its own line, but is
+// preceded by a comma, so anchoring on `}` tells the two apart.
+const dangerBlocks = style.match(/\}\s*\.btn-danger \{[^}]*\}/g) || [];
+assert.strictEqual(dangerBlocks.length, 1,
+  '.btn-danger must have exactly one standalone block, or a later one silently overrides the shared button model');
+assert.ok(!/font-weight|font-size|border-radius|padding|transition/.test(dangerBlocks[0]),
+  '.btn-danger must not restate type, radius, padding or transition - those come from the shared button model');
+assert.match(dangerBlocks[0], /border: var\(--accent-border\) solid var\(--danger-bd\)/,
+  '.btn-danger is an accent fill, so it carries a deep 3px border like every other filled control');
+
+// The update toast's reload button is the toast-scale Enter Score: ink on
+// marigold. White on any accent fill in this palette fails the contrast floor.
+assert.match(style, /\.update-reload \{[^}]*color: var\(--p2-fg\)[^}]*background: var\(--p2\)/,
+  'the update-reload button must be ink on marigold, matching the primary action');
+
 console.log('Regression checks passed');

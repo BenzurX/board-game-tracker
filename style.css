@@ -31,6 +31,7 @@
 
   --success: #3FBE9A;
   --danger:  #F2604C;
+  --danger-bd: #B23A28;
 
   /* Type */
   --font-display: 'Lilita One', cursive;
@@ -846,6 +847,12 @@ html, body {
   padding: 15px 26px;
 }
 
+.btn-danger {
+  background: var(--danger);
+  color: var(--on-accent);
+  border: var(--accent-border) solid var(--danger-bd);
+}
+
 .btn-primary:active,
 .btn-secondary:active,
 .btn-danger:active {
@@ -1442,21 +1449,6 @@ html, body {
 .modal-sheet--confirm { padding-bottom: max(28px, env(safe-area-inset-bottom)); }
 .modal-sheet--confirm .modal-hint { font-size: 1rem; color: var(--text); }
 
-.btn-danger {
-  background: var(--danger);
-  color: var(--on-accent);
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 1rem;
-  font-weight: 700;
-  padding: 14px 24px;
-  cursor: pointer;
-  flex: 2;
-  transition: opacity 0.15s, transform 0.1s;
-}
-.btn-danger:hover  { opacity: 0.88; }
-.btn-danger:active { transform: scale(0.97); }
-
 @keyframes sheet-up {
   from { transform: translateY(40px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
@@ -1956,13 +1948,26 @@ html, body {
 }
 .update-toast.hidden { display: none; }
 .update-reload {
-  padding: 6px 14px;
-  color: var(--on-accent);
-  background: var(--accent);
-  border: none;
-  border-radius: 999px;
-  font: inherit;
+  padding: 7px 15px;
+  color: var(--p2-fg);
+  background: var(--p2);
+  border: var(--accent-border) solid var(--p2-bd);
+  border-radius: var(--r-action);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 900;
   cursor: pointer;
+  box-shadow: 0 3px 0 var(--p2-bd);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) ease-out,
+              box-shadow var(--dur-press) ease-out;
+}
+.update-reload:active {
+  transform: translateY(3px);
+  box-shadow: var(--shadow-none);
+}
+@media (hover: hover) {
+  .update-reload:hover { filter: var(--hover); }
 }
 .update-dismiss {
   padding: 4px;
@@ -1981,6 +1986,7 @@ html, body {
 }
 .modal-actions .btn-secondary { flex: 1; }
 .modal-actions .btn-primary   { flex: 2; }
+.modal-actions .btn-danger    { flex: 2; }
 
 /* Player options: one action per row, Cancel last and on its own, so a
    destructive button never sits shoulder to shoulder with the way out. */
@@ -2293,9 +2299,9 @@ html, body {
 /* ── Reduced motion ────────────────────────────────────── */
 /* Deliberately the last block in this file. Several of the rules below have to
    beat same-specificity declarations that appear later than where they would
-   naturally sit (`.btn-danger:active` and `.btn-qr:active` are both defined well
-   after the button section), and a media query carries no extra weight of its
-   own - only source order settles it. Anything animated added later belongs
+   naturally sit (`.btn-qr:active` and `.update-reload:active` are both defined
+   well after the button section), and a media query carries no extra weight of
+   its own - only source order settles it. Anything animated added later belongs
    here, not in a media query next to the rule it guards. */
 @media (prefers-reduced-motion: reduce) {
   .btn-primary:active,
@@ -2304,7 +2310,8 @@ html, body {
   .btn-rules:active,
   .btn-qr:active,
   .btn-back:active,
-  .btn-fab-score:active {
+  .btn-fab-score:active,
+  .update-reload:active {
     transform: none;
   }
 
