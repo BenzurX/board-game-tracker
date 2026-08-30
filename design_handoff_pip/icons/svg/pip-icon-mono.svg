@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <mask id="m"><rect width="512" height="512" fill="#000"></rect><g transform="translate(98.05 98.05) rotate(-11 157.95 157.95)"><rect width="315.9" height="315.9" rx="85.29" fill="#fff"></rect><circle fill="#000" cx="99.19" cy="99.19" r="39.49"></circle><circle fill="#000" cx="216.71" cy="99.19" r="39.49"></circle><circle fill="#000" cx="99.19" cy="216.71" r="39.49"></circle><circle fill="#000" cx="216.71" cy="216.71" r="39.49"></circle></g></mask>
+  <rect width="512" height="512" fill="currentColor" mask="url(#m)"></rect>
+</svg>

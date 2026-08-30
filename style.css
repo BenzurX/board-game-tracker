@@ -348,62 +348,109 @@ html, body {
 }
 
 /* ── Game Grid ─────────────────────────────────────────── */
+/* Each tile is a sticker: an accent fill with ink text, a 3px border in that
+   accent's own deep hue, a hard tile shadow, and a small fixed rotation. The
+   rotation is per-tile and deliberately uneven so the grid reads hand-placed;
+   it is safe here because nothing on this screen is a run of comparable
+   numbers. Content is bottom-aligned so the names sit on a common baseline
+   however tall the tile grows. */
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 16px;
-  padding: 24px 12px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  padding: 20px 16px 28px;
 }
 
 .game-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 28px 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 118px;
+  padding: 16px 14px 14px;
+  background: var(--tile, var(--surface-2));
+  border: var(--accent-border) solid var(--tile-bd, var(--border));
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-tile);
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-  text-align: center;
-  color: var(--text);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) var(--ease),
+              box-shadow var(--dur-press) var(--ease);
+  text-align: left;
+  color: var(--tile-fg, var(--text));
+  transform: rotate(var(--tile-rot, 0deg));
 }
-.game-card:active { transform: scale(0.96); }
-.game-card:not(.coming-soon):hover {
-  background: var(--card-hover);
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), var(--shadow);
+.game-card:not(.coming-soon):active {
+  transform: rotate(var(--tile-rot, 0deg)) var(--press-tile);
+  box-shadow: var(--shadow-none);
+}
+@media (hover: hover) {
+  .game-card:not(.coming-soon):hover { filter: var(--hover); }
+}
+.game-card:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
 }
 
+/* Tile identities. Colour and tilt are fixed per game so the grid looks the
+   same on every launch - a random tilt would make the home screen feel
+   unstable between visits. */
+.game-card[data-game="farkle"]        { --tile: var(--p4); --tile-bd: var(--p4-bd); --tile-fg: var(--p4-fg); --tile-rot: -1.5deg; }
+.game-card[data-game="yahtzee"]       { --tile: var(--p8); --tile-bd: var(--p8-bd); --tile-fg: var(--p8-fg); --tile-rot:  1.2deg; }
+.game-card[data-game="lrc"]           { --tile: var(--p2); --tile-bd: var(--p2-bd); --tile-fg: var(--p2-fg); --tile-rot:  1.5deg; }
+.game-card[data-game="liarsdice"]     { --tile: var(--p3); --tile-bd: var(--p3-bd); --tile-fg: var(--p3-fg); --tile-rot: -1.2deg; }
+.game-card[data-game="cribbage"]      { --tile: var(--p6); --tile-bd: var(--p6-bd); --tile-fg: var(--p6-fg); --tile-rot:  1.4deg; }
+.game-card[data-game="euchre"]        { --tile: var(--p1); --tile-bd: var(--p1-bd); --tile-fg: var(--p1-fg); --tile-rot: -1.4deg; }
+.game-card[data-game="crazyeights"]   { --tile: var(--p5); --tile-bd: var(--p5-bd); --tile-fg: var(--p5-fg); --tile-rot:  1.3deg; }
+.game-card[data-game="poker"]         { --tile: var(--p7); --tile-bd: var(--p7-bd); --tile-fg: var(--p7-fg); --tile-rot: -1.3deg; }
+.game-card[data-game="ginrummy"]      { --tile: var(--p8); --tile-bd: var(--p8-bd); --tile-fg: var(--p8-fg); --tile-rot: -1.5deg; }
+.game-card[data-game="threethirteen"] { --tile: var(--p3); --tile-bd: var(--p3-bd); --tile-fg: var(--p3-fg); --tile-rot:  1.5deg; }
+.game-card[data-game="qwirkle"]       { --tile: var(--p2); --tile-bd: var(--p2-bd); --tile-fg: var(--p2-fg); --tile-rot: -1.2deg; }
+.game-card[data-game="generic"]       { --tile: var(--p4); --tile-bd: var(--p4-bd); --tile-fg: var(--p4-fg); --tile-rot:  1.2deg; }
+
+/* The placeholder tile stays neutral: it is not a game, so it does not earn a
+   colour. A dashed border says "slot reserved" without shouting. */
 .game-card.coming-soon {
-  opacity: 0.4;
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--border);
+  color: var(--muted);
+  box-shadow: none;
+  opacity: 0.75;
   cursor: default;
   pointer-events: none;
+  transform: none;
 }
 
-.game-icon  { font-size: 2.4rem; }
-.game-name  { font-family: var(--font-ui); font-size: 1.12rem; font-weight: 900; line-height: 1.15; }
+.game-icon  { font-size: 1.5rem; line-height: 1; margin-bottom: 2px; }
+.game-name  { font-family: var(--font-ui); font-size: 1rem; font-weight: 900; line-height: 1.1; }
+.game-desc  { font-family: var(--font-ui); font-size: 0.72rem; font-weight: 700; line-height: 1.25; opacity: 0.9; }
+.game-card.coming-soon .game-desc { opacity: 1; color: var(--muted); }
 
+/* Section header: micro label followed by a 3px rounded rule that eats the rest
+   of the row. */
 .category-divider {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  margin-top: 14px;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--muted);
 }
+.category-divider:first-child { margin-top: 0; }
 .category-divider::after {
   content: '';
   flex: 1;
-  height: 1px;
-  background: var(--border);
+  height: 3px;
+  border-radius: 999px;
+  background: var(--surface-2);
 }
-.game-desc  { font-size: 0.78rem; color: var(--text-muted); }
 
 /* ── Screen Header ─────────────────────────────────────── */
 .screen-header {
@@ -506,11 +553,12 @@ html, body {
 .setup-section { display: flex; flex-direction: column; gap: 12px; }
 
 .section-label {
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
+  letter-spacing: 0.24em;
+  color: var(--muted);
 }
 
 /* Player input rows */
@@ -533,16 +581,17 @@ html, body {
 }
 
 .player-color-dot {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 2px solid transparent;
+  border: none;
   padding: 0;
   cursor: pointer;
+  box-shadow: inset 0 0 0 3px rgba(33, 19, 31, 0.25);
   transition: transform 0.1s, box-shadow 0.15s;
 }
-.player-color-dot:hover { transform: scale(1.08); box-shadow: 0 0 0 3px var(--accent-dim); }
+.player-color-dot:hover { transform: scale(1.08); }
 .player-color-dot:active { transform: scale(0.94); }
 .player-color-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -553,31 +602,35 @@ html, body {
   display: flex;
   gap: 8px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border: 3px solid var(--border);
+  border-radius: var(--r-chip);
   padding: 10px;
   box-shadow: var(--shadow);
 }
 .color-swatch-btn {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 2px solid transparent;
+  border: none;
   padding: 0;
   cursor: pointer;
-  transition: transform 0.1s, border-color 0.15s;
+  box-shadow: inset 0 0 0 3px rgba(33, 19, 31, 0.25);
+  transition: transform 0.1s, box-shadow 0.15s;
 }
 .color-swatch-btn:hover { transform: scale(1.12); }
-.color-swatch-btn.selected { border-color: var(--text); }
+.color-swatch-btn.selected { box-shadow: inset 0 0 0 3px rgba(33, 19, 31, 0.25), 0 0 0 3px var(--text); }
 
 .player-name-input {
   flex: 1;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  background: var(--ground);
+  border: 2px solid var(--border);
+  border-radius: var(--r-chip);
   color: var(--text);
+  font-family: var(--font-ui);
   font-size: 1rem;
+  font-weight: 700;
   padding: 12px 14px;
+  min-height: var(--tap);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -599,16 +652,19 @@ html, body {
 .btn-add-player {
   align-self: flex-start;
   background: none;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--accent);
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 10px 18px;
+  border: 2px dashed var(--border);
+  border-radius: var(--r-action);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding: 11px 20px;
+  min-height: var(--tap);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
-.btn-add-player:hover { border-color: var(--accent); background: var(--accent-dim); }
+.btn-add-player:hover { border-color: var(--p2); background: var(--accent-dim); }
 
 .add-player-wrap { position: relative; align-self: flex-start; }
 .btn-add-player.is-disabled { opacity: 0.5; cursor: not-allowed; }
@@ -635,12 +691,15 @@ html, body {
 
 /* Game name input (custom games) */
 .game-name-input {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  background: var(--ground);
+  border: 2px solid var(--border);
+  border-radius: var(--r-chip);
   color: var(--text);
+  font-family: var(--font-ui);
   font-size: 1rem;
+  font-weight: 700;
   padding: 12px 14px;
+  min-height: var(--tap);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -652,21 +711,22 @@ html, body {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 14px;
   padding: 12px 16px;
 }
-.win-label { color: var(--text-muted); font-size: 0.95rem; }
+.win-label { color: var(--muted); font-family: var(--font-ui); font-size: 0.9rem; font-weight: 700; }
 #win-score,
 #min-score {
   width: 100px;
   background: none;
   border: none;
-  border-bottom: 2px solid var(--accent);
-  color: var(--accent-bright);
+  border-bottom: 3px solid var(--p2);
+  color: var(--text);
+  font-family: var(--font-ui);
   font-size: 1.2rem;
-  font-weight: 700;
+  font-weight: 900;
   text-align: center;
   outline: none;
   padding: 2px 4px;
@@ -2115,23 +2175,38 @@ html, body {
 .mode-btn,
 .dir-btn {
   flex: 1;
+  min-height: var(--tap);
   padding: 12px;
-  border-radius: var(--radius-sm);
-  border: 2px solid transparent;
-  background: var(--card);
+  border-radius: var(--r-action);
+  border: var(--accent-border) solid var(--border);
+  background: var(--surface-2);
   color: var(--text);
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 900;
+  line-height: 1.2;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) var(--ease),
+              box-shadow var(--dur-press) var(--ease),
+              background 0.15s, border-color 0.15s;
 }
 .mode-btn.active,
 .dir-btn.active {
-  border-color: var(--accent);
-  background: var(--accent-dim);
+  background: var(--p2);
+  border-color: var(--p2-bd);
+  color: var(--p2-fg);
 }
-.mode-btn:hover:not(.active),
-.dir-btn:hover:not(.active) { background: var(--card-hover); }
+.mode-btn:active,
+.dir-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.18);
+}
+@media (hover: hover) {
+  .mode-btn:hover,
+  .dir-btn:hover { filter: var(--hover); }
+}
 
 /* ── Reduced motion ────────────────────────────────────── */
 /* Deliberately the last block in this file. Several of the rules below have to
