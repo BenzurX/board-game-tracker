@@ -637,57 +637,114 @@ html, body {
 .player-name-input:focus { border-color: var(--accent); }
 .player-name-input::placeholder { color: var(--text-muted); }
 
-.btn-remove-player {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 8px;
+/* ── Player count: the die is the control ──────────────── */
+/* The face is a real die face for 2-6, then keeps going to 8 - one pip per
+   player, each pip in that player's own colour, so the count and the roster
+   are the same picture. Rotation is safe here: pips are a quantity you read at
+   a glance, not a column of numbers you compare. */
+.count-die-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 6px 0 2px;
+}
+
+.count-step {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: var(--accent-border) solid var(--p2-bd);
+  background: var(--p2);
+  color: var(--p2-fg);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.6rem;
   line-height: 1;
-  transition: color 0.15s;
-}
-.btn-remove-player:hover { color: var(--danger); }
-
-.btn-add-player {
-  align-self: flex-start;
-  background: none;
-  border: 2px dashed var(--border);
-  border-radius: var(--r-action);
-  color: var(--text);
-  font-family: var(--font-ui);
-  font-size: 0.9rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  padding: 11px 20px;
-  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  box-shadow: var(--shadow);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) var(--ease),
+              box-shadow var(--dur-press) var(--ease),
+              opacity 0.15s;
 }
-.btn-add-player:hover { border-color: var(--p2); background: var(--accent-dim); }
+.count-step:active:not(:disabled) {
+  transform: var(--press);
+  box-shadow: var(--shadow-none);
+}
+.count-step:disabled {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+@media (hover: hover) {
+  .count-step:hover:not(:disabled) { filter: var(--hover); }
+}
 
-.add-player-wrap { position: relative; align-self: flex-start; }
-.btn-add-player.is-disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-add-player.is-disabled:hover { border-color: var(--border); background: none; }
+.count-die-wrap { flex-shrink: 0; }
 
-.add-player-tooltip {
+/* Cream in both modes: this is the identity's die, not a themed surface. */
+.count-die {
+  width: 132px;
+  height: 132px;
+  border-radius: 30px;
+  background: #F7EFE1;
+  border: var(--accent-border) solid rgba(33, 19, 31, 0.14);
+  box-shadow: var(--shadow-tile);
+  transform: rotate(-11deg);
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.die-cell {
+  border-radius: 50%;
+  transition: background 0.18s var(--ease), transform 0.18s var(--ease);
+  transform: scale(0.2);
+}
+.die-cell.is-on {
+  transform: scale(1);
+  box-shadow: inset 0 0 0 3px rgba(33, 19, 31, 0.25);
+}
+
+.count-label {
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.count-tooltip {
   position: absolute;
-  bottom: calc(100% + 8px);
-  left: 0;
+  top: -6px;
+  left: 50%;
   background: var(--text);
-  color: var(--bg);
+  color: var(--ground);
+  font-family: var(--font-ui);
   font-size: 0.78rem;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
+  font-weight: 900;
+  padding: 6px 12px;
+  border-radius: var(--r-action);
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(4px);
+  transform: translate(-50%, 4px);
   transition: opacity 0.15s, transform 0.15s;
   z-index: 5;
 }
-.add-player-tooltip.show { opacity: 1; transform: translateY(0); }
+.count-tooltip.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* Game name input (custom games) */
 .game-name-input {
@@ -1898,39 +1955,6 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-.basic-rules-text {
-  background: var(--card);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--text-muted);
-  white-space: pre-wrap;
-  margin-bottom: 8px;
-}
-
-.basic-rules-text.clamped {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
-  overflow: hidden;
-}
-
-.btn-toggle-rules {
-  display: block;
-  align-self: flex-start;
-  width: auto;
-  margin: 0 0 12px;
-  padding: 0;
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
 }
 
 .mp-rules-callout {

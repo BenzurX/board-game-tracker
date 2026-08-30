@@ -514,7 +514,6 @@ function showScreen(id) {
   window.scrollTo(0, 0);
   activeScreen = id;
   // Overflow can only be measured once the screen is actually laid out (not display:none).
-  if (id === 'screen-setup') requestAnimationFrame(() => setupBasicRulesToggle());
   if (id === 'screen-tracker') requestWakeLock(); else releaseWakeLock();
   // Arriving at the board shows all three bars, then starts the same countdown a
   // manual scroll would; leaving cancels it so it cannot fire against a screen
@@ -602,12 +601,10 @@ function buildSetupScreen(key) {
 
   document.getElementById('setup-title').textContent = `${generic ? 'Generic Game' : game.name} - Setup`;
 
-  // Basic Rules panel (games with an intro only - Generic Game has no fixed rules)
+  // Rules panel: just the way into the rules sheet. The intro text used to be
+  // reprinted here, which duplicated the first thing that sheet already shows.
   const { intro } = getEffectiveRules(key);
   document.getElementById('basic-rules-section').classList.toggle('hidden', !intro);
-  const rulesTextEl = document.getElementById('setup-basic-rules-intro');
-  rulesTextEl.textContent = intro;
-  rulesTextEl.classList.add('clamped');
 
   // Game name (custom games only)
   document.getElementById('game-name-section').classList.toggle('hidden', !generic);
@@ -632,24 +629,10 @@ function buildSetupScreen(key) {
   document.getElementById('multiplayer-section').classList.toggle('hidden', !mpEligible);
   resetMultiplayerSetupUI();
 
+  // Fresh rows for a fresh game: renderPlayerInputs deliberately keeps whatever
+  // is already typed, which must not leak from the last game that was set up.
+  document.getElementById('player-inputs').innerHTML = '';
   renderPlayerInputs(game.defaultPlayers ?? 4);
-}
-
-// Clamp the basic-rules intro to 4 lines and show a toggle only if it actually overflows.
-// Called after the setup screen is actually visible - measuring while display:none reads 0 for both heights.
-function setupBasicRulesToggle() {
-  const rulesTextEl = document.getElementById('setup-basic-rules-intro');
-  const toggleBtn = document.getElementById('btn-toggle-basic-rules');
-  if (document.getElementById('basic-rules-section').classList.contains('hidden')) return;
-  rulesTextEl.classList.add('clamped');
-  toggleBtn.textContent = 'Show more';
-  const overflowing = rulesTextEl.scrollHeight > rulesTextEl.clientHeight + 1;
-  toggleBtn.classList.toggle('hidden', !overflowing);
-  toggleBtn.textContent = 'Show more';
-  toggleBtn.onclick = () => {
-    rulesTextEl.classList.toggle('clamped');
-    toggleBtn.textContent = rulesTextEl.classList.contains('clamped') ? 'Show more' : 'Show less';
-  };
 }
 
 function setScoringDirectionUI(dir) {
@@ -662,30 +645,97 @@ document.querySelectorAll('#scoring-section .dir-btn').forEach(btn => {
   btn.addEventListener('click', () => setScoringDirectionUI(btn.dataset.dir));
 });
 
+const MAX_SETUP_PLAYERS = 8;
+
+// Which of the die's nine cells are lit for each count. 1-6 are the real die
+// faces; 7 adds the centre to the six, and 8 lights the whole outer ring. A
+// six-sided die has no seven or eight face, but the app allows eight players
+// and one pip per player is the clearest way to show the count, so the
+// sequence is extended rather than capped. Cells number left to right, top to
+// bottom.
+const DIE_FACES = {
+  1: [5],
+  2: [1, 9],
+  3: [1, 5, 9],
+  4: [1, 3, 7, 9],
+  5: [1, 3, 5, 7, 9],
+  6: [1, 3, 4, 6, 7, 9],
+  7: [1, 3, 4, 5, 6, 7, 9],
+  8: [1, 2, 3, 4, 6, 7, 8, 9],
+};
+
+function minSetupPlayers() {
+  return GAMES[state.gameKey]?.defaultPlayers === 1 ? 1 : 2;
+}
+
+function setupPlayerCount() {
+  return document.querySelectorAll('.player-input-row').length;
+}
+
+// Renders `count` name rows, preserving whatever was already typed and any
+// colour a player picked - shrinking to 3 and growing back to 5 must not wipe
+// the first three names.
 function renderPlayerInputs(count) {
   const container = document.getElementById('player-inputs');
+  const kept = Array.from(container.querySelectorAll('.player-input-row')).map(row => ({
+    name: row.querySelector('.player-name-input').value,
+    color: row.querySelector('.player-color-dot').dataset.color,
+  }));
   container.innerHTML = '';
-  for (let i = 0; i < count; i++) addPlayerRow(container, i);
-  updateAddPlayerButtonState();
+  for (let i = 0; i < count; i++) addPlayerRow(container, i, kept[i]);
+  renderCountDie();
 }
 
-function updateAddPlayerButtonState() {
-  const rows = document.querySelectorAll('.player-input-row');
-  const btn = document.getElementById('btn-add-player');
-  const atMax = rows.length >= 8;
-  btn.classList.toggle('is-disabled', atMax);
-  btn.setAttribute('aria-disabled', atMax ? 'true' : 'false');
+// The die face and the name rows are one piece of state: every pip takes its
+// colour from the row it stands for, so recolouring a player recolours a pip.
+function renderCountDie() {
+  const die = document.getElementById('count-die');
+  const count = setupPlayerCount();
+  const lit = DIE_FACES[count] || [];
+  const colors = Array.from(document.querySelectorAll('#player-inputs .player-color-dot'))
+    .map(dot => dot.dataset.color);
+  die.querySelectorAll('.die-cell').forEach((cell, i) => {
+    const seat = lit.indexOf(i + 1);
+    const on = seat !== -1;
+    cell.classList.toggle('is-on', on);
+    cell.style.background = on ? (colors[seat] || PLAYER_COLORS[seat % PLAYER_COLORS.length]) : '';
+  });
+  die.setAttribute('aria-label', count + (count === 1 ? ' player' : ' players'));
+  document.getElementById('count-label').textContent =
+    count + (count === 1 ? ' Player' : ' Players');
+  document.getElementById('btn-count-down').disabled = count <= minSetupPlayers();
+  document.getElementById('btn-count-up').disabled = count >= MAX_SETUP_PLAYERS;
 }
 
-function addPlayerRow(container, index) {
-  const color = PLAYER_COLORS[index % PLAYER_COLORS.length];
+function showCountTooltip(text) {
+  const tooltip = document.getElementById('count-tooltip');
+  tooltip.textContent = text;
+  tooltip.classList.add('show');
+  clearTimeout(tooltip._hideTimer);
+  tooltip._hideTimer = setTimeout(() => tooltip.classList.remove('show'), 2000);
+}
+
+function stepPlayerCount(delta) {
+  const count = setupPlayerCount();
+  const min = minSetupPlayers();
+  const next = count + delta;
+  if (next > MAX_SETUP_PLAYERS) { showCountTooltip('Maximum of ' + MAX_SETUP_PLAYERS + ' players'); return; }
+  if (next < min) { showCountTooltip('Minimum of ' + min + (min === 1 ? ' player' : ' players')); return; }
+  renderPlayerInputs(next);
+}
+
+document.getElementById('btn-count-up').addEventListener('click', () => stepPlayerCount(1));
+document.getElementById('btn-count-down').addEventListener('click', () => stepPlayerCount(-1));
+
+function addPlayerRow(container, index, kept) {
+  const color = (kept && kept.color) || PLAYER_COLORS[index % PLAYER_COLORS.length];
   const row = document.createElement('div');
   row.className = 'player-input-row';
   row.innerHTML = `
     <button type="button" class="player-color-dot" style="background:${color}" data-color="${color}" aria-label="Change player color" title="Tap to change color"></button>
     <input type="text" class="player-name-input" placeholder="Player ${index + 1}" maxlength="20">
-    <button class="btn-remove-player" aria-label="Remove player">&#10005;</button>
   `;
+  row.querySelector('.player-name-input').value = (kept && kept.name) || '';
 
   const dot = row.querySelector('.player-color-dot');
   dot.addEventListener('click', e => {
@@ -693,32 +743,12 @@ function addPlayerRow(container, index) {
     openColorPicker(dot, dot.dataset.color, newColor => {
       dot.style.background = newColor;
       dot.dataset.color = newColor;
+      renderCountDie();
     });
   });
 
-  row.querySelector('.btn-remove-player').addEventListener('click', () => {
-    const rows = document.querySelectorAll('.player-input-row');
-    const minPlayers = GAMES[state.gameKey]?.defaultPlayers === 1 ? 1 : 2;
-    if (rows.length > minPlayers) {
-      row.remove();
-      updateAddPlayerButtonState();
-    }
-  });
   container.appendChild(row);
 }
-
-document.getElementById('btn-add-player').addEventListener('click', () => {
-  const rows = document.querySelectorAll('.player-input-row');
-  if (rows.length >= 8) {
-    const tooltip = document.getElementById('add-player-tooltip');
-    tooltip.classList.add('show');
-    clearTimeout(tooltip._hideTimer);
-    tooltip._hideTimer = setTimeout(() => tooltip.classList.remove('show'), 2000);
-    return;
-  }
-  addPlayerRow(document.getElementById('player-inputs'), rows.length);
-  updateAddPlayerButtonState();
-});
 
 document.getElementById('btn-start-game').addEventListener('click', () => {
   if (mpToggleOn) { mpStartHostFlow(); return; }
@@ -882,7 +912,7 @@ function renderTable() {
 
   // Header
   const headerRow = document.getElementById('player-header-row');
-  headerRow.innerHTML = '<th class="col-round">#</th>';
+  headerRow.innerHTML = '<th class="col-round">Rd.</th>';
   players.forEach((p, pi) => {
     const th = document.createElement('th');
     const wrap = document.createElement('span');
@@ -2280,7 +2310,7 @@ function resetMultiplayerSetupUI() {
 }
 
 function applySetupModeVisibility() {
-  document.getElementById('players-section').classList.toggle('hidden', mpToggleOn);
+  document.getElementById('players-label').textContent = mpToggleOn ? 'Players On This Device' : 'Players';
   document.getElementById('mp-settings-hint').classList.toggle('hidden', !mpToggleOn);
   document.getElementById('btn-start-game').textContent = mpToggleOn ? 'Create Room' : 'Start Game';
 }
@@ -2307,8 +2337,27 @@ function mpShowSetupError(text) {
   el.classList.remove('hidden');
 }
 
+function mpSetupNames() {
+  return Array.from(document.querySelectorAll('.player-name-input'))
+    .map((el, i) => el.value.trim() || `Player ${i + 1}`);
+}
+
 function mpStartHostFlow() {
   const startBtn = document.getElementById('btn-start-game');
+  const names = mpSetupNames();
+
+  // The server rejects duplicates anyway, but catching them here keeps the
+  // whole group from bouncing after a room has already been created.
+  const seen = new Set();
+  for (const candidate of names) {
+    const normalized = candidate.toLocaleLowerCase();
+    if (seen.has(normalized)) {
+      mpShowSetupError(`"${candidate}" is used twice - give each player a different name.`);
+      return;
+    }
+    seen.add(normalized);
+  }
+
   startBtn.disabled = true;
   document.getElementById('mp-setup-error').classList.add('hidden');
   const rawWin = parseInt(document.getElementById('win-score').value);
@@ -2327,8 +2376,12 @@ function mpStartHostFlow() {
         minScore,
         ruleOverrides: loadRuleOverrides(state.gameKey),
         customRules: state.customRules,
+        name: names[0],
+        guestNames: names.slice(1),
       };
-      openPlayerNameModal();
+      // Names were collected on the setup screen, so the name modal has
+      // nothing left to ask - and a host has nobody to nominate as scorer.
+      mpConnect(mpPendingJoin);
     })
     .catch(() => {
       startBtn.disabled = false;
