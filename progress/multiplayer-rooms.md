@@ -10,7 +10,7 @@ Client: setup-screen toggle (multiplayer off by default, scoring mode defaults t
 
 Beta scope cuts (deliberate, documented in code comments). Three have since been lifted - marked below, since code comments elsewhere may still reflect the original limitation:
 - No payment/entitlement gating yet - deferred to before v1.0 per Ben's call. **Still true.**
-- Multiplayer unavailable for: Custom Game, and any `trackCloser: true` game (currently just Crazy Eights). **Still true** - see `state.trackCloser = false` in `mpOnJoined`.
+- Multiplayer unavailable for: Custom Game, and any `trackCloser: true` game (currently just Three Thirteen). **Still true** - see `state.trackCloser = false` in `mpOnJoined`. <!-- `Claude:` Crazy Eights was the other trackCloser game until it was removed from the roster. -->
 - ~~Multiplayer games always use the game's default win score / entry threshold / scoring direction - no custom override in this phase~~ **Lifted.** `mpStartHostFlow` reads the setup screen's win-score and entry-threshold inputs and sends them on the create join; the room stores and broadcasts both.
 - ~~Farkle-style "on the board" entry-threshold mechanic doesn't apply in multiplayer - all submitted scores count immediately~~ **Lifted.** The Worker keeps a parallel `onBoard[]` and applies the threshold in `applyEntryThreshold`, including the correction path for editing an earlier still-off-board round.
 - ~~Editing a score in multiplayer only works for the current (last) round, not history~~ **Lifted.** `handleEditScore` takes an optional `roundIndex` and permits correcting past rounds, for a player's own column and for any column they score for.

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" data-theme="pip" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Victory Fanfare Pitch Variants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ground:#21131f; --surface:#2c1a29; --surface-2:#3a2436; --border:#4b3145;
+  --text:#f7efe1; --muted:#c0a7b4; --ink:#21131f;
+  --p1:#f2604c; --p1-bd:#b23a28; --p2:#f5b02e; --p2-bd:#8a5709;
+  --p3:#a8c64f; --p3-bd:#4f6b14; --p4:#3fbe9a; --p4-bd:#0f6f58;
+  --p5:#4fc3e8; --p5-bd:#14607f;
+  --display:'Lilita One',cursive; --ui:'Nunito',system-ui,sans-serif;
+}
+* { box-sizing:border-box; }
+body { margin:0; padding:28px 18px 60px; background:var(--ground); color:var(--text); font-family:var(--ui); }
+main { width:min(760px,100%); margin:auto; }
+.eyebrow { margin:0 0 6px; color:var(--muted); font-size:.68rem; font-weight:900; letter-spacing:.22em; text-transform:uppercase; }
+h1 { margin:0; font:400 clamp(2rem,7vw,3rem)/1 var(--display); letter-spacing:.02em; }
+.lede { max-width:64ch; margin:10px 0 24px; color:var(--muted); line-height:1.5; }
+.tools { display:flex; align-items:center; gap:14px; margin-bottom:18px; padding:12px 15px; border:2px solid var(--border); border-radius:14px; background:var(--surface); }
+.tools label { color:var(--muted); font-size:.68rem; font-weight:900; letter-spacing:.16em; text-transform:uppercase; }
+.tools input { flex:1; accent-color:var(--p2); }
+.tools output { min-width:3em; text-align:right; font-weight:900; }
+.grid { display:grid; gap:13px; }
+@media (min-width:620px) { .grid { grid-template-columns:1fr 1fr; } }
+.card { padding:17px; border:3px solid var(--border); border-radius:20px; background:var(--surface-2); }
+.number { color:var(--muted); font-size:.65rem; font-weight:900; letter-spacing:.18em; text-transform:uppercase; }
+h2 { margin:4px 0 4px; font:400 1.45rem/1.1 var(--display); }
+.detail { margin:0 0 14px; color:var(--muted); font-size:.84rem; }
+button { min-height:48px; padding:10px 24px; border:3px solid var(--button-bd); border-radius:999px; background:var(--button); color:var(--ink); box-shadow:0 5px 0 rgba(0,0,0,.55); cursor:pointer; font:400 1rem var(--display); letter-spacing:.08em; text-transform:uppercase; }
+button:active { transform:translateY(5px); box-shadow:none; }
+.card:nth-child(1) { --button:var(--p1); --button-bd:var(--p1-bd); }
+.card:nth-child(2) { --button:var(--p2); --button-bd:var(--p2-bd); }
+.card:nth-child(3) { --button:var(--p3); --button-bd:var(--p3-bd); }
+.card:nth-child(4) { --button:var(--p4); --button-bd:var(--p4-bd); }
+.card:nth-child(5) { --button:var(--p5); --button-bd:var(--p5-bd); }
+.all { width:100%; margin-top:18px; --button:var(--p2); --button-bd:var(--p2-bd); }
+.note { margin-top:18px; color:var(--muted); font-size:.82rem; line-height:1.5; }
+code { color:var(--text); }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Pip · Sound Design</p>
+  <h1>Victory Fanfare Pitch Variants</h1>
+  <p class="lede">The exact production Kalimba Sparkle fanfare at each available fixed pitch. No random selection. Compare the same phrase five ways and choose which variation numbers to keep.</p>
+  <div class="tools">
+    <label for="volume">Volume</label>
+    <input id="volume" type="range" min="0" max="100" value="70">
+    <output id="volume-output">70%</output>
+  </div>
+  <div class="grid" id="variants"></div>
+  <button class="all" id="play-all" type="button">Play All · Low to High</button>
+  <p class="note">Production currently selects variations <code>4</code> and <code>5</code>. “Play All” leaves a short pause between complete fanfares so their tails do not overlap.</p>
+</main>
+<script>
+var ctx = null, master = null, volume = 0.7;
+var variants = [
+  { step:-2, name:'Variation 1 · Lowest' },
+  { step:-1, name:'Variation 2 · Low' },
+  { step: 0, name:'Variation 3 · Original' },
+  { step: 1, name:'Variation 4 · High' },
+  { step: 2, name:'Variation 5 · Highest' }
+];
+
+function ensure() {
+  if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  ctx = new AC();
+  master = ctx.createGain();
+  master.gain.value = 0.3 * volume;
+  master.connect(ctx.destination);
+}
+function tone(o) {
+  var t0 = ctx.currentTime + (o.delay || 0), osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.type = o.type || 'sine';
+  osc.frequency.setValueAtTime(o.freq, t0);
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(o.gain, t0 + (o.attack === undefined ? .006 : o.attack));
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + o.dur);
+  osc.connect(gain); gain.connect(master); osc.start(t0); osc.stop(t0 + o.dur + .02);
+}
+function noise(o) {
+  var t0 = ctx.currentTime + (o.delay || 0), frames = Math.floor(ctx.sampleRate * o.dur);
+  var buffer = ctx.createBuffer(1, frames, ctx.sampleRate), data = buffer.getChannelData(0);
+  for (var i=0; i<frames; i++) data[i] = (Math.random()*2-1) * (1-i/frames);
+  var src=ctx.createBufferSource(), filter=ctx.createBiquadFilter(), gain=ctx.createGain();
+  src.buffer=buffer; filter.type='lowpass'; filter.frequency.value=o.cutoff; gain.gain.value=o.gain;
+  src.connect(filter); filter.connect(gain); gain.connect(master); src.start(t0); src.stop(t0+o.dur+.02);
+}
+function pluck(o) {
+  tone({freq:o.freq,dur:o.dur,type:o.type||'triangle',gain:o.gain,delay:o.delay,attack:.002});
+  tone({freq:o.freq*2,dur:o.dur*.45,type:'sine',gain:o.gain*.3,delay:o.delay,attack:.002});
+  noise({dur:.02,gain:o.gain*.18,cutoff:5200,delay:o.delay});
+}
+function playVictory(step, extraDelay) {
+  ensure(); if (!ctx) return;
+  var p=Math.pow(2,step/12), base=extraDelay||0;
+  [784,880,1047,1319,1568,2093].forEach(function(f,i) {
+    pluck({freq:f*p,delay:base+i*.075,dur:.55-i*.03,gain:.22,type:'sine'});
+    tone({freq:f*p*2.76,dur:.14,type:'triangle',gain:.045,delay:base+i*.075,attack:.002});
+  });
+  pluck({freq:1568*p,delay:base+.52,dur:1.3,gain:.24,type:'sine'});
+  [2093,2637].forEach(function(f,i) { tone({freq:f*p,dur:1.3,type:'sine',gain:.06,delay:base+.56+i*.1,attack:.18}); });
+  tone({freq:392*p,dur:1.5,type:'sine',gain:.1,delay:base+.52,attack:.12});
+}
+
+var host=document.getElementById('variants');
+variants.forEach(function(item,index) {
+  var card=document.createElement('article'); card.className='card';
+  card.innerHTML='<span class="number">Variation '+(index+1)+'</span><h2>'+item.name+'</h2><p class="detail">'+(item.step>0?'+':'')+item.step+' semitone'+(Math.abs(item.step)===1?'':'s')+' from the original</p><button type="button">Play '+(index+1)+'</button>';
+  card.querySelector('button').addEventListener('click',function(){ playVictory(item.step); });
+  host.appendChild(card);
+});
+document.getElementById('play-all').addEventListener('click',function(){
+  ensure(); variants.forEach(function(item,index){ playVictory(item.step,index*2.25); });
+});
+var slider=document.getElementById('volume'), output=document.getElementById('volume-output');
+slider.addEventListener('input',function(){ volume=Number(slider.value)/100; output.value=slider.value+'%'; if(master) master.gain.value=.3*volume; });
+</script>
+</body>
+</html>

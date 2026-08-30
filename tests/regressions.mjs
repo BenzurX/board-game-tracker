@@ -6,6 +6,9 @@ const app = fs.readFileSync(new URL('../app.js', import.meta.url), 'utf8');
 const index = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const style = fs.readFileSync(new URL('../style.css', import.meta.url), 'utf8');
 const worker = fs.readFileSync(new URL('../worker/src/room.ts', import.meta.url), 'utf8');
+const notFound = fs.readFileSync(new URL('../404.html', import.meta.url), 'utf8');
+const wrangler = fs.readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8');
+const sfx = fs.readFileSync(new URL('../sfx.js', import.meta.url), 'utf8');
 
 const rosterHelper = app.match(/function reconcileRosterColumns[\s\S]*?\n}\n/);
 assert.ok(rosterHelper, 'roster reconciliation helper must exist');
@@ -74,8 +77,49 @@ assert.match(index, /id="winner-column-frame"/,
   'the score table must provide one shared winner-column frame');
 assert.match(app, /fireConfetti\(\);[\s\S]{0,40}?window\.sfx\.play\('victory'\);/,
   'the victory fanfare must sit inside the celebrated gate - checkWin reruns on every render once a game is decided');
-assert.match(style, /\.turn-column-frame[\s\S]*?background: color-mix\(in srgb, var\(--turn-color/,
-  'the turn highlight fill must be the rounded frame, not a square background on the cells');
+assert.equal((app.match(/window\.sfx\.play\('victory'\)/g) || []).length, 1,
+  'the app must have exactly one victory-fanfare trigger');
+assert.match(app, /function openVictoryScreen\([\s\S]*?navigateTo\('screen-victory'\)[\s\S]*?window\.sfx\.play\('victory'\)/,
+  'the fanfare must trigger only after the final-score screen becomes active');
+assert.match(index, /id="screen-victory"[\s\S]*id="victory-winner-card"[\s\S]*id="victory-standings-list"/,
+  'a completed game must have a dedicated victory screen with a replayable winner card and final standings');
+assert.match(index, /victory-winner-name[\s\S]*victory-winner-label">1st Place - Winner/,
+  'the winner name must sit above the first-place label');
+assert.match(app, /victory-winner-card'[\s\S]{0,180}replayCelebration\(\)/,
+  'tapping the first-place card must replay the celebration');
+assert.match(app, /victory-winner-card'[\s\S]{0,180}replayCelebration\(\);[\s\S]{0,80}mpSend\(\{ type: 'celebrate' \}\)/,
+  'a multiplayer winner-card tap must celebrate locally before relaying to the room');
+assert.match(worker, /case "celebrate":[\s\S]{0,420}this\.broadcast\(\{ type: "celebrate" \}, ws\)/,
+  'the room must exclude the tapping socket from the relayed celebration to prevent a duplicate burst');
+assert.match(app, /if \(activeScreen === 'screen-victory'\) return;\s*navigateTo\('screen-victory'\)/,
+  'the results screen must only replace the tracker after the final victor is settled');
+assert.match(app, /function resetForRematch\(rounds = \[\]\)[\s\S]*?state\.rounds = rounds;[\s\S]*?state\.gameOver = false;/,
+  'a rematch must explicitly replace the completed rounds and clear game-over state');
+assert.match(app, /btn-victory-rematch'[\s\S]*?resetForRematch\(\)/,
+  'a local rematch must start through the full score-reset path');
+assert.match(app, /function mpOnGameReset\(msg\)[\s\S]*?resetForRematch\(msg\.rounds\)/,
+  'a multiplayer rematch must replace the old scoreboard with the Worker reset payload');
+// Superseded in v0.26: the fill moved OFF the frame and into the cells. The
+// frame is a positioned element above the table, so filling it washed player
+// colour over the scores, the name chip and the Farkle red - contrast the text
+// could not get back. The cells paint the tint under their own content
+// instead, and the end cells round it so the corners still match the outline.
+assert.match(style, /\.turn-column-frame \{[\s\S]*?background: transparent;/,
+  'the frame draws the outline only - a fill on it covers the scores');
+assert.match(style, /#score-table tbody tr:nth-child\(odd\) td\.current-turn \{\s*background: linear-gradient\(var\(--turn-tint\), var\(--turn-tint\)\), var\(--row-a\);/,
+  'the tint is a cell background layer over the zebra ground, beneath the text');
+assert.doesNotMatch(style, /#score-table tfoot td\.current-turn \{[^}]*border-radius:/,
+  'rounding the cell itself clips its ground too, biting notches out of the totals bar');
+assert.match(style, /#score-table thead th\.current-turn,\s*#score-table tfoot td\.current-turn \{ isolation: isolate; \}/,
+  'without a stacking context on the cell, a z-index -1 tint falls behind the cell background and vanishes');
+assert.match(style, /#score-table tfoot td\.current-turn::before \{\s*inset: calc\(-1 \* var\(--accent-border\)\) 0 0 0;/,
+  'the tint must reach over the 3px rule above the totals, which sits outside the padding box');
+assert.match(style, /#score-table tfoot td\.current-turn::before \{ border-radius: 0 0 12px 12px; \}/,
+  'the tint rounds to the frame while the cell ground stays square behind it');
+assert.match(app, /tailRow\.appendChild\(document\.createElement\('td'\)\);/,
+  'the scroll tail needs real cells - a colspan leaves the tinted column bare above the totals');
+assert.match(app, /table\.style\.setProperty\('--turn-color', turnColor\);/,
+  'the cells cannot inherit from the frame - the colour must be set on the table too');
 assert.match(style, /\.btn-back \{[\s\S]*?flex-shrink: 0;/,
   'the back button must not shrink when the header runs out of width');
 assert.match(app, /showWinnerColumnFrame\(winIdx\)/,
@@ -122,6 +166,66 @@ assert.match(app, /if \(!player \|\| !mpEntersScoresFor\(player\)\) return;/,
   'the your-turn toast must only fire for players this device scores for');
 assert.match(style, /\.turn-toast-title[\s\S]*?-webkit-background-clip: text/,
   'the your-turn toast shimmer must clip its gradient to the text');
+assert.match(style, /\.section-label \{[^}]*font-size: 0\.78rem;[^}]*letter-spacing: 0\.18em;/,
+  'global section labels must match the Home category-label typography');
+assert.match(style, /\.modal-title \{[^}]*font-family: var\(--font-display\);[^}]*font-size: 1\.75rem;[^}]*text-transform: uppercase;/,
+  'all modal titles must share the Enter Score title treatment');
+assert.match(style, /\.modal-title-row \.btn-rules \{[^}]*width: 36px;[^}]*height: 36px;[^}]*font-size: 1\.1rem;/,
+  'the Enter Score rules button must remain legible beside the enlarged title');
+assert.match(style, /button, input, select, textarea \{ font: inherit; \}/,
+  'native controls must not fall back to browser Arial');
+assert.match(style, /@media \(max-width: 420px\)[\s\S]*?\.modal-title \{ font-size: 1\.45rem; \}/,
+  'long modal titles must step down on narrow phones');
+assert.match(style, /\.po-label \{[^}]*font-size: 0\.78rem;[^}]*letter-spacing: 0\.18em;/,
+  'Player Options labels must use the shared section-label scale');
+assert.match(style, /\.custom-rules-heading \{[^}]*font-size: 0\.78rem;[^}]*font-weight: 900;[^}]*letter-spacing: 0\.18em;/,
+  'Custom Rules must use the shared section-label treatment');
+assert.match(style, /\.went-out-label \{[^}]*font-size: 0\.78rem;[^}]*font-weight: 900;[^}]*letter-spacing: 0\.18em;/,
+  'the closer picker label must use the shared section-label treatment');
+assert.doesNotMatch(style, /font-weight:\s*1000/,
+  'Nunito is loaded only through weight 900, so unsupported synthetic 1000 must not return');
+assert.match(style, /--shadow-tile:\s+0 6px 0 rgba\(0, 0, 0, \.367\)/,
+  'dark-mode raised tiles must use the softer approved shadow opacity');
+assert.match(style, /--shadow-tile:\s+0 6px 0 rgba\(33, 19, 31, \.147\)/,
+  'light-mode raised tiles must use the softer approved shadow opacity');
+assert.match(style, /--shadow:\s+0 5px 0 rgba\(0, 0, 0, \.367\)/,
+  'dark-mode buttons and chips must use the softer approved shadow opacity');
+assert.match(style, /--shadow:\s+0 5px 0 rgba\(33, 19, 31, \.147\)/,
+  'light-mode buttons and chips must use the softer approved shadow opacity');
+assert.match(app, /row\.style\.setProperty\('--player-color', color\)/,
+  'each setup name field must start with its selected player color');
+assert.match(app, /dot\.dataset\.color = newColor;\s*row\.style\.setProperty\('--player-color', newColor\)/,
+  'changing a setup player color must immediately update the name-field focus border');
+assert.match(style, /\.table-scroll-wrap \{[^}]*background-image: radial-gradient\([^}]*var\(--grain-dot\)[^}]*background-size: 3px 3px;/,
+  'the open tracker board must preserve the redesign\'s faint dot-grid grain');
+assert.match(style, /@keyframes amb-a \{[\s\S]*?23%[\s\S]*?51%[\s\S]*?78%/,
+  'ambient color must drift through several gentle waypoints instead of a mechanical two-point loop');
+assert.match(style, /background-color: color-mix\(in srgb, var\(--row-b\) 68%, transparent\)/,
+  'the dotted tracker surface must let the moving ambient color faintly show through');
+assert.match(style, /--grain-dot:[^;]+;[\s\S]*--grain-dot:[^;]+;/,
+  'dark and light modes must each define the same effective dot treatment used across the app');
+assert.match(style, /\.table-scroll-wrap \{[^}]*var\(--grain-dot\)/,
+  'the score screen must use the shared app-grid opacity instead of a stronger local grid');
+assert.match(style, /#screen-setup \.screen-header,\s*#screen-tracker \.screen-header \{[^}]*border-radius: 0 0 16px 16px;/,
+  'Setup and Score title bars must share their rounded lower corners');
+assert.match(style, /#mp-room-bar\.hidden ~ \.table-scroll-wrap \{\s*margin-top: 12px;/,
+  'single-player boards must have matching title-bar and footer-bar gaps');
+assert.match(style, /@keyframes amb-a \{[\s\S]*?translate3d\(16%/,
+  'ambient drift must travel far enough to be perceptible through the blurred background');
+assert.match(style, /\.ambient i:nth-child\(1\) \{\s*top: 8%; left: 12%; width: 65%; height: 45%;/,
+  'the upper ambient blob must remain inset enough for its full animated envelope');
+assert.match(style, /\.ambient i:nth-child\(2\) \{[\s\S]*?bottom: max\(10%, 72px\); right: 10%; width: 66%; height: 38%;/,
+  'the lower ambient blob must keep a blur-safe inset even on short viewports');
+assert.match(style, /\.ambient u \{[^}]*mix-blend-mode: var\(--grain-blend\)/,
+  'stationary dots must brighten locally as ambient color passes beneath them');
+assert.match(index, /class="ambient"[^>]*><i><\/i><i><\/i><i><\/i><b><\/b><b><\/b><b><\/b><u><\/u>/,
+  'each ambient color field needs a matching moving dot-glow layer');
+assert.match(style, /\.ambient b \{[^}]*background-image: radial-gradient\(var\(--dot-glow\)[^}]*opacity: \.16;/,
+  'passing ambient fields must create a clearly visible colored lift in the dot grid');
+assert.match(style, /\.ambient b \{[^}]*inset: 0;[^}]*will-change: mask-position;/,
+  'dot highlights must keep a full-viewport stationary texture while only their masks move');
+assert.doesNotMatch(style, /\.ambient b:nth-of-type\([^)]*\)[^{]*\{[^}]*animation: amb-/,
+  'highlight dot blocks must never transform with the ambient blobs');
 assert.match(app, /if \(!state\.multiplayer \|\| !playerId \|\| mpGameDecided\(\)\) return;/,
   'the your-turn toast must stay silent once the board decides the game, not just once gameOver is set');
 assert.match(app, /function mpGameDecided\(\)[\s\S]*?return finalLapSettled\(trigger\)/,
@@ -203,14 +307,20 @@ assert.match(app, /function mpCanResetRoom\(\)[\s\S]*?state\.players\.length > 1
   'New Game must restart in place only for a host with other players in the room');
 assert.match(worker, /const isOwnGroupMember = player\.groupLeaderId === attachment\.playerId/,
   'players must be able to rename anyone they added on their own device');
-assert.match(app, /type: 'rename-self', name: newName, playerId: p\.id/,
+assert.match(app, /type: 'rename-self', name: newName, playerId: player\.id/,
   'renames must name the seat being renamed, not just the sender');
-assert.match(index, /id="btn-rename-player"/,
-  'the player options sheet must offer a rename');
+// The rename button is gone: the player panel edits the name in place, so what
+// has to exist is the field, not a button that opens one somewhere else.
+assert.match(index, /id="player-options-name-input"/,
+  'the player panel must offer a rename field');
+assert.match(index, /id="player-options-swatches"/,
+  'the player panel must offer the colour picker that replaced the header dot');
+assert.doesNotMatch(app, /player-color-dot--header/,
+  'the header colour dot moved into the player panel and must not come back');
 const cancelIndex = index.indexOf('id="btn-cancel-player-options"');
 const removeIndex = index.indexOf('id="btn-remove-player"');
 assert.ok(removeIndex !== -1 && cancelIndex > removeIndex,
-  'Cancel must sit below Remove from Game, not alongside it');
+  'the way out must sit below Remove From Game, not alongside it');
 
 assert.match(worker, /roundStarts: string\[\]/,
   'the room must record which seat led each round off, since the host declares the first player');
@@ -258,6 +368,10 @@ assert.match(index, /id="btn-fab-score"[^>]*aria-label="Enter Score"/,
   'the floating Enter Score button is an icon, so it needs a label for screen readers');
 assert.match(style, /#screen-tracker\.chrome-bottom-hidden \.btn-fab-score \{[\s\S]*?opacity: 0\.72;/,
   'the floating button must appear only while the action bar is collapsed, resting translucent');
+assert.match(style, /\.btn-fab-score\.mp-locked \{[^}]*opacity: 0;/,
+  'an off-turn multiplayer FAB must remain invisible while the action bar is visible');
+assert.match(style, /#screen-tracker\.active ~ \.toast \{[\s\S]*?bottom:/,
+  'tracker toasts must clear the Enter Score and New Game action bar');
 assert.match(app, /fab\.addEventListener\('click', \(\) => document\.getElementById\('btn-add-turn'\)\.click\(\)\)/,
   'the floating button must delegate to the action button, or the off-turn toast is lost');
 assert.match(app, /function syncScoreFabState\(\)[\s\S]*?fab\.classList\.toggle\('mp-locked', btn\.classList\.contains\('mp-locked'\)\)/,
@@ -278,8 +392,8 @@ assert.match(app, /const animate = boardMemoryPrimed && !prefersReducedMotion\(\
   'board animations must be suppressed on a board\'s first paint and under reduced motion');
 assert.match(app, /function forgetBoardMemory\(\)/,
   'a board arriving fresh must drop the previous board, or every cell flashes at once');
-assert.match(app, /function mpOnGameReset[\s\S]*?forgetBoardMemory\(\);/,
-  'a host reset lands a blank board - it must not be diffed against the finished game');
+assert.match(app, /function resetForRematch[\s\S]*?forgetBoardMemory\(\);/,
+  'every rematch must drop finished-board animation memory before painting the blank board');
 assert.match(app, /if \(!record\.td\.isConnected\) \{ runningTotals\.delete\(key\); return; \}/,
   'the total count-up must stop when its cell leaves the document, and let go of its slot');
 assert.match(app, /const record = \(live && live\.to === to\) \? live : \{/,
@@ -330,8 +444,8 @@ assert.match(app, /resize[\s\S]{0,200}?resetChromeMetrics\(\);/,
 
 // Confetti stacks rather than restarting, so celebrating twice reads as more
 // confetti instead of an interruption.
-assert.match(app, /const CONFETTI_MAX_BURSTS = 3;/,
-  'bursts are capped so hammering the banner cannot pile up unbounded particles');
+assert.match(app, /const CONFETTI_MAX_BURSTS = 8;/,
+  'eight live bursts are allowed while still bounding repeated winner-card taps');
 assert.match(app, /const live = confettiBursts\.filter\(burst => !burst\.retiring\);\s*if \(live\.length > CONFETTI_MAX_BURSTS\) live\[0\]\.retiring = true;/,
   'past the cap the oldest burst fades out instead of vanishing, and bursts already on their way out must not count against the cap - counting them retires a live burst to make room for nothing');
 assert.match(app, /burst\.t < CONFETTI_LIFE && burst\.fade < CONFETTI_FADE/,
@@ -358,7 +472,7 @@ assert.doesNotMatch(app, /class="turn-score-input"[^>]*type="number"/,
   'score inputs must not be type=number - a number input rejects the lone "-" the ± button leaves behind');
 assert.match(app, /<input type="text" class="turn-score-input"[^>]*inputmode="numeric"/,
   'the Enter Score field stays on the numeric keypad even as a text input');
-assert.match(app, /if \(allowNeg\) row\.appendChild\(makeSignToggle\(row\.querySelector\('\.turn-score-input'\)\)\);/,
+assert.match(app, /if \(allowNeg\) row\.querySelector\('\.turn-input-slot'\)\.appendChild\(makeSignToggle\(input\)\);/,
   'the sign toggle is added to Enter Score rows wherever negatives are legal');
 assert.match(app, /if \(allowNeg\) wrap\.appendChild\(makeSignToggle\(input\)\);/,
   'the inline cell editor gets the same sign toggle - a phone must be able to correct a cell to a negative');
@@ -390,5 +504,88 @@ assert.match(dangerBlocks[0], /border: var\(--accent-border\) solid var\(--dange
 // marigold. White on any accent fill in this palette fails the contrast floor.
 assert.match(style, /\.update-reload \{[^}]*color: var\(--p2-fg\)[^}]*background: var\(--p2\)/,
   'the update-reload button must be ink on marigold, matching the primary action');
+
+
+// The 404 page. It is never reached from inside the app, so nothing else would
+// notice if the deploy config or the way out stopped working.
+assert.match(wrangler, /"not_found_handling": "404-page"/,
+  'without not_found_handling the static deploy serves the platform default 404, not ours');
+assert.match(notFound, /<a class="btn-primary" href="\/">Back to Home<\/a>/,
+  'the way out must be a root-absolute link - the 404 is served at paths of any depth');
+assert.match(notFound, /viewBox="7 -10 118 118"/,
+  'the tipped plate needs the square viewBox centred on the pivot, or it clips');
+assert.match(style, /\.err404-four:first-child \{ margin-right: -1\.1em; \}/,
+  'the 4s tuck over the plate - set beside it the line stops reading as 404');
+
+// Presence (the amber Away dot) is cosmetic. The moment anything branches on it,
+// a locked phone starts skipping turns - which is exactly what the five-minute
+// grace window exists to prevent.
+assert.doesNotMatch(worker, /if \([^)]*\.present[^)]*\)/,
+  'nothing may branch on presence - turn order and round advance read connected');
+assert.match(worker, /case "presence":\s*return "visible" in value && typeof value\.visible === "boolean";/,
+  'the presence message must be validated like every other client message');
+assert.match(worker, /seat\.present = false;/,
+  'a closed socket marks the device away immediately, without touching connected');
+assert.match(app, /mpAwayTimer = setTimeout\(\(\) => mpSendPresence\(false\), MP_AWAY_DELAY_MS\);/,
+  'going away is debounced; only coming back is instant');
+assert.match(app, /player\.present === false\) \{\s*parts\.push\('<span class="po-conn is-away">/,
+  'away must be checked after disconnected - a dropped player is not merely away');
+assert.match(style, /\.po-conn\.is-away \{ color: var\(--p2\); \}/,
+  'the away dot is amber, distinct from both the green and the red');
+
+// Enter Score, reworked from the Pip mock in v0.26.
+assert.match(app, /turn-modal-title'\)\.textContent = `Round \$\{state\.rounds\.length \+ 1\}`/,
+  'the sheet title states the round; who is being scored for belongs to the hint');
+const saveIndex = index.indexOf('id="btn-save-turn"');
+const cancelTurnIndex = index.indexOf('id="btn-cancel-turn"');
+assert.ok(saveIndex !== -1 && saveIndex < cancelTurnIndex,
+  'Save Scores leads and Cancel follows it');
+assert.match(index, /id="btn-save-turn">Save Scores</,
+  'the label says what is saved - a round is entered for several players at once');
+assert.match(app, /input\.dispatchEvent\(new Event\('input', \{ bubbles: true \}\)\)/,
+  'flipping the sign must fire input, or the projected total goes stale');
+assert.match(app, /totalCell\.classList\.toggle\('is-pending', pending !== base\)/,
+  'the right-hand column projects the new total rather than restating the old one');
+
+assert.match(app, /<span class="turn-header-total">New Total<\/span>/,
+  'the column heading names the projected total, not the current one');
+
+// A device holding several seats writes them all in one submission. The server
+// permission check has to know about groups or it silently drops every seat but
+// the leader's, and the turn bounces back to the seat it just discarded.
+assert.match(worker, /if \(target\.groupLeaderId === actorId\) \{\s*return true;/,
+  'a group leader may score for the seats their device brought into the room');
+
+// A guard that reads only the top bar cannot see the footer stuck collapsed,
+// which leaves the floating button hovering over a board whose bars are back.
+assert.match(app, /screen\.classList\.contains\('chrome-top-hidden'\)\s*&& screen\.classList\.contains\('chrome-bottom-hidden'\)/,
+  'the collapse guard reads both chrome classes so they cannot drift apart');
+
+// The projected total counts the same way the board's totals row does, on its
+// own key namespace so the two counts never hand each other cells.
+assert.match(app, /countUpTotal\(totalCell, countKey, shown, pending, '', TURN_COUNT_MS\)/,
+  'the projected total counts to its value rather than snapping to it');
+assert.match(app, /const countKey = `turn:\$\{boardKeyFor\(p, pi\)\}`;\s*runningTotals\.delete\(countKey\);/,
+  'the sheet clears its own count on build so a stale one cannot resume');
+
+// Farkle rounds to the nearest 50 on save, so the projection must round too or
+// it names a total the board will never show.
+assert.match(app, /const farkle = !state\.generic && state\.gameKey === 'farkle';/,
+  'the projection knows whether this game rounds, on the same terms as the save path');
+assert.match(app, /const scored = farkle \? normalizeFarkleScore\(typed\) : typed;/,
+  'the projection rounds through the same function the save path uses');
+
+// The victory fanfare is Kalimba Sparkle as of v0.26, replacing round 1's
+// Arcade Jackpot. The run is pentatonic on purpose: play() applies a random
+// pitch variant of up to two semitones, and a scale with semitones in it would
+// let that variant land the phrase on a dissonance.
+assert.match(sfx, /\[784, 880, 1047, 1319, 1568, 2093\]\.forEach/,
+  'the fanfare run stays pentatonic so the random pitch variant cannot sour it');
+assert.match(sfx, /var p = this\.variant\(\) \* \(opts\.pitch \|\| 1\);/,
+  'one full five-way pitch variant must be selected for each victory fanfare play');
+assert.match(sfx, /Sfx\.prototype\.pluck = function/,
+  'the fanfare is built from plucks; tone alone cannot give a tine its attack');
+assert.match(sfx, /this\.tone\(\{ freq: o\.freq \* 2, dur: len \* 0\.45/,
+  'the pluck’s octave partial must die faster than its body or it reads as an organ');
 
 console.log('Regression checks passed');

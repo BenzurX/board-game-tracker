@@ -2,6 +2,8 @@
 	"name": "board-game-tracker",
 	"compatibility_date": "2026-07-24",
 	"assets": {
-		"directory": "./"
+		"directory": "./",
+		// Without this, an unknown path gets Cloudflare's own bare 404, not ours.
+		"not_found_handling": "404-page"
 	}
 }

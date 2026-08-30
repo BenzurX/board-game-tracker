@@ -283,18 +283,42 @@
   <div class="page-header">
     <div><a class="back-link" href="../index.html">&#8592; Back to App</a></div>
     <div class="page-title">&#127922; Game Tracker</div>
-    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>15 snapshots</strong> captured</div>
+    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>16 snapshots</strong> captured</div>
   </div>
 
   <div class="timeline">
 
-    <!-- v0.25 - current, milestone -->
-    <div class="version-entry current milestone">
+    <!-- v0.26 - current -->
+    <div class="version-entry current">
+      <div class="v-dot">&#9679;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.26</span>
+          <span class="v-current-chip">CURRENT</span>
+          <span class="v-date">August 30, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">A splash, a 404, a rebuilt score sheet, and the scoring bug that ate half a submission</div>
+          <ul class="v-bullets">
+            <li>The app opens on the Pip mark with the die spinning around its centre pip, and a broken link now lands on a styled 404 that reads four &middot; pip &middot; four instead of the platform default</li>
+            <li>Enter Score rebuilt from the redesign mock: board-matching name chips, the field outlined in that player&#39;s colour, and a New Total column that counts to the projected figure as you type - rounding to the nearest 50 in Farkle, exactly as saving does</li>
+            <li>Tapping a player in a room now reports their connection as a dot - green, amber away within ten seconds of them leaving the tab, red disconnected. Purely cosmetic: the five-minute grace window is untouched</li>
+            <li>A device holding several seats had every seat but its own silently dropped from a score submission, so the turn bounced straight back to the seat it had just discarded. The Worker never checked group membership when deciding who may write a column</li>
+            <li>New victory fanfare: a pentatonic thumb-piano run picked to survive being heard many times in one evening, replacing the arcade stab</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.26/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.25 - milestone -->
+    <div class="version-entry milestone">
       <div class="v-dot">&#9733;</div>
       <div class="v-card">
         <div class="v-card-head">
           <span class="v-badge">v0.25</span>
-          <span class="v-current-chip">CURRENT</span>
           <span class="v-milestone-chip">MILESTONE</span>
           <span class="v-date">August 29, 2026</span>
         </div>

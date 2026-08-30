@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="pip" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Victory Fanfare - round 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --p1:#F2604C; --p1-bd:#B23A28;
+    --p2:#F5B02E; --p2-bd:#8A5709;
+    --p3:#A8C64F; --p3-bd:#4F6B14;
+    --p4:#3FBE9A; --p4-bd:#0F6F58;
+    --p5:#4FC3E8; --p5-bd:#14607F;
+    --p6:#7C93EE; --p6-bd:#3A4EAF;
+    --p7:#C48BF0; --p7-bd:#6B33A8;
+    --p8:#F576A8; --p8-bd:#A82F6A;
+    --ink:#21131F;
+    --ground:#21131F; --surface:#2C1A29; --surface-2:#3A2436; --border:#4B3145;
+    --text:#F7EFE1; --muted:#C0A7B4;
+    --shadow:0 5px 0 rgba(0,0,0,.55);
+    --shadow-none:0 0 0 rgba(0,0,0,.55);
+    --font-display:'Lilita One', cursive;
+    --font-ui:'Nunito', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 18px 64px;
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-weight: 600;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .eyebrow {
+    font-size: .62rem; font-weight: 900; letter-spacing: .24em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 6px;
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 2.2rem; margin: 0 0 6px; letter-spacing: .02em; }
+  .lede { color: var(--muted); font-size: .92rem; line-height: 1.5; margin: 0 0 22px; max-width: 60ch; }
+
+  .mixer {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 14px; padding: 12px 16px; margin-bottom: 18px;
+  }
+  .mixer label { font-size: .62rem; font-weight: 900; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
+  .mixer input { flex: 1; accent-color: var(--p2); }
+  .mixer output { font-weight: 900; min-width: 3.2em; text-align: right; }
+
+  /* The shipped sound, kept at the top rather than in the grid: it is the thing
+     every candidate below is being compared against, not a ninth option. */
+  .current {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    background: var(--surface); border: 2px dashed var(--border);
+    border-radius: 14px; padding: 12px 16px; margin-bottom: 26px;
+  }
+  .current .tag {
+    font-size: .62rem; font-weight: 900; letter-spacing: .24em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .current .what { font-weight: 800; font-size: .88rem; flex: 1; min-width: 12ch; }
+
+  .grid { display: grid; gap: 14px; }
+  @media (min-width: 620px) { .grid { grid-template-columns: 1fr 1fr; } }
+
+  .card {
+    background: var(--surface-2);
+    border: 3px solid var(--border);
+    border-radius: 20px;
+    padding: 16px 16px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .num {
+    font-size: .62rem; font-weight: 900; letter-spacing: .24em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .name { font-family: var(--font-display); font-weight: 400; font-size: 1.5rem; line-height: 1.05; margin: 0; }
+  .desc { font-size: .82rem; font-weight: 700; color: var(--muted); line-height: 1.45; flex: 1; margin: 0; }
+  .trade { font-size: .74rem; font-weight: 800; color: var(--text); opacity: .78; margin: 0; }
+
+  .play {
+    align-self: flex-start;
+    min-height: 48px;
+    margin-top: 4px;
+    padding: 12px 26px;
+    border-radius: 999px;
+    border: 3px solid var(--bd, var(--border));
+    background: var(--fill, var(--surface-2));
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: filter 120ms cubic-bezier(.2,.7,.3,1),
+                transform 90ms cubic-bezier(.2,.7,.3,1),
+                box-shadow 90ms cubic-bezier(.2,.7,.3,1);
+  }
+  .play:active { transform: translateY(5px); box-shadow: var(--shadow-none); }
+  @media (hover: hover) { .play:hover { filter: brightness(1.06) saturate(1.03); } }
+
+  .current .play { --fill: var(--surface-2); --bd: var(--border); color: var(--text); margin: 0; min-height: 42px; padding: 9px 20px; font-size: .86rem; }
+
+  .card:nth-child(1) .play { --fill: var(--p2); --bd: var(--p2-bd); }
+  .card:nth-child(2) .play { --fill: var(--p4); --bd: var(--p4-bd); }
+  .card:nth-child(3) .play { --fill: var(--p8); --bd: var(--p8-bd); }
+  .card:nth-child(4) .play { --fill: var(--p6); --bd: var(--p6-bd); }
+  .card:nth-child(5) .play { --fill: var(--p1); --bd: var(--p1-bd); }
+  .card:nth-child(6) .play { --fill: var(--p5); --bd: var(--p5-bd); }
+  .card:nth-child(7) .play { --fill: var(--p3); --bd: var(--p3-bd); }
+
+  .foot { margin-top: 30px; color: var(--muted); font-size: .82rem; line-height: 1.6; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; color: var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Pip &middot; sound design</p>
+  <h1>Victory Fanfare, round 2</h1>
+  <p class="lede">Seven fresh directions, none repeating the eight from the first pass. Same procedural Web Audio engine as the button pop, no sample files. Tap each a few times: every play picks a slightly different pitch variant, exactly the way the shipped sounds do, so you are hearing the real spread rather than one frozen take.</p>
+
+  <div class="mixer">
+    <label for="vol">Volume</label>
+    <input id="vol" type="range" min="0" max="100" value="70">
+    <output id="volout">70%</output>
+  </div>
+
+  <div class="current">
+    <span class="tag">Shipping now</span>
+    <span class="what">Arcade Jackpot, picked in round 1. Play it between candidates so the comparison is honest.</span>
+    <button class="play" type="button" id="play-current">Play current</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <p class="foot">Every candidate lands under two and a half seconds and ends clean, so it can overlap the confetti without turning into a drone. If one is close but wrong, say what to change - brighter, longer, fewer ticks, less bass - rather than jumping to a different number.</p>
+</div>
+
+<script>
+// Same tone/noise/variant engine as sfx.js, inlined so this page stands alone.
+var MASTER_CEILING = 0.3;
+var ctx = null, master = null, volume = 0.7;
+
+function ensure() {
+  if (ctx) return;
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  ctx = new AC();
+  master = ctx.createGain();
+  master.connect(ctx.destination);
+  master.gain.value = MASTER_CEILING * volume;
+}
+
+function tone(o) {
+  if (!ctx) return;
+  var dur = o.dur === undefined ? 0.12 : o.dur;
+  var gain = o.gain === undefined ? 0.6 : o.gain;
+  var delay = o.delay || 0;
+  var attack = o.attack === undefined ? 0.006 : o.attack;
+  var t0 = ctx.currentTime + delay;
+  var osc = ctx.createOscillator();
+  var g = ctx.createGain();
+  osc.type = o.type || 'sine';
+  osc.frequency.setValueAtTime(o.freq, t0);
+  if (o.freqEnd) osc.frequency.exponentialRampToValueAtTime(o.freqEnd, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g); g.connect(master);
+  osc.start(t0); osc.stop(t0 + dur + 0.02);
+}
+
+function noise(o) {
+  if (!ctx) return;
+  o = o || {};
+  var dur = o.dur === undefined ? 0.18 : o.dur;
+  var gain = o.gain === undefined ? 0.4 : o.gain;
+  var delay = o.delay || 0;
+  var cutoff = o.cutoff === undefined ? 1000 : o.cutoff;
+  var t0 = ctx.currentTime + delay;
+  var frames = Math.floor(ctx.sampleRate * dur);
+  var buf = ctx.createBuffer(1, frames, ctx.sampleRate);
+  var data = buf.getChannelData(0);
+  for (var i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / frames);
+  var src = ctx.createBufferSource(); src.buffer = buf;
+  var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cutoff;
+  var g = ctx.createGain(); g.gain.value = gain;
+  src.connect(lp); lp.connect(g); g.connect(master);
+  src.start(t0); src.stop(t0 + dur + 0.02);
+}
+
+// A swelling filtered-noise roll: drum-roll and riser textures.
+function roll(o) {
+  var dur = o.dur, gain = o.gain, delay = o.delay || 0, cutoff = o.cutoff || 900;
+  var steps = Math.max(6, Math.round(dur * 26));
+  for (var i = 0; i < steps; i++) {
+    var k = i / (steps - 1);
+    noise({ dur: 0.05, gain: gain * (0.25 + 0.75 * k * k), cutoff: cutoff, delay: delay + k * dur });
+  }
+}
+
+// Bell partials: inharmonic ratios, upper partials ringing longer than the body.
+function bell(freq, delay, level, len) {
+  var parts = [[1, 0.4, 1], [2.42, 0.24, 0.82], [3.88, 0.14, 0.6], [5.64, 0.08, 0.42]];
+  for (var i = 0; i < parts.length; i++) {
+    var r = parts[i][0], g = parts[i][1], d = parts[i][2];
+    var dt = i ? [-3 - i, 3 + i] : [0];
+    for (var j = 0; j < dt.length; j++) {
+      tone({
+        freq: freq * r + dt[j], dur: len * d, type: i ? 'triangle' : 'sine',
+        gain: (g * level) / dt.length, delay: delay, attack: 0.003
+      });
+    }
+  }
+}
+
+// A struck or plucked string: near-instant attack, a second partial an octave up
+// dying twice as fast, and a breath of finger noise on the front. The attack is
+// what sells "plucked" - a slow one turns any of these into an organ.
+function pluck(o) {
+  var f = o.freq, delay = o.delay || 0, len = o.dur || 0.7, level = o.gain || 0.3;
+  tone({ freq: f, dur: len, type: o.type || 'triangle', gain: level, delay: delay, attack: 0.002 });
+  tone({ freq: f * 2, dur: len * 0.45, type: 'sine', gain: level * 0.3, delay: delay, attack: 0.002 });
+  noise({ dur: 0.02, gain: level * 0.18, cutoff: 5200, delay: delay });
+}
+
+function variant() {
+  var s = [-2, -1, 0, 1, 2][(Math.random() * 5) | 0];
+  return Math.pow(2, s / 12);
+}
+
+// The shipped sound, copied verbatim from sfx.js so the comparison is against
+// what actually plays rather than a re-tuned lookalike.
+function playCurrent(p) {
+  [523, 587, 659, 784, 880, 1047].forEach(function (f, i) {
+    tone({ freq: f * p, dur: 0.09, type: 'square', gain: 0.28, delay: i * 0.055 });
+  });
+  [1047, 1319, 1568].forEach(function (f) {
+    tone({ freq: f * p, dur: 0.6, type: 'square', gain: 0.24, delay: 0.36, attack: 0.008 });
+    tone({ freq: f * p + 4, dur: 0.6, type: 'square', gain: 0.2, delay: 0.36, attack: 0.008 });
+  });
+  [0.42, 0.52, 0.63, 0.75].forEach(function (d, i) {
+    tone({ freq: (2093 + i * 260) * p, dur: 0.08, type: 'sine', gain: 0.16, delay: d });
+  });
+}
+
+var FANFARES = [
+  {
+    name: 'Dice Cascade',
+    desc: 'Wooden dice clatter across the table on irregular timing, one last one settles, and a warm major triad blooms out of the silence they leave. The only candidate that sounds like the thing the app is named after.',
+    trade: 'Most on-brand. The ticks are quiet by design, so on a phone speaker in a loud room the triad carries it alone.',
+    play: function (p) {
+      // Irregular by hand rather than by loop: evenly spaced ticks read as a
+      // machine, and dice never land on a grid.
+      var hits = [0, 0.035, 0.058, 0.11, 0.145, 0.162, 0.225, 0.27, 0.33];
+      hits.forEach(function (d, i) {
+        noise({ dur: 0.028, gain: 0.2 - i * 0.012, cutoff: (2200 + Math.random() * 1800), delay: d });
+        tone({ freq: (300 + Math.random() * 260) * p, dur: 0.03, type: 'triangle', gain: 0.1, delay: d });
+      });
+      // The one that settles last, lower and rounder than the rest.
+      noise({ dur: 0.09, gain: 0.22, cutoff: 900, delay: 0.42 });
+      tone({ freq: 190 * p, dur: 0.14, type: 'triangle', gain: 0.2, delay: 0.42, attack: 0.004 });
+      [523, 659, 784].forEach(function (f) {
+        tone({ freq: f * p, dur: 1.0, type: 'triangle', gain: 0.2, delay: 0.54, attack: 0.03 });
+      });
+      tone({ freq: 262 * p, dur: 1.2, type: 'sine', gain: 0.18, delay: 0.54, attack: 0.03 });
+      tone({ freq: 1568 * p, dur: 0.5, type: 'sine', gain: 0.09, delay: 0.72, attack: 0.02 });
+    }
+  },
+  {
+    name: 'Coin Shower',
+    desc: 'Five two-note coin blips rain down over a square-wave arpeggio climbing underneath them, closing on a single bright ping. Pure platformer reward, unmistakably a payout.',
+    trade: 'Reads as "you got points", not "you won the game". Closest in family to the current Arcade Jackpot, so pick it only if you want that direction refined rather than replaced.',
+    play: function (p) {
+      var coin = function (delay, level) {
+        tone({ freq: 988 * p, dur: 0.06, type: 'square', gain: level, delay: delay });
+        tone({ freq: 1319 * p, dur: 0.34, type: 'square', gain: level * 0.9, delay: delay + 0.06 });
+      };
+      [0, 0.09, 0.185, 0.29, 0.4].forEach(function (d, i) { coin(d, 0.2 - i * 0.022); });
+      [523, 659, 784, 1047].forEach(function (f, i) {
+        tone({ freq: f * p, dur: 0.16, type: 'square', gain: 0.14, delay: 0.14 + i * 0.09 });
+      });
+      tone({ freq: 2093 * p, dur: 0.7, type: 'sine', gain: 0.16, delay: 0.62, attack: 0.006 });
+      tone({ freq: 2637 * p, dur: 0.5, type: 'sine', gain: 0.08, delay: 0.62, attack: 0.006 });
+    }
+  },
+  {
+    name: 'Tavern Whistle',
+    desc: 'A two-finger whistle swoops up, then a cheeky five-note jig skips off the top of it and stops dead. Human and a bit rude, the way someone actually reacts at a table.',
+    trade: 'The most personality in the set and the most likely to wear out, because a whistle is a joke and jokes repeat badly. Great if wins are rare in a session.',
+    play: function (p) {
+      tone({ freq: 620 * p, freqEnd: 1480 * p, dur: 0.26, type: 'sine', gain: 0.26, delay: 0, attack: 0.05 });
+      tone({ freq: 624 * p, freqEnd: 1488 * p, dur: 0.26, type: 'sine', gain: 0.1, delay: 0, attack: 0.05 });
+      // The jig: dotted rhythm, last note held a touch longer to land it.
+      var jig = [[1047, 0.30, 0.10], [1175, 0.40, 0.08], [1319, 0.48, 0.10],
+                 [1047, 0.60, 0.08], [1568, 0.70, 0.34]];
+      jig.forEach(function (n) {
+        tone({ freq: n[0] * p, dur: n[2], type: 'sine', gain: 0.24, delay: n[1], attack: 0.008 });
+        tone({ freq: n[0] * p * 2, dur: n[2] * 0.6, type: 'sine', gain: 0.05, delay: n[1], attack: 0.008 });
+      });
+      noise({ dur: 0.04, gain: 0.14, cutoff: 3600, delay: 1.06 });
+    }
+  },
+  {
+    name: 'Pinball Bonus',
+    desc: 'A chromatic bonus ladder counts up fast, a knocker thumps, and a real bell dings over the top of it. The sound of a machine tallying up what you just did.',
+    trade: 'The ladder does the work, so it needs the full 1.2 seconds. Busiest option here, and the low knocker is the one thing in the set a tinny phone speaker will half-swallow.',
+    play: function (p) {
+      for (var i = 0; i < 12; i++) {
+        tone({ freq: 660 * p * Math.pow(2, i / 12), dur: 0.045, type: 'square', gain: 0.15, delay: i * 0.042 });
+      }
+      // Knocker: a low thud with a wooden body, the mechanical punctuation the
+      // ladder is counting towards.
+      noise({ dur: 0.14, gain: 0.4, cutoff: 320, delay: 0.55 });
+      tone({ freq: 96 * p, dur: 0.2, type: 'sawtooth', gain: 0.24, delay: 0.55, attack: 0.003 });
+      bell(1568 * p, 0.58, 0.5, 1.2);
+      bell(2093 * p, 0.78, 0.26, 0.9);
+    }
+  },
+  {
+    name: 'Ukulele Strum',
+    desc: 'Two soft strums of an open chord, then one plucked note ringing on alone. Quiet, warm, and completely unhurried: the sound of a friendly game ending well.',
+    trade: 'The most understated candidate, which is either the point or the problem. It will never annoy anyone; it also will not cut through a table of people talking.',
+    play: function (p) {
+      var strum = function (delay, level) {
+        [392, 523, 659, 880].forEach(function (f, i) {
+          pluck({ freq: f * p, delay: delay + i * 0.032, dur: 0.85, gain: level });
+        });
+      };
+      strum(0, 0.24);
+      strum(0.44, 0.2);
+      pluck({ freq: 1047 * p, delay: 0.92, dur: 1.1, gain: 0.24 });
+      tone({ freq: 196 * p, dur: 1.4, type: 'sine', gain: 0.12, delay: 0.92, attack: 0.04 });
+    }
+  },
+  {
+    name: 'Synthwave Riser',
+    desc: 'A filtered sweep climbs for half a second and slams into a detuned power chord, which then stutters three times and cuts. Modern, punchy, and over almost before you notice.',
+    trade: 'Shortest and hardest-hitting, and the only one with real low end. Reads as a video game rather than a board game, which may be the wrong room for Pip.',
+    play: function (p) {
+      tone({ freq: 110 * p, freqEnd: 880 * p, dur: 0.5, type: 'sawtooth', gain: 0.13, delay: 0, attack: 0.12 });
+      roll({ dur: 0.5, gain: 0.1, cutoff: 2600, delay: 0 });
+      var stab = function (delay, len, level) {
+        [110, 165, 220].forEach(function (f) {
+          tone({ freq: f * p, dur: len, type: 'sawtooth', gain: level, delay: delay, attack: 0.004 });
+          tone({ freq: f * p + 3, dur: len, type: 'sawtooth', gain: level * 0.85, delay: delay, attack: 0.004 });
+        });
+      };
+      stab(0.5, 0.5, 0.16);
+      tone({ freq: 55 * p, dur: 0.7, type: 'sine', gain: 0.26, delay: 0.5, attack: 0.004 });
+      // The gate: three shortening repeats, the tail every synthwave cue has.
+      stab(0.86, 0.1, 0.12);
+      stab(0.99, 0.08, 0.1);
+      stab(1.09, 0.32, 0.13);
+      tone({ freq: 1760 * p, dur: 0.5, type: 'triangle', gain: 0.07, delay: 1.09, attack: 0.01 });
+    }
+  },
+  {
+    name: 'Kalimba Sparkle',
+    desc: 'A six-note thumb-piano run up a pentatonic scale, each note metallic and short, leaving a high shimmer hanging behind it. Delicate rather than triumphant.',
+    trade: 'The one that survives being heard fifty times in an evening. Ceremonially it undersells a win, so it suits a tracker used for quick repeat games more than a grand finale.',
+    play: function (p) {
+      // Pentatonic: no semitones, so any pitch variant still lands consonant.
+      var run = [784, 880, 1047, 1319, 1568, 2093];
+      run.forEach(function (f, i) {
+        pluck({ freq: f * p, delay: i * 0.075, dur: 0.55 - i * 0.03, gain: 0.22, type: 'sine' });
+        // The metallic edge: a quiet inharmonic partial, not a whole bell.
+        tone({ freq: f * p * 2.76, dur: 0.14, type: 'triangle', gain: 0.045, delay: i * 0.075, attack: 0.002 });
+      });
+      pluck({ freq: 1568 * p, delay: 0.52, dur: 1.3, gain: 0.24, type: 'sine' });
+      [2093, 2637].forEach(function (f, i) {
+        tone({ freq: f * p, dur: 1.3, type: 'sine', gain: 0.06, delay: 0.56 + i * 0.1, attack: 0.18 });
+      });
+      tone({ freq: 392 * p, dur: 1.5, type: 'sine', gain: 0.1, delay: 0.52, attack: 0.12 });
+    }
+  }
+];
+
+var grid = document.getElementById('grid');
+FANFARES.forEach(function (fx, i) {
+  var card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML =
+    '<p class="num">Candidate ' + (i + 1) + '</p>' +
+    '<p class="name"></p>' +
+    '<p class="desc"></p>' +
+    '<p class="trade"></p>' +
+    '<button class="play" type="button">Play</button>';
+  card.querySelector('.name').textContent = fx.name;
+  card.querySelector('.desc').textContent = fx.desc;
+  card.querySelector('.trade').textContent = fx.trade;
+  card.querySelector('.play').addEventListener('click', function () {
+    ensure();
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    fx.play(variant());
+  });
+  grid.appendChild(card);
+});
+
+document.getElementById('play-current').addEventListener('click', function () {
+  ensure();
+  if (ctx && ctx.state === 'suspended') ctx.resume();
+  playCurrent(variant());
+});
+
+var vol = document.getElementById('vol');
+var volout = document.getElementById('volout');
+vol.addEventListener('input', function () {
+  volume = vol.value / 100;
+  volout.textContent = vol.value + '%';
+  if (master) master.gain.value = MASTER_CEILING * volume;
+});
+</script>
+</body>
+</html>

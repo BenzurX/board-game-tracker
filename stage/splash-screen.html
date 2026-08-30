@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loading splash - staged ideas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── Tokens copied from style.css (Pip) ─────────────────── */
+:root {
+  --p1: #F2604C; --p1-bd: #B23A28;
+  --p2: #F5B02E; --p2-bd: #8A5709;
+  --p3: #A8C64F; --p3-bd: #4F6B14;
+  --p4: #3FBE9A; --p4-bd: #0F6F58;
+  --p5: #4FC3E8; --p5-bd: #14607F;
+  --p6: #7C93EE; --p6-bd: #3A4EAF;
+  --p7: #C48BF0; --p7-bd: #6B33A8;
+  --p8: #F576A8; --p8-bd: #A82F6A;
+  --accent-border: 3px;
+  --font-display: 'Lilita One', cursive;
+  --font-ui: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --r-action: 999px;
+  --r-chip: 12px;
+  --radius: 20px;
+}
+html[data-mode="dark"] {
+  --ground: #21131F; --surface: #2C1A29; --surface-2: #3A2436; --border: #4B3145;
+  --text: #F7EFE1; --muted: #C0A7B4;
+  --amb-1: #3FBE9A; --amb-2: #F576A8; --amb-3: #F5B02E;
+  --amb-o1: .14; --amb-o2: .11; --amb-o3: .09;
+  --grain: rgba(247, 239, 225, .5); --grain-o: .045;
+  --logo-plate: #2A1826; --logo-ghost: #3D2739; --logo-stroke: #3A2436;
+  --shadow: 0 5px 0 rgba(0,0,0,.55);
+}
+html[data-mode="light"] {
+  --ground: #F7EFE1; --surface: #FFFAF1; --surface-2: #F0E3D2; --border: #E2D0BC;
+  --text: #21131F; --muted: #6E5460;
+  --amb-1: #0F6F58; --amb-2: #A82F6A; --amb-3: #8A5709;
+  --amb-o1: .07; --amb-o2: .06; --amb-o3: .05;
+  --grain: rgba(33, 19, 31, .5); --grain-o: .03;
+  --logo-plate: transparent; --logo-ghost: rgba(33,19,31,.2); --logo-stroke: rgba(33,19,31,.28);
+  --shadow: 0 5px 0 rgba(33,19,31,.22);
+}
+
+/* ── Stage chrome (not app UI) ──────────────────────────── */
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 28px 22px 90px;
+  background: #14090F; color: #F7EFE1; font-family: var(--font-ui);
+}
+h1 { font-family: var(--font-display); font-weight: 400; font-size: 1.7rem; letter-spacing: .04em; margin: 0 0 6px; }
+.stage-lede { max-width: 62rem; color: #C0A7B4; font-size: .92rem; line-height: 1.55; margin: 0 0 22px; }
+.stage-lede b { color: #F7EFE1; }
+.stage-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
+.stage-controls button {
+  font-family: var(--font-ui); font-weight: 900; font-size: .74rem; letter-spacing: .1em;
+  text-transform: uppercase; padding: 9px 14px; border-radius: 999px; cursor: pointer;
+  background: #2C1A29; color: #F7EFE1; border: 2px solid #4B3145;
+}
+.stage-controls button[aria-pressed="true"] { background: #F5B02E; color: #21131F; border-color: #8A5709; }
+h2.variant {
+  font-family: var(--font-display); font-weight: 400; font-size: 1.25rem; letter-spacing: .05em;
+  margin: 42px 0 4px; padding-top: 22px; border-top: 2px solid #33202F;
+}
+.variant-note { color: #C0A7B4; font-size: .85rem; line-height: 1.5; margin: 0 0 18px; max-width: 58rem; }
+.variant-note b { color: #F7EFE1; }
+.frames { display: flex; gap: 26px; flex-wrap: wrap; align-items: flex-start; }
+.frame-label { font-size: .68rem; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; color: #8C7280; margin-bottom: 8px; }
+.device {
+  container-type: inline-size;
+  width: 380px; height: 660px; border-radius: 26px; overflow: hidden;
+  position: relative; background: var(--ground); color: var(--text);
+  box-shadow: 0 10px 0 rgba(0,0,0,.4); border: 1px solid #33202F;
+}
+.device.tablet { width: 720px; }
+
+/* ── Ambient host (copied) ──────────────────────────────── */
+.ambient { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.ambient i { position: absolute; display: block; border-radius: 50%; }
+.ambient i:nth-child(1) {
+  top: -14%; left: -16%; width: 76%; height: 52%;
+  background: radial-gradient(circle, var(--amb-1) 0%, transparent 70%);
+  filter: blur(46px); opacity: var(--amb-o1); animation: amb-a 46s ease-in-out infinite;
+}
+.ambient i:nth-child(2) {
+  bottom: 2%; right: -20%; width: 78%; height: 44%;
+  background: radial-gradient(circle, var(--amb-2) 0%, transparent 70%);
+  filter: blur(52px); opacity: var(--amb-o2); animation: amb-b 62s ease-in-out infinite;
+}
+.ambient i:nth-child(3) {
+  top: 44%; left: 20%; width: 60%; height: 34%; border-radius: 44%;
+  background: radial-gradient(circle, var(--amb-3) 0%, transparent 72%);
+  filter: blur(44px); opacity: var(--amb-o3); animation: amb-c 120s linear infinite;
+}
+.ambient u {
+  position: absolute; inset: 0; display: block;
+  background-image: radial-gradient(var(--grain) .5px, transparent .5px);
+  background-size: 3px 3px; opacity: var(--grain-o);
+}
+@keyframes amb-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(7%,5%,0) scale(1.12); } }
+@keyframes amb-b { 0%,100% { transform: translate3d(0,0,0) scale(1.05); } 50% { transform: translate3d(-6%,-4%,0) scale(.94); } }
+@keyframes amb-c { to { transform: rotate(360deg); } }
+
+/* ── The splash ─────────────────────────────────────────── */
+.splash {
+  position: absolute; inset: 0; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 22px; padding: 32px;
+}
+
+/* THE MARK. The die - plate plus its four corner pips - turns about the centre
+   pip, which is also the dot of the i, so the one element that never moves is
+   the one the eye is already reading. The pip walks the eight player accents on
+   its own clock, deliberately not a multiple of the spin, so the colour a given
+   rotation lands on keeps changing. */
+.pip-mark { display: block; width: 100%; height: auto; }
+.pip-mark .logo-letter { fill: var(--text); }
+.pip-mark .logo-plate  { fill: var(--logo-plate); stroke: var(--logo-stroke); }
+.pip-mark .logo-ghost  { fill: var(--logo-ghost); }
+.pip-mark .logo-pip    { fill: var(--p4); }
+
+.pip-mark .die {
+  transform-box: view-box;
+  transform-origin: 66px 49px;
+  animation: pip-spin var(--spin, 7s) linear infinite;
+}
+.pip-mark .logo-pip { animation: pip-hue var(--hue, 8s) steps(1, end) infinite; }
+
+@keyframes pip-spin { to { transform: rotate(360deg); } }
+@keyframes pip-hue {
+  0%    { fill: var(--p4); }
+  12.5% { fill: var(--p8); }
+  25%   { fill: var(--p6); }
+  37.5% { fill: var(--p3); }
+  50%   { fill: var(--p2); }
+  62.5% { fill: var(--p1); }
+  75%   { fill: var(--p5); }
+  87.5% { fill: var(--p7); }
+}
+
+/* Variant B/D use a crossfade between colours instead of a hard cut. */
+.hue-fade .logo-pip { animation-timing-function: ease-in-out; }
+
+.mark-slot { width: 200px; }
+.mark-slot.lg { width: 250px; }
+
+.splash-word {
+  font-family: var(--font-display); font-weight: 400; font-size: 2.6rem;
+  letter-spacing: .06em; line-height: 1; color: var(--text); margin: 0;
+}
+.splash-caption {
+  font-family: var(--font-ui); font-size: .7rem; font-weight: 900;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin: 0;
+  text-align: center;
+}
+.splash-tip {
+  font-family: var(--font-ui); font-size: .86rem; font-weight: 700;
+  color: var(--muted); margin: 0; text-align: center; max-width: 22rem; line-height: 1.5;
+  animation: tip-fade 9s ease-in-out infinite;
+}
+@keyframes tip-fade { 0%,26% { opacity: 1; } 33%,66% { opacity: .25; } 73%,100% { opacity: 1; } }
+
+/* Determinate-looking bar. The fill is a loop, not real progress - it says
+   "working", and it never sits at 100% pretending to be finished. */
+.splash-bar {
+  width: 190px; height: 10px; border-radius: 999px;
+  background: var(--surface-2); border: 2px solid var(--border); overflow: hidden;
+}
+.splash-bar span {
+  display: block; height: 100%; width: 40%; border-radius: 999px;
+  background: var(--p2); animation: bar-sweep 1.6s var(--ease, cubic-bezier(.2,.7,.3,1)) infinite;
+}
+@keyframes bar-sweep {
+  0%   { transform: translateX(-110%); }
+  100% { transform: translateX(360%); }
+}
+
+/* Three dots that fill in one at a time, in accent order. */
+.splash-dots { display: flex; gap: 10px; }
+.splash-dots i {
+  width: 11px; height: 11px; border-radius: 50%; display: block;
+  background: var(--surface-2); border: 2px solid var(--border);
+  animation: dot-pulse 1.35s ease-in-out infinite;
+}
+.splash-dots i:nth-child(2) { animation-delay: .18s; }
+.splash-dots i:nth-child(3) { animation-delay: .36s; }
+@keyframes dot-pulse {
+  0%, 65%, 100% { background: var(--surface-2); transform: scale(1); }
+  30%           { background: var(--p2); transform: scale(1.25); }
+}
+
+/* Variant D: the glow behind the mark tracks the pip's colour cycle. */
+.mark-halo { position: relative; display: grid; place-items: center; }
+.mark-halo::before {
+  content: ''; position: absolute; width: 280px; height: 280px; border-radius: 50%;
+  filter: blur(46px); opacity: .34; z-index: -1;
+  background: var(--p4);
+  animation: pip-hue var(--hue, 8s) steps(1, end) infinite;
+}
+.mark-halo::before { animation-name: halo-hue; }
+@keyframes halo-hue {
+  0%    { background: var(--p4); }
+  12.5% { background: var(--p8); }
+  25%   { background: var(--p6); }
+  37.5% { background: var(--p3); }
+  50%   { background: var(--p2); }
+  62.5% { background: var(--p1); }
+  75%   { background: var(--p5); }
+  87.5% { background: var(--p7); }
+}
+
+/* Variant C frames the mark in the same card the rest of the app uses. */
+.splash-card {
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  padding: 34px 30px 30px; border-radius: var(--radius);
+  background: var(--surface); border: 2px solid var(--border); box-shadow: var(--shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pip-mark .die, .pip-mark .logo-pip, .mark-halo::before,
+  .splash-bar span, .splash-dots i, .splash-tip { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<h1>Loading splash</h1>
+<p class="stage-lede">The mark is the same drawing in all four: the die - plate plus its four plum corner pips - turns slowly about the <b>centre pip</b>, which stays put because it is also the dot of the i, and cycles through the eight player accents. The spin and the colour clocks are deliberately different lengths (7s and 8s), so the pairing never repeats on a short loop. What varies between variants is what surrounds it.</p>
+
+<div class="stage-controls">
+  <button id="btn-mode" aria-pressed="false">Toggle light mode</button>
+  <button id="btn-slow" aria-pressed="false">Slow the spin 4x</button>
+</div>
+
+<h2 class="variant">A - Wordmark, nothing else</h2>
+<p class="variant-note">The full PiP wordmark on the ambient ground, with one micro-label underneath. <b>Tradeoff:</b> the quietest and the closest to the home screen it hands off to, so the transition is nearly invisible - but with no progress cue at all, a slow connection reads as a frozen screen.</p>
+<div class="frames">
+  <div>
+    <div class="frame-label">380px</div>
+    <div class="device"><div class="splash-host" data-render="a"></div></div>
+  </div>
+  <div>
+    <div class="frame-label">720px</div>
+    <div class="device tablet"><div class="splash-host" data-render="a"></div></div>
+  </div>
+</div>
+
+<h2 class="variant">B - Mark alone, big, name set below</h2>
+<p class="variant-note">Letters stripped out of the SVG so the die is the whole image at 250px, with PIP set underneath in the display face and three pulsing dots for life. <b>Tradeoff:</b> the die reads as a die at this size, which the 168px wordmark never quite does - but dropping the letters from the mark means the splash and the home header are two different lockups.</p>
+<div class="frames">
+  <div>
+    <div class="frame-label">380px</div>
+    <div class="device"><div class="splash-host" data-render="b"></div></div>
+  </div>
+  <div>
+    <div class="frame-label">720px</div>
+    <div class="device tablet"><div class="splash-host" data-render="b"></div></div>
+  </div>
+</div>
+
+<h2 class="variant">C - Carded, with a sweep bar</h2>
+<p class="variant-note">The mark sits in the same surface card the modals and the board use, over a looping sweep bar. <b>Tradeoff:</b> the most explicitly "loading" of the four and the most reassuring on a slow connection, but the card is a box the app then throws away, so the hand-off to the home screen is a visible cut rather than a fade.</p>
+<div class="frames">
+  <div>
+    <div class="frame-label">380px</div>
+    <div class="device"><div class="splash-host" data-render="c"></div></div>
+  </div>
+  <div>
+    <div class="frame-label">380px - light</div>
+    <div class="device" data-force-light><div class="splash-host" data-render="c"></div></div>
+  </div>
+</div>
+
+<h2 class="variant">D - Halo, with rotating tips</h2>
+<p class="variant-note">A blurred glow behind the mark tracks the pip's colour, so the whole screen changes hue on the same clock, with a game tip fading in and out below. <b>Tradeoff:</b> the most characterful and it makes a long load feel intentional - but the halo is a lot of colour for a screen that should be gone in under a second, and the tips need writing and maintaining.</p>
+<div class="frames">
+  <div>
+    <div class="frame-label">380px</div>
+    <div class="device"><div class="splash-host" data-render="d"></div></div>
+  </div>
+  <div>
+    <div class="frame-label">720px</div>
+    <div class="device tablet"><div class="splash-host" data-render="d"></div></div>
+  </div>
+</div>
+
+<script>
+// The mark, straight from index.html, with the die (plate + four corner pips)
+// pulled into one <g> so it can be turned as a unit about the centre pip.
+const LETTERS = `
+  <path class="logo-letter" d="M19.644 100.168C14.548 100.168 12 99.608 12 98.488V44.056C12 42.152 12.868 41.2 14.604 41.2H29.388C37.676 41.2 43.64 42.908 47.28 46.324C50.976 49.74 52.824 54.696 52.824 61.192C52.824 66.568 51.088 71.496 47.616 75.976C45.88 78.216 43.332 80.008 39.972 81.352C36.612 82.696 32.692 83.368 28.212 83.368V98.404C28.212 99.076 27.148 99.552 25.02 99.832C22.948 100.056 21.156 100.168 19.644 100.168ZM28.212 55.816V69.088H29.304C31.264 69.088 32.916 68.472 34.26 67.24C35.604 66.008 36.276 64.272 36.276 62.032C36.276 59.792 35.8 58.196 34.848 57.244C33.952 56.292 32.328 55.816 29.976 55.816H28.212Z"/>
+  <path class="logo-letter" d="M90.644 100.168C85.548 100.168 83 99.608 83 98.488V44.056C83 42.152 83.868 41.2 85.604 41.2H100.388C108.676 41.2 114.64 42.908 118.28 46.324C121.976 49.74 123.824 54.696 123.824 61.192C123.824 66.568 122.088 71.496 118.616 75.976C116.88 78.216 114.332 80.008 110.972 81.352C107.612 82.696 103.692 83.368 99.212 83.368V98.404C99.212 99.076 98.148 99.552 96.02 99.832C93.948 100.056 92.156 100.168 90.644 100.168ZM99.212 55.816V69.088H100.304C102.264 69.088 103.916 68.472 105.26 67.24C106.604 66.008 107.276 64.272 107.276 62.032C107.276 59.792 106.8 58.196 105.848 57.244C104.952 56.292 103.328 55.816 100.976 55.816H99.212Z"/>
+  <path class="logo-letter" d="M74.152 99.496C74.152 99.944 71.576 100.168 66.424 100.168C61.328 100.168 58.78 99.972 58.78 99.58V62.336C58.78 61.944 61.328 61.748 66.424 61.748C71.576 61.748 74.152 61.916 74.152 62.252V99.496Z"/>`;
+
+const DIE = `
+  <g class="die">
+    <rect class="logo-plate" x="21.1" y="18.8" width="77" height="77" rx="16.5" transform="rotate(-11 21.1 18.8)" stroke-width="7"/>
+    <circle class="logo-ghost" cx="41" cy="32.5" r="8"/>
+    <circle class="logo-ghost" cx="49" cy="74.5" r="8"/>
+    <circle class="logo-ghost" cx="83" cy="25" r="8"/>
+    <circle class="logo-ghost" cx="91" cy="66" r="8"/>
+  </g>`;
+
+const PIP = `<circle class="logo-pip" cx="66" cy="49" r="8"/>`;
+
+// Letters live below the die in paint order, exactly as in the shipped mark.
+// Square viewBox centred on the pivot (66, 49), wide enough for the plate's
+// swept circle (radius ~59 including the stroke), so no corner clips at any angle.
+const markFull = `<svg class="pip-mark" viewBox="5 -12 122 122" role="img" aria-label="PiP"><title>Loading</title>${DIE}${LETTERS}${PIP}</svg>`;
+// Die only: the same swept circle, tight to it, so the mark fills its slot.
+const markDie  = `<svg class="pip-mark" viewBox="7 -10 118 118" role="img" aria-label="PiP"><title>Loading</title>${DIE}${PIP}</svg>`;
+
+const ambient = `<div class="ambient" aria-hidden="true"><i></i><i></i><i></i><u></u></div>`;
+
+const RENDER = {
+  a: () => ambient + `
+    <div class="splash">
+      <div class="mark-slot">${markFull}</div>
+      <p class="splash-caption">Whose turn is it anyway?</p>
+    </div>`,
+
+  b: () => ambient + `
+    <div class="splash">
+      <div class="mark-slot lg">${markDie}</div>
+      <p class="splash-word">PIP</p>
+      <div class="splash-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>`,
+
+  c: () => ambient + `
+    <div class="splash">
+      <div class="splash-card">
+        <div class="mark-slot">${markFull}</div>
+        <div class="splash-bar" aria-hidden="true"><span></span></div>
+      </div>
+      <p class="splash-caption">Setting up the table</p>
+    </div>`,
+
+  d: () => ambient + `
+    <div class="splash">
+      <div class="mark-halo"><div class="mark-slot lg">${markDie}</div></div>
+      <p class="splash-word">PIP</p>
+      <p class="splash-tip">Tap a player's name to rename them, recolour them, or hand them the turn.</p>
+    </div>`,
+};
+
+document.querySelectorAll('[data-render]').forEach(el => {
+  const fn = RENDER[el.dataset.render];
+  if (fn) el.innerHTML = fn();
+});
+document.querySelectorAll('[data-force-light]').forEach(el => {
+  el.style.colorScheme = 'light';
+  el.classList.add('force-light');
+});
+
+// The light-mode frame in variant C needs the light token block without flipping
+// the whole page, so it gets its own copy scoped to that node.
+const lightBlock = document.createElement('style');
+lightBlock.textContent = `
+  .force-light {
+    --ground: #F7EFE1; --surface: #FFFAF1; --surface-2: #F0E3D2; --border: #E2D0BC;
+    --text: #21131F; --muted: #6E5460;
+    --amb-1: #0F6F58; --amb-2: #A82F6A; --amb-3: #8A5709;
+    --amb-o1: .07; --amb-o2: .06; --amb-o3: .05;
+    --grain: rgba(33,19,31,.5); --grain-o: .03;
+    --logo-plate: transparent; --logo-ghost: rgba(33,19,31,.2); --logo-stroke: rgba(33,19,31,.28);
+    --shadow: 0 5px 0 rgba(33,19,31,.22);
+  }`;
+document.head.appendChild(lightBlock);
+
+const btnMode = document.getElementById('btn-mode');
+btnMode.addEventListener('click', () => {
+  const light = document.documentElement.dataset.mode === 'light';
+  document.documentElement.dataset.mode = light ? 'dark' : 'light';
+  btnMode.setAttribute('aria-pressed', String(!light));
+  btnMode.textContent = light ? 'Toggle light mode' : 'Toggle dark mode';
+});
+
+const btnSlow = document.getElementById('btn-slow');
+btnSlow.addEventListener('click', () => {
+  const slow = btnSlow.getAttribute('aria-pressed') === 'true';
+  document.documentElement.style.setProperty('--spin', slow ? '7s' : '28s');
+  document.documentElement.style.setProperty('--hue', slow ? '8s' : '32s');
+  btnSlow.setAttribute('aria-pressed', String(!slow));
+  btnSlow.textContent = slow ? 'Slow the spin 4x' : 'Back to normal speed';
+});
+</script>
+</body>
+</html>

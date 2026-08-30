@@ -27,6 +27,12 @@ interface Player {
   // present: a refresh, a tab throttle or a brief network drop must not strike
   // their name out or skip their turn. Null whenever the socket is live.
   graceUntil: number | null;
+  // Cosmetic only. Whether this player's device currently has the app on
+  // screen, reported by the client on visibilitychange. NOTHING may branch on
+  // this: turn order, round advance, the struck-out name and the abandoned-room
+  // timer all read `connected`, which the grace window governs. A locked phone
+  // is away but still very much in the game.
+  present: boolean;
 }
 
 interface RoomData {
@@ -100,6 +106,13 @@ interface RenameSelfMessage {
 // Keeps an idle socket from being dropped by an intermediary. No state change.
 interface PingMessage {
   type: "ping";
+}
+
+// Cosmetic: whether this device currently has the app on screen. Never touches
+// `connected` or the grace window.
+interface PresenceMessage {
+  type: "presence";
+  visible: boolean;
 }
 
 // Host-only: same room, same roster, blank scoreboard.
@@ -189,6 +202,7 @@ type ClientMessage =
   | LeaveSelfMessage
   | RenameSelfMessage
   | PingMessage
+  | PresenceMessage
   | ResetGameMessage
   | UpdateRulesMessage;
 
@@ -253,6 +267,20 @@ export class Room extends DurableObject<Env> {
         this.room.roundStarts = this.room.roundStarts ?? [];
         while (this.room.roundStarts.length < this.room.rounds.length) {
           this.room.roundStarts.push(this.room.players[0]?.id ?? "");
+        }
+        // Presence describes right now, so a persisted value is always stale by
+        // the time it is read back. Rebuild it from the sockets that survived
+        // hibernation; anyone without one reports away until their client says
+        // otherwise, which it does on connect.
+        const liveIds = new Set(
+          this.ctx.getWebSockets()
+            .map((ws) => this.getAttachment(ws)?.playerId)
+            .filter((id): id is string => typeof id === "string"),
+        );
+        for (const player of this.room.players) {
+          player.present =
+            liveIds.has(player.id) ||
+            (player.groupLeaderId !== null && liveIds.has(player.groupLeaderId));
         }
         for (const [index, player] of this.room.players.entries()) {
           player.scorerId = player.scorerId ?? null;
@@ -402,7 +430,10 @@ export class Room extends DurableObject<Env> {
         break;
 
       case "celebrate":
-        this.broadcast({ type: "celebrate" });
+        // The tapping client celebrates immediately for zero-latency feedback.
+        // Only relay the burst to the other devices or the sender would receive
+        // its own message and create two confetti bursts for one tap.
+        this.broadcast({ type: "celebrate" }, ws);
         break;
 
       case "host-submit-scores":
@@ -432,6 +463,10 @@ export class Room extends DurableObject<Env> {
 
       case "reset-game":
         await this.handleResetGame(attachment);
+        break;
+
+      case "presence":
+        await this.handlePresence(attachment, parsed.visible);
         break;
 
       case "ping":
@@ -483,8 +518,17 @@ export class Room extends DurableObject<Env> {
       member.graceUntil = player.graceUntil;
     }
 
+    // A closed socket is the one presence signal that needs no client message,
+    // and it is immediate: the tab is gone. The grace window is untouched -
+    // they are away, not disconnected, for the next five minutes.
+    const seats = [player, ...this.groupMembers(player.id)];
+    for (const seat of seats) {
+      seat.present = false;
+    }
+
     await this.persist();
     await this.refreshAlarm();
+    this.broadcastPresence(seats);
   }
 
   async webSocketError(
@@ -605,6 +649,7 @@ export class Room extends DurableObject<Env> {
         existingPlayer.connSeq += 1;
         existingPlayer.reconnectUntil = null;
         existingPlayer.graceUntil = null;
+        existingPlayer.present = true;
 
         // Group members have no socket of their own - their presence in the
         // room follows the device that entered them.
@@ -613,6 +658,7 @@ export class Room extends DurableObject<Env> {
           member.connSeq = existingPlayer.connSeq;
           member.reconnectUntil = null;
           member.graceUntil = null;
+          member.present = true;
         }
 
         ws.serializeAttachment({
@@ -765,6 +811,7 @@ export class Room extends DurableObject<Env> {
       deviceId: typeof message.deviceId === "string" ? message.deviceId : null,
       reconnectUntil: null,
       graceUntil: null,
+      present: true,
     };
 
     if (player.isHost) {
@@ -789,6 +836,8 @@ export class Room extends DurableObject<Env> {
         deviceId: null,
         reconnectUntil: null,
         graceUntil: null,
+        // Seats entered on someone else's device share that device's screen.
+        present: true,
       });
     }
 
@@ -906,8 +955,13 @@ export class Room extends DurableObject<Env> {
     await this.advanceRoundIfComplete();
   }
 
-  // A player may write their own column, or the column of anyone who has
-  // nominated them as scorer. Nominations only exist in 'each' scoring mode.
+  // A player may write their own column, the column of any seat their device
+  // brought into the room (a group), or the column of anyone who has nominated
+  // them as scorer. Nominations only exist in 'each' scoring mode; groups exist
+  // in both, which is why the group arm sits above the mode check. Leaving the
+  // group case out silently dropped every entry a multi-seat device sent for
+  // its extra seats, and the turn then bounced straight back to the seat whose
+  // score had just been discarded.
   private canScoreFor(actorId: string, targetIndex: number): boolean {
     const target = this.room?.players[targetIndex];
 
@@ -916,6 +970,10 @@ export class Room extends DurableObject<Env> {
     }
 
     if (target.id === actorId) {
+      return true;
+    }
+
+    if (target.groupLeaderId === actorId) {
       return true;
     }
 
@@ -1003,6 +1061,50 @@ export class Room extends DurableObject<Env> {
         (player) => player.groupLeaderId === playerId,
       ) ?? []
     );
+  }
+
+  // Cosmetic presence. The client reports it on visibilitychange, so it says
+  // "this device has the app on screen", which is a different question from
+  // "is this player still in the game" - that one is `connected`, and only the
+  // grace window may answer it.
+  private async handlePresence(
+    attachment: SocketAttachment,
+    visible: unknown,
+  ): Promise<void> {
+    if (!this.room || typeof visible !== "boolean") {
+      return;
+    }
+
+    const player = this.room.players.find(
+      (candidate) => candidate.id === attachment.playerId,
+    );
+
+    if (!player) {
+      return;
+    }
+
+    // Every seat this device entered shares its screen, so they move together.
+    const seats = [player, ...this.groupMembers(player.id)];
+
+    if (seats.every((seat) => seat.present === visible)) {
+      return; // nothing changed - do not wake the whole room to say so
+    }
+
+    for (const seat of seats) {
+      seat.present = visible;
+    }
+
+    await this.persist();
+    this.broadcastPresence(seats);
+  }
+
+  // A slim message rather than a roster-update: presence changes every time a
+  // phone locks, and a full roster on each one is a lot of traffic for a dot.
+  private broadcastPresence(seats: Player[]): void {
+    this.broadcast({
+      type: "presence-update",
+      presence: seats.map((seat) => ({ id: seat.id, present: seat.present })),
+    });
   }
 
   private pruneExpiredReconnectReservations(): boolean {
@@ -1785,10 +1887,11 @@ export class Room extends DurableObject<Env> {
     });
   }
 
-  private broadcast(payload: unknown): void {
+  private broadcast(payload: unknown, excluded?: WebSocket): void {
     const serialized = JSON.stringify(payload);
 
     for (const ws of this.ctx.getWebSockets()) {
+      if (ws === excluded) continue;
       try {
         ws.send(serialized);
       } catch {
@@ -1941,6 +2044,9 @@ export class Room extends DurableObject<Env> {
       case "ping":
       case "reset-game":
         return true;
+
+      case "presence":
+        return "visible" in value && typeof value.visible === "boolean";
 
       case "rename-self":
         return (
