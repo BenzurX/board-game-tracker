@@ -490,8 +490,10 @@ html, body {
   font-size: 0.85rem;
   font-weight: 800;
   cursor: pointer;
+  flex-shrink: 0;
   width: var(--tap);
   height: var(--tap);
+  min-width: var(--tap);
   padding: 0;
   white-space: nowrap;
 }
@@ -502,10 +504,11 @@ html, body {
 
 @media (min-width: 640px) {
   .btn-back {
-    border-radius: var(--radius-sm);
+    border-radius: var(--r-action);
     width: auto;
-    height: auto;
-    padding: 6px 12px;
+    height: var(--tap);
+    min-width: 0;
+    padding: 6px 14px;
   }
   .btn-back-label { display: inline; }
   .player-name-short { display: none; }
@@ -997,9 +1000,7 @@ html, body {
 /* The tint marks the column; its outline is drawn by .turn-column-frame, which
    can round its corners where an inset shadow never could. The sticky header
    and footer keep their own drop shadow so rows still pass under them. */
-#score-table .current-turn {
-  background: color-mix(in srgb, var(--accent) 42%, var(--bg)) !important;
-}
+#score-table .current-turn { background: transparent; }
 #score-table thead .current-turn { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25); }
 #score-table tfoot .current-turn { box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.25); }
 
@@ -1007,9 +1008,13 @@ html, body {
   position: absolute;
   z-index: 3;
   pointer-events: none;
-  border: var(--accent-border) solid var(--p2);
+  border: var(--accent-border) solid var(--turn-color, var(--p2));
   border-radius: 12px;
-  transition: left 220ms var(--ease), width 220ms var(--ease), border-color 220ms var(--ease);
+  /* Translucent so the scores underneath stay readable through it. The fill and
+     the border are the same custom property, so they cannot drift apart. */
+  background: color-mix(in srgb, var(--turn-color, var(--p2)) 26%, transparent);
+  transition: left 220ms var(--ease), width 220ms var(--ease),
+              border-color 220ms var(--ease), background 220ms var(--ease);
 }
 .turn-column-frame.hidden { display: none; }
 

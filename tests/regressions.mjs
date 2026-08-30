@@ -72,6 +72,12 @@ assert.match(index, /New version \(v\$\{version\}\) available/,
   'the update toast must show the available app version');
 assert.match(index, /id="winner-column-frame"/,
   'the score table must provide one shared winner-column frame');
+assert.match(app, /fireConfetti\(\);[\s\S]{0,40}?window\.sfx\.play\('victory'\);/,
+  'the victory fanfare must sit inside the celebrated gate - checkWin reruns on every render once a game is decided');
+assert.match(style, /\.turn-column-frame[\s\S]*?background: color-mix\(in srgb, var\(--turn-color/,
+  'the turn highlight fill must be the rounded frame, not a square background on the cells');
+assert.match(style, /\.btn-back \{[\s\S]*?flex-shrink: 0;/,
+  'the back button must not shrink when the header runs out of width');
 assert.match(app, /showWinnerColumnFrame\(winIdx\)/,
   'game over must move the shared frame to the winning column');
 assert.match(app, /querySelectorAll\('#score-table \.current-turn'\)/,

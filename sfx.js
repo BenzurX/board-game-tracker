@@ -116,6 +116,24 @@
         this.tone({ freq: 420 * p, freqEnd: 640 * p, dur: 0.055, type: 'sine', gain: 0.42, attack: 0.004 });
         this.noise({ dur: 0.018, gain: 0.05, cutoff: 4200 * p });
         break;
+      // Arcade Jackpot, picked from the eight candidates in
+      // stage/victory-fanfare.html. A fast square-wave run up the scale into a
+      // fat detuned stab, with coin-bright ticks scattered over the top. Under
+      // a second and a half, so it clears before the confetti settles.
+      case 'victory':
+        [523, 587, 659, 784, 880, 1047].forEach(function (f, i) {
+          this.tone({ freq: f * p, dur: 0.09, type: 'square', gain: 0.28, delay: i * 0.055 });
+        }, this);
+        [1047, 1319, 1568].forEach(function (f) {
+          // The detuned twin is what makes the stab read as fat rather than
+          // thin - the two beat against each other.
+          this.tone({ freq: f * p, dur: 0.6, type: 'square', gain: 0.24, delay: 0.36, attack: 0.008 });
+          this.tone({ freq: f * p + 4, dur: 0.6, type: 'square', gain: 0.2, delay: 0.36, attack: 0.008 });
+        }, this);
+        [0.42, 0.52, 0.63, 0.75].forEach(function (d, i) {
+          this.tone({ freq: (2093 + i * 260) * p, dur: 0.08, type: 'sine', gain: 0.16, delay: d });
+        }, this);
+        break;
       default:
         break;
     }

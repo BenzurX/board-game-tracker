@@ -1527,12 +1527,16 @@ function checkWin() {
     mpSend({ type: 'declare-game-over' });
   }
 
+  // Gated on `celebrated`, not on gameOver: checkWin runs again on every render
+  // once a game is decided, and the fanfare must fire once per win rather than
+  // once per repaint.
   if (!state.celebrated) {
     state.celebrated = true;
     banner.classList.remove('celebrate');
     void banner.offsetWidth;        // restart the pop animation
     banner.classList.add('celebrate');
     fireConfetti();
+    if (window.sfx) window.sfx.play('victory');
   }
   saveGame(); // callers render before checkWin runs, so persist the gameOver flag here
 }
@@ -1889,9 +1893,11 @@ function showTurnColumnFrame(playerIndex) {
   frame.style.top = '0px';
   frame.style.width = `${headerCell.offsetWidth}px`;
   frame.style.height = `${table.offsetHeight}px`;
-  frame.style.borderColor = state.players[playerIndex]
+  // One custom property drives both the outline and the translucent fill, so
+  // the tint can never end up a different colour from the border.
+  frame.style.setProperty('--turn-color', state.players[playerIndex]
     ? state.players[playerIndex].color
-    : 'var(--p2)';
+    : 'var(--p2)');
   frame.classList.remove('hidden');
 }
 
@@ -3013,7 +3019,7 @@ function mpRenderRoomBar() {
   scorerBtn.classList.toggle('hidden', !showScorer);
   if (showScorer) {
     const scorer = mpMyScorer();
-    scorerBtn.textContent = `✍ ${scorer ? scorer.name : 'You'}`;
+    scorerBtn.textContent = 'Scoring';
     scorerBtn.title = scorer
       ? `${scorer.name} enters your scores - tap to change`
       : 'You enter your own scores - tap to change';
