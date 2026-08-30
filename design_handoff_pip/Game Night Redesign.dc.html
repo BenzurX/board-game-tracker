@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#160c14;font-family:Nunito,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:#F5B02E;text-decoration:none;border-bottom:2px solid rgba(245,176,46,.35)}
+  a:hover{color:#F7EFE1;border-bottom-color:#F7EFE1}
+  @keyframes amb-a{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(7%,5%,0) scale(1.12)}100%{transform:translate3d(0,0,0) scale(1)}}
+  @keyframes amb-b{0%{transform:translate3d(0,0,0) scale(1.05)}50%{transform:translate3d(-6%,-4%,0) scale(.94)}100%{transform:translate3d(0,0,0) scale(1.05)}}
+  @keyframes amb-c{0%{transform:translate3d(0,0,0) rotate(0deg)}100%{transform:translate3d(0,0,0) rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){
+    [data-amb]{animation:none !important}
+  }
+</style>
+</helmet>
+
+<section style="min-width:2680px;padding:56px 64px 44px;background:radial-gradient(1100px 620px at 78% -12%, #2A1826 0%, #160c14 60%);color:#F7EFE1;font-family:Nunito,sans-serif">
+  <div style="display:flex;flex-direction:column;gap:38px">
+
+    <div style="display:flex;align-items:flex-start;gap:20px">
+      <span style="font-family:Lilita One,cursive;font-size:15px;letter-spacing:.12em;background:#4FC3E8;color:#21131F;border:3px solid #14607F;padding:6px 13px 4px;border-radius:999px;box-shadow:0 4px 0 rgba(0,0,0,.5);white-space:nowrap">TURN 4</span>
+      <div style="max-width:840px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-family:Lilita One,cursive;font-size:52px;line-height:.95">YOUR DRAWING, FIVE WAYS</div>
+        <div style="font-size:15.5px;line-height:1.55;color:#C0A7B4;text-wrap:pretty">The idea in your version that the earlier rounds missed: the jade dot is not just the dot on the <i>i</i> — it is the <b style="color:#F7EFE1">centre pip of a five-face die</b>, and the four ghost pips around it are the rest of that face. Every version below keeps that registration exactly (plate centred on the dot, corner pips on the diagonals) and changes one thing at a time.</div>
+      </div>
+      <div style="flex:1"></div>
+      <div style="max-width:560px;font-size:14px;line-height:1.6;color:#C0A7B4;border-left:3px solid #4B3145;padding-left:18px;text-wrap:pretty">
+        <b style="color:#F7EFE1">Where I'd land.</b> <a href="#4a">4a</a> is your drawing with the geometry snapped — plate square to the pip, corner pips on the true diagonals, word tracking closed up. <a href="#4b">4b</a> is the one that survives on cream paper and photos. <a href="#4c">4c</a> is the only one I'd ship as the 16px favicon. <a href="#4d">4d</a> and <a href="#4e">4e</a> are the loud ends — one for a splash screen, one for the fact that the pip can carry a player's colour.
+      </div>
+    </div>
+
+    <div style="display:flex;gap:20px;flex-wrap:wrap">
+
+      <div id="4a" style="width:430px;background:#2C1A29;border:2px solid #4FC3E8;border-radius:22px;padding:22px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-family:Lilita One,cursive;font-size:17px;background:#4FC3E8;color:#21131F;border:3px solid #14607F;border-radius:999px;padding:3px 11px 1px">4a</span>
+          <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">YOURS · GEOMETRY SNAPPED</span>
+        </div>
+        <div style="background:#21131F;border-radius:16px;height:200px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+          <div style="position:relative;isolation:isolate;font-family:Nunito,sans-serif;font-weight:900;font-size:104px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;color:#F5EEE3">
+            <span style="position:relative;z-index:1">P</span>
+            <span style="position:relative;z-index:0;width:.205em;height:.44em;margin:0 .13em;">
+              <span style="position:absolute;left:50%;top:-.19em;width:1.45em;height:1.45em;margin:-.725em 0 0 -.725em;border-radius:.38em;background:#2A1826;border:.04em solid #3D2739;transform:rotate(-8deg)">
+                <span style="position:absolute;left:24%;top:24%;width:12%;height:12%;margin:-6% 0 0 -6%;border-radius:50%;background:#3D2739"></span>
+                <span style="position:absolute;left:76%;top:24%;width:12%;height:12%;margin:-6% 0 0 -6%;border-radius:50%;background:#3D2739"></span>
+                <span style="position:absolute;left:24%;top:76%;width:12%;height:12%;margin:-6% 0 0 -6%;border-radius:50%;background:#3D2739"></span>
+                <span style="position:absolute;left:76%;top:76%;width:12%;height:12%;margin:-6% 0 0 -6%;border-radius:50%;background:#3D2739"></span>
+              </span>
+              <span style="position:absolute;left:50%;top:-.19em;width:.32em;height:.32em;margin:-.16em 0 0 -.16em;border-radius:50%;background:#3FBE9A"></span>
+            <span style="position:absolute;inset:0;border-radius:.03em;background:#F5EEE3"></span></span>
+            <span style="position:relative;z-index:1">P</span>
+          </div>
+        </div>
+        <div style="font-size:13px;line-height:1.5;color:#C0A7B4;margin-top:12px">Three fixes to your file: the plate is now <i>exactly</i> centred on the pip (yours sits ~6% low and left), the four ghost pips are on the true diagonals at 24/76%, and the word tracking closes to −.02em so the plate can shrink to 2.5× the pip without the P's punching out of it.</div>
+      </div>
+
+      <div id="4b" style="width:430px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-family:Lilita One,cursive;font-size:17px;background:#3A2436;color:#F7EFE1;border:3px solid #4B3145;border-radius:999px;padding:3px 11px 1px">4b</span>
+          <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">KEYLINE · GROUND-AGNOSTIC</span>
+        </div>
+        <div style="display:flex;gap:0;border-radius:16px;overflow:hidden;height:200px">
+          <div style="flex:1;background:#21131F;display:flex;align-items:center;justify-content:center">
+            <div style="position:relative;isolation:isolate;font-family:Nunito,sans-serif;font-weight:900;font-size:70px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;color:#F5EEE3">
+              <span style="position:relative;z-index:1">P</span>
+              <span style="position:relative;z-index:0;width:.205em;height:.44em;margin:0 .13em;">
+                <span style="position:absolute;left:50%;top:-.19em;width:1.6em;height:1.6em;margin:-.8em 0 0 -.8em;border-radius:.42em;border:.032em solid rgba(245,238,227,.4);transform:rotate(-8deg)">
+                  <span style="position:absolute;left:24%;top:24%;width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:50%;background:rgba(245,238,227,.28)"></span>
+                  <span style="position:absolute;left:76%;top:24%;width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:50%;background:rgba(245,238,227,.28)"></span>
+                  <span style="position:absolute;left:24%;top:76%;width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:50%;background:rgba(245,238,227,.28)"></span>
+                  <span style="position:absolute;left:76%;top:76%;width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:50%;background:rgba(245,238,227,.28)"></span>
+                </span>
+                <span style="position:absolute;left:50%;top:-.19em;width:.32em;height:.32em;margin:-.16em 0 0 -.16em;border-radius:50%;background:#3FBE9A"></span>
+              <span style="position:absolute;inset:0;border-radius:.03em;background:#F5EEE3"></span></span>
+              <span style="position:relative;z-index:1">P</span>
+            </div>
+          </div>
+          <div style="flex:1;background:#FFFAF1;display:flex;align-items:center;justify-content:center">
+            <div style="position:relative;isolation:isolate;font-family:Nunito,sans-serif;font-weight:900;font-size:70px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;color:#21131F">
+              <span style="position:relative;z-index:1">P</span>
+              <span style="position:relative;z-index:0;width:.205em;height:.44em;margin:0 .13em;">
+                <span style="position:absolute;left:50%;top:-.19em;width:1.6em;height:1.6em;margin:-.8em 0 0 -.8em;border-radius:.42em;border:.032em solid rgba(33,19,31,.28);transform:rotate(-8deg)">
+                  <span style="position:absolute;left:24%;top:24%;width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:50%;background:rgba(33,19,31,.2)"></span>
+                  <span style="position:absolute;left:76%;top:24%;width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:50%;background:rgba(33,19,31,.2)"></span>
+                  <span style="position:absolute;left:24%;top:76%;width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:50%;background:rgba(33,19,31,.2)"></span>
+                  <span style="position:absolute;left:76%;top:76%;width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:50%;background:rgba(33,19,31,.2)"></span>
+                </span>
+                <span style="position:absolute;left:50%;top:-.19em;width:.32em;height:.32em;margin:-.16em 0 0 -.16em;border-radius:50%;background:#0F6F58"></span>
+              <span style="position:absolute;inset:0;border-radius:.03em;background:#21131F"></span></span>
+              <span style="position:relative;z-index:1">P</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:13px;line-height:1.5;color:#C0A7B4;margin-top:12px">The plate stops being a filled shape and becomes a keyline at 40% of the word colour — so it is a tint of whatever it sits on, not a colour of its own. One drawing, both grounds, no light-mode variant to maintain. The pip flips to the deep jade on paper to hold contrast.</div>
+      </div>
+
+      <div id="4c" style="width:430px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-family:Lilita One,cursive;font-size:17px;background:#3A2436;color:#F7EFE1;border:3px solid #4B3145;border-radius:999px;padding:3px 11px 1px">4c</span>
+          <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">TIGHT PLATE · ICON-READY</span>
+        </div>
+        <div style="background:#21131F;border-radius:16px;height:200px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+          <div style="position:relative;isolation:isolate;font-family:Nunito,sans-serif;font-weight:900;font-size:104px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;color:#F5EEE3">
+            <span style="position:relative;z-index:1">P</span>
+            <span style="position:relative;z-index:0;width:.205em;height:.44em;margin:0 .13em;">
+              <span style="position:absolute;left:50%;top:-.19em;width:.62em;height:.62em;margin:-.31em 0 0 -.31em;border-radius:.19em;background:#F5EEE3;transform:rotate(-8deg)"></span>
+              <span style="position:absolute;left:50%;top:-.19em;width:.32em;height:.32em;margin:-.16em 0 0 -.16em;border-radius:50%;background:#3FBE9A"></span>
+            <span style="position:absolute;inset:0;border-radius:.03em;background:#F5EEE3"></span></span>
+            <span style="position:relative;z-index:1">P</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:18px;margin-top:14px;background:#3A2436;border-radius:14px;padding:14px">
+          <div style="width:64px;height:64px;border-radius:16px;background:#21131F;display:flex;align-items:center;justify-content:center;flex:none">
+            <div style="position:relative;width:34px;height:34px;border-radius:10px;background:#F5EEE3;transform:rotate(-8deg)"><span style="position:absolute;left:50%;top:50%;width:17px;height:17px;margin:-8.5px 0 0 -8.5px;border-radius:50%;background:#3FBE9A"></span></div>
+          </div>
+          <div style="width:32px;height:32px;border-radius:9px;background:#21131F;display:flex;align-items:center;justify-content:center;flex:none">
+            <div style="position:relative;width:19px;height:19px;border-radius:6px;background:#F5EEE3;transform:rotate(-8deg)"><span style="position:absolute;left:50%;top:50%;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:#3FBE9A"></span></div>
+          </div>
+          <div style="width:16px;height:16px;border-radius:5px;background:#21131F;display:flex;align-items:center;justify-content:center;flex:none">
+            <div style="position:relative;width:11px;height:11px;border-radius:3px;background:#F5EEE3"><span style="position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:#3FBE9A"></span></div>
+          </div>
+          <div style="font-size:12px;line-height:1.45;color:#C0A7B4">64 / 32 / 16 — nothing removed but the rotation, which goes at 16.</div>
+        </div>
+        <div style="font-size:13px;line-height:1.5;color:#C0A7B4;margin-top:12px">The plate collapses to a cream tile 2× the pip and the four ghost pips go away — at app-icon sizes they were the first thing to muddy. What is left is a one-pip die, which is still a die, and it is the only version legible at 16px.</div>
+      </div>
+
+      <div id="4d" style="width:430px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-family:Lilita One,cursive;font-size:17px;background:#3A2436;color:#F7EFE1;border:3px solid #4B3145;border-radius:999px;padding:3px 11px 1px">4d</span>
+          <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">SOLID FACE · WORD IN FRONT</span>
+        </div>
+        <div style="background:#21131F;border-radius:16px;height:200px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+          <div style="position:relative;isolation:isolate;font-family:Nunito,sans-serif;font-weight:900;font-size:96px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;color:#F5EEE3">
+            <span style="position:relative;z-index:1">P</span>
+            <span style="position:relative;z-index:0;width:.205em;height:.44em;margin:0 .13em;">
+              <span style="position:absolute;left:50%;top:-.19em;width:1.45em;height:1.45em;margin:-.725em 0 0 -.725em;border-radius:.38em;background:#3FBE9A;border:.04em solid #0F6F58;transform:rotate(-8deg)">
+                <span style="position:absolute;left:24%;top:24%;width:12%;height:12%;margin:-6% 0 0 -6%;border-radius:50%;background:#21131F"></span>
+                <span style="position:absolute;left:76%;top:24%;width:12%;height:12%;margin:-6% 0 0 -6%;border-radius:50%;background:#21131F"></span>
+                <span style="position:absolute;left:24%;top:76%;width:12%;height:12%;margin:-6% 0 0 -6%;border-radius:50%;background:#21131F"></span>
+                <span style="position:absolute;left:76%;top:76%;width:12%;height:12%;margin:-6% 0 0 -6%;border-radius:50%;background:#21131F"></span>
+              </span>
+              <span style="position:absolute;left:50%;top:-.19em;width:.34em;height:.34em;margin:-.17em 0 0 -.17em;border-radius:50%;background:#21131F;box-shadow:0 0 0 .05em #3FBE9A"></span>
+            <span style="position:absolute;inset:0;border-radius:.03em;background:#F5EEE3"></span></span>
+            <span style="position:relative;z-index:1">P</span>
+          </div>
+        </div>
+        <div style="font-size:13px;line-height:1.5;color:#C0A7B4;margin-top:12px">Jade face, ink pips, cream word overhanging both edges — the same inversion as the app's primary button, so the splash screen and the CTA are visibly the same object. Loudest of the five, and the one that needs its own clear space: the plate corners are the bounding box, not the letters.</div>
+      </div>
+
+      <div id="4e" style="width:430px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <span style="font-family:Lilita One,cursive;font-size:17px;background:#3A2436;color:#F7EFE1;border:3px solid #4B3145;border-radius:999px;padding:3px 11px 1px">4e</span>
+          <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">THE PIP TAKES YOUR COLOUR</span>
+        </div>
+        <div style="background:#21131F;border-radius:16px;height:200px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;place-items:center;gap:4px;padding:10px">
+          <div style="position:relative;isolation:isolate;font-family:Nunito,sans-serif;font-weight:900;font-size:52px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;color:#F5EEE3">
+            <span style="position:relative;z-index:1">P</span>
+            <span style="position:relative;z-index:0;width:.205em;height:.44em;margin:0 .13em;">
+              <span style="position:absolute;left:50%;top:-.19em;width:1.45em;height:1.45em;margin:-.725em 0 0 -.725em;border-radius:.38em;background:#2A1826;border:.04em solid #3D2739;transform:rotate(-8deg)"></span>
+              <span style="position:absolute;left:50%;top:-.19em;width:.32em;height:.32em;margin:-.16em 0 0 -.16em;border-radius:50%;background:#3FBE9A"></span>
+            <span style="position:absolute;inset:0;border-radius:.03em;background:#F5EEE3"></span></span>
+            <span style="position:relative;z-index:1">P</span>
+          </div>
+          <div style="position:relative;isolation:isolate;font-family:Nunito,sans-serif;font-weight:900;font-size:52px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;color:#F5EEE3">
+            <span style="position:relative;z-index:1">P</span>
+            <span style="position:relative;z-index:0;width:.205em;height:.44em;margin:0 .13em;">
+              <span style="position:absolute;left:50%;top:-.19em;width:1.45em;height:1.45em;margin:-.725em 0 0 -.725em;border-radius:.38em;background:#2A1826;border:.04em solid #3D2739;transform:rotate(-8deg)"></span>
+              <span style="position:absolute;left:50%;top:-.19em;width:.32em;height:.32em;margin:-.16em 0 0 -.16em;border-radius:50%;background:#4FC3E8"></span>
+            <span style="position:absolute;inset:0;border-radius:.03em;background:#F5EEE3"></span></span>
+            <span style="position:relative;z-index:1">P</span>
+          </div>
+          <div style="position:relative;isolation:isolate;font-family:Nunito,sans-serif;font-weight:900;font-size:52px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;color:#F5EEE3">
+            <span style="position:relative;z-index:1">P</span>
+            <span style="position:relative;z-index:0;width:.205em;height:.44em;margin:0 .13em;">
+              <span style="position:absolute;left:50%;top:-.19em;width:1.45em;height:1.45em;margin:-.725em 0 0 -.725em;border-radius:.38em;background:#2A1826;border:.04em solid #3D2739;transform:rotate(-8deg)"></span>
+              <span style="position:absolute;left:50%;top:-.19em;width:.32em;height:.32em;margin:-.16em 0 0 -.16em;border-radius:50%;background:#C48BF0"></span>
+            <span style="position:absolute;inset:0;border-radius:.03em;background:#F5EEE3"></span></span>
+            <span style="position:relative;z-index:1">P</span>
+          </div>
+          <div style="position:relative;isolation:isolate;font-family:Nunito,sans-serif;font-weight:900;font-size:52px;line-height:1;letter-spacing:-.02em;display:flex;align-items:baseline;color:#F5EEE3">
+            <span style="position:relative;z-index:1">P</span>
+            <span style="position:relative;z-index:0;width:.205em;height:.44em;margin:0 .13em;">
+              <span style="position:absolute;left:50%;top:-.19em;width:1.45em;height:1.45em;margin:-.725em 0 0 -.725em;border-radius:.38em;background:#2A1826;border:.04em solid #3D2739;transform:rotate(-8deg)"></span>
+              <span style="position:absolute;left:50%;top:-.19em;width:.32em;height:.32em;margin:-.16em 0 0 -.16em;border-radius:50%;background:#F5B02E"></span>
+            <span style="position:absolute;inset:0;border-radius:.03em;background:#F5EEE3"></span></span>
+            <span style="position:relative;z-index:1">P</span>
+          </div>
+        </div>
+        <div style="font-size:13px;line-height:1.5;color:#C0A7B4;margin-top:12px">Same drawing, one variable: the pip is a slot, and it holds the colour of whoever's turn it is — jade, the new <b style="color:#4FC3E8">lagoon</b>, the new <b style="color:#C48BF0">orchid</b>, marigold. The ghost pips drop out here so the one live pip owns the whole face. Jade stays the locked colour for the trademark; this is the in-app behaviour only.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section style="min-width:2680px;padding:56px 64px 40px;background:radial-gradient(1000px 600px at 20% -10%, #1E2A28 0%, #160c14 62%);color:#F7EFE1;font-family:Nunito,sans-serif">
+  <div id="3a" style="display:flex;flex-direction:column;gap:44px">
+
+    <div style="display:flex;align-items:flex-start;gap:20px">
+      <span style="font-family:Lilita One,cursive;font-size:15px;letter-spacing:.12em;background:#F576A8;color:#21131F;border:3px solid #A82F6A;padding:6px 13px 4px;border-radius:999px;box-shadow:0 4px 0 rgba(0,0,0,.5);transform:rotate(-2deg)">3A</span>
+      <div style="max-width:820px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-family:Lilita One,cursive;font-size:52px;line-height:.95">ONE PIP — AND A DIE THAT COUNTS</div>
+        <div style="font-size:15.5px;line-height:1.55;color:#C0A7B4;text-wrap:pretty">The die drops to a single pip and steps back to being a plate behind the word; that one pip <i>is</i> the dot on the i. The <b style="color:#F7EFE1">i</b> is drawn as geometry (a stem, no tittle), so nothing has to be covered up. Then the same face goes live: in player setup the die shows one pip per player, 2 through 6.</div>
+      </div>
+      <div style="flex:1"></div>
+      <div style="max-width:560px;font-size:14px;line-height:1.6;color:#C0A7B4;border-left:3px solid #4B3145;padding-left:18px">
+        <b style="color:#F7EFE1">Read them in this order.</b> 3 and 5 are the ones that survive the ladder — the plate is tight enough that the pip stays the largest element. 1 is the quietest and the safest for a header. 2 is the most brand-forward and the least legible small. 4 trades subtlety for punch: the plate becomes the colour of the app.
+      </div>
+    </div>
+
+    <div>
+      <div style="font-family:Lilita One,cursive;font-size:26px;margin-bottom:14px">FIVE LOCKUPS · SINGLE PIP</div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+
+        <div style="width:400px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-family:Lilita One,cursive;font-size:17px;background:#3A2436;color:#F7EFE1;border:3px solid #4B3145;border-radius:999px;padding:3px 11px 1px">1</span>
+            <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">QUIET PLAQUE</span>
+          </div>
+          <div style="background:#21131F;border-radius:16px;height:190px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;left:51.4%;top:31%;width:64px;height:64px;border-radius:17px;background:#3A2436;transform:translate(-50%,-50%) rotate(-11deg)"></div>
+            <div style="position:relative;font-family:Lilita One,cursive;font-size:88px;line-height:1;display:flex;align-items:baseline;color:#F7EFE1">
+              <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+              <span style="display:inline-block;position:relative;width:.16em;height:.52em;margin:0 .11em;border-radius:.05em;background:#F7EFE1;transform:rotate(1deg)"><span style="position:absolute;left:50%;bottom:100%;transform:translate(-50%,-26%);width:.26em;height:.26em;border-radius:50%;background:#3FBE9A"></span></span>
+              <span style="display:inline-block;transform:rotate(3deg)">p</span>
+            </div>
+          </div>
+          <div style="font-size:13px;line-height:1.5;color:#C0A7B4;margin-top:12px">Plate one step off the ground (#3A2436). Reads as a shadow you can almost ignore — until you notice it is a die.</div>
+        </div>
+
+        <div style="width:400px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-family:Lilita One,cursive;font-size:17px;background:#3A2436;color:#F7EFE1;border:3px solid #4B3145;border-radius:999px;padding:3px 11px 1px">2</span>
+            <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">WIDE PLATE · WORD INSIDE</span>
+          </div>
+          <div style="background:#21131F;border-radius:16px;height:190px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;left:50%;top:50%;width:158px;height:158px;border-radius:38px;background:#2C1A29;border:3px solid #3A2436;transform:translate(-50%,-50%) rotate(-11deg)"></div>
+            <div style="position:relative;font-family:Lilita One,cursive;font-size:76px;line-height:1;display:flex;align-items:baseline;color:#F7EFE1">
+              <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+              <span style="display:inline-block;position:relative;width:.16em;height:.52em;margin:0 .11em;border-radius:.05em;background:#F7EFE1;transform:rotate(1deg)"><span style="position:absolute;left:50%;bottom:100%;transform:translate(-50%,-26%);width:.26em;height:.26em;border-radius:50%;background:#F5B02E"></span></span>
+              <span style="display:inline-block;transform:rotate(3deg)">p</span>
+            </div>
+          </div>
+          <div style="font-size:13px;line-height:1.5;color:#C0A7B4;margin-top:12px">The word sits <i>on</i> the die face. Most brand-forward, and the only one that needs its own clear space — the plate corners hit everything.</div>
+        </div>
+
+        <div style="width:400px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-family:Lilita One,cursive;font-size:17px;background:#3FBE9A;color:#21131F;border:3px solid #0F6F58;border-radius:999px;padding:3px 11px 1px">3 · PICK</span>
+            <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">OUTLINE DIE</span>
+          </div>
+          <div style="background:#21131F;border-radius:16px;height:190px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;left:51.4%;top:30%;width:72px;height:72px;border-radius:19px;border:4px solid #F7EFE1;transform:translate(-50%,-50%) rotate(-11deg)"></div>
+            <div style="position:relative;font-family:Lilita One,cursive;font-size:88px;line-height:1;display:flex;align-items:baseline;color:#F7EFE1">
+              <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+              <span style="display:inline-block;position:relative;width:.16em;height:.52em;margin:0 .11em;border-radius:.05em;background:#F7EFE1;transform:rotate(1deg)"><span style="position:absolute;left:50%;bottom:100%;transform:translate(-50%,-26%);width:.28em;height:.28em;border-radius:50%;background:#F576A8"></span></span>
+              <span style="display:inline-block;transform:rotate(3deg)">p</span>
+            </div>
+          </div>
+          <div style="font-size:13px;line-height:1.5;color:#C0A7B4;margin-top:12px">Cream keyline, nothing filled — the pip is the only solid, so it wins at every size. Same drawing works on plum and on paper.</div>
+        </div>
+
+        <div style="width:400px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-family:Lilita One,cursive;font-size:17px;background:#3A2436;color:#F7EFE1;border:3px solid #4B3145;border-radius:999px;padding:3px 11px 1px">4</span>
+            <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">FILLED · COLOUR OF THE APP</span>
+          </div>
+          <div style="background:#21131F;border-radius:16px;height:190px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;left:51.4%;top:30%;width:80px;height:80px;border-radius:21px;background:#3FBE9A;border:3px solid #0F6F58;transform:translate(-50%,-50%) rotate(-11deg)"></div>
+            <div style="position:relative;font-family:Lilita One,cursive;font-size:88px;line-height:1;display:flex;align-items:baseline;color:#F7EFE1">
+              <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+              <span style="display:inline-block;position:relative;width:.16em;height:.52em;margin:0 .11em;border-radius:.05em;background:#F7EFE1;transform:rotate(1deg)"><span style="position:absolute;left:50%;bottom:100%;transform:translate(-50%,-26%);width:.26em;height:.26em;border-radius:50%;background:#21131F"></span></span>
+              <span style="display:inline-block;transform:rotate(3deg)">p</span>
+            </div>
+          </div>
+          <div style="font-size:13px;line-height:1.5;color:#C0A7B4;margin-top:12px">Jade plate, ink pip, cream word overhanging the edges. Loudest of the five; the plate colour can swap per theme.</div>
+        </div>
+
+        <div style="width:400px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <span style="font-family:Lilita One,cursive;font-size:17px;background:#3FBE9A;color:#21131F;border:3px solid #0F6F58;border-radius:999px;padding:3px 11px 1px">5 · PICK</span>
+            <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">TIGHT · ICON-READY</span>
+          </div>
+          <div style="background:#21131F;border-radius:16px;height:190px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;left:51.4%;top:31%;width:46px;height:46px;border-radius:13px;background:#F7EFE1;transform:translate(-50%,-50%) rotate(-11deg)"></div>
+            <div style="position:relative;font-family:Lilita One,cursive;font-size:88px;line-height:1;display:flex;align-items:baseline;color:#F7EFE1">
+              <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+              <span style="display:inline-block;position:relative;width:.16em;height:.52em;margin:0 .11em;border-radius:.05em;background:#F7EFE1;transform:rotate(1deg)"><span style="position:absolute;left:50%;bottom:100%;transform:translate(-50%,-26%);width:.2em;height:.2em;border-radius:50%;background:#3FBE9A"></span></span>
+              <span style="display:inline-block;transform:rotate(3deg)">p</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:16px;margin-top:14px;background:#3A2436;border-radius:14px;padding:14px">
+            <svg width="80" height="80" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#21131F"></rect><g transform="rotate(-11 32 32)"><rect x="14" y="14" width="36" height="36" rx="10" fill="#F7EFE1"></rect><circle cx="32" cy="32" r="6.5" fill="#3FBE9A"></circle></g></svg>
+            <svg width="32" height="32" viewBox="0 0 64 64"><rect width="64" height="64" rx="13" fill="#21131F"></rect><g transform="rotate(-11 32 32)"><rect x="10" y="10" width="44" height="44" rx="12" fill="#F7EFE1"></rect><circle cx="32" cy="32" r="8" fill="#3FBE9A"></circle></g></svg>
+            <svg width="16" height="16" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#21131F"></rect><rect x="7" y="7" width="50" height="50" rx="13" fill="#F7EFE1"></rect><circle cx="32" cy="32" r="10" fill="#3FBE9A"></circle></svg>
+            <div style="font-size:12px;line-height:1.45;color:#C0A7B4">One pip is the cheapest thing to keep legible: 192 / 32 / 16 with no detail removed at all.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-family:Lilita One,cursive;font-size:26px;margin-bottom:6px">PLAYER COUNT — THE DIE IS THE CONTROL</div>
+      <div style="font-size:13.5px;color:#C0A7B4;margin-bottom:16px;max-width:900px;line-height:1.55">Live: tap −/+ or a number. The face draws the standard die layout for 2–6, each pip in the accent that player will carry all game, so the colour is already learned before the first round. The count is also written out, so the die is never the only signal.</div>
+      <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start">
+
+        <div style="width:380px;border-radius:26px;overflow:hidden;position:relative;background:#21131F;color:#F7EFE1;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+          <div data-amb style="position:absolute;top:-20%;left:-16%;width:80%;height:70%;border-radius:50%;background:radial-gradient(circle,#3FBE9A 0%,rgba(63,190,154,0) 70%);filter:blur(46px);opacity:.14;animation:amb-a 46s ease-in-out infinite"></div>
+          <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(247,239,225,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.045"></div>
+          <div style="position:relative;padding:18px 20px 22px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:44px;height:44px;border-radius:999px;background:#F5B02E;color:#21131F;border:3px solid #8A5709;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.55)">‹</div>
+              <div style="flex:1;text-align:center;font-family:Lilita One,cursive;font-size:22px;letter-spacing:.06em">SET UP FARKLE</div>
+              <div style="width:44px;height:44px;border-radius:999px;background:#3A2436;border:3px solid #4B3145;box-shadow:0 4px 0 rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">?</div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+              <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4">HOW MANY PLAYERS</div>
+              <div style="display:flex;align-items:center;gap:18px">
+                <button onClick="{{ dec }}" style="width:52px;height:52px;border-radius:999px;background:#3A2436;color:#F7EFE1;border:3px solid #4B3145;font-family:Lilita One,cursive;font-size:26px;line-height:1;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">−</button>
+                <div style="width:132px;height:132px;border-radius:30px;background:#F7EFE1;box-shadow:0 6px 0 rgba(0,0,0,.55);transform:rotate(-11deg);padding:18px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:6px">
+                  <sc-for list="{{ pips }}" as="p" hint-placeholder-count="4">
+                    <div style="grid-column:{{ p.c }};grid-row:{{ p.r }};border-radius:50%;background:{{ p.color }};box-shadow:inset 0 0 0 3px rgba(33,19,31,.22)"></div>
+                  </sc-for>
+                </div>
+                <button onClick="{{ inc }}" style="width:52px;height:52px;border-radius:999px;background:#3A2436;color:#F7EFE1;border:3px solid #4B3145;font-family:Lilita One,cursive;font-size:26px;line-height:1;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">+</button>
+              </div>
+              <div style="font-family:Lilita One,cursive;font-size:24px;letter-spacing:.04em">{{ pcount }} PLAYERS</div>
+              <div style="display:flex;gap:8px">
+                <sc-for list="{{ counts }}" as="c" hint-placeholder-count="5">
+                  <button onClick="{{ c.on }}" style="width:48px;height:48px;border-radius:999px;background:{{ c.bg }};color:{{ c.fg }};border:3px solid {{ c.bd }};font-family:Lilita One,cursive;font-size:18px;box-shadow:0 4px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(4px);box-shadow:0 0 0 rgba(0,0,0,.55)">{{ c.n }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4">SEATS</div>
+              <sc-for list="{{ seats }}" as="s" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:14px 1fr;gap:12px;align-items:center;background:#2C1A29;border:2px solid #3A2436;border-radius:14px;padding:11px 14px">
+                  <div style="width:14px;height:14px;border-radius:5px;background:{{ s.bg }};border:2px solid {{ s.bd }}"></div>
+                  <div style="font-weight:900;font-size:16px">{{ s.name }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <button style="width:100%;min-height:52px;border:3px solid #0F6F58;border-radius:999px;background:#3FBE9A;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">START GAME</button>
+          </div>
+        </div>
+
+        <div style="width:380px;border-radius:26px;overflow:hidden;position:relative;background:#F7EFE1;color:#21131F;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+          <div data-amb style="position:absolute;top:-20%;left:-16%;width:80%;height:70%;border-radius:50%;background:radial-gradient(circle,#0F6F58 0%,rgba(15,111,88,0) 70%);filter:blur(46px);opacity:.07;animation:amb-a 46s ease-in-out infinite"></div>
+          <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(33,19,31,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.03"></div>
+          <div style="position:relative;padding:18px 20px 22px;display:flex;flex-direction:column;gap:18px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:44px;height:44px;border-radius:999px;background:#F5B02E;color:#21131F;border:3px solid #8A5709;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;box-shadow:0 4px 0 rgba(33,19,31,.22)">‹</div>
+              <div style="flex:1;text-align:center;font-family:Lilita One,cursive;font-size:22px;letter-spacing:.06em">SET UP FARKLE</div>
+              <div style="width:44px;height:44px;border-radius:999px;background:#FFFAF1;border:3px solid #E2D0BC;box-shadow:0 4px 0 rgba(33,19,31,.22);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">?</div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+              <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#6E5460">HOW MANY PLAYERS</div>
+              <div style="display:flex;align-items:center;gap:18px">
+                <button onClick="{{ dec }}" style="width:52px;height:52px;border-radius:999px;background:#FFFAF1;color:#21131F;border:3px solid #E2D0BC;font-family:Lilita One,cursive;font-size:26px;line-height:1;box-shadow:0 5px 0 rgba(33,19,31,.22);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.22)">−</button>
+                <div style="width:132px;height:132px;border-radius:30px;background:#21131F;box-shadow:0 6px 0 rgba(33,19,31,.28);transform:rotate(-11deg);padding:18px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:6px">
+                  <sc-for list="{{ pipsLight }}" as="p" hint-placeholder-count="4">
+                    <div style="grid-column:{{ p.c }};grid-row:{{ p.r }};border-radius:50%;background:{{ p.color }};box-shadow:inset 0 0 0 3px {{ p.edge }}"></div>
+                  </sc-for>
+                </div>
+                <button onClick="{{ inc }}" style="width:52px;height:52px;border-radius:999px;background:#FFFAF1;color:#21131F;border:3px solid #E2D0BC;font-family:Lilita One,cursive;font-size:26px;line-height:1;box-shadow:0 5px 0 rgba(33,19,31,.22);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.22)">+</button>
+              </div>
+              <div style="font-family:Lilita One,cursive;font-size:24px;letter-spacing:.04em">{{ pcount }} PLAYERS</div>
+              <div style="display:flex;gap:8px">
+                <sc-for list="{{ counts }}" as="c" hint-placeholder-count="5">
+                  <button onClick="{{ c.on }}" style="width:48px;height:48px;border-radius:999px;background:{{ c.bg }};color:{{ c.fg }};border:3px solid {{ c.bd }};font-family:Lilita One,cursive;font-size:18px;box-shadow:0 4px 0 rgba(33,19,31,.22);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(4px);box-shadow:0 0 0 rgba(33,19,31,.22)">{{ c.n }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#6E5460">SEATS</div>
+              <sc-for list="{{ seats }}" as="s" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:14px 1fr;gap:12px;align-items:center;background:#FFFAF1;border:2px solid #E2D0BC;border-radius:14px;padding:11px 14px">
+                  <div style="width:14px;height:14px;border-radius:5px;background:{{ s.bg }};border:2px solid {{ s.bd }}"></div>
+                  <div style="font-weight:900;font-size:16px">{{ s.name }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <button style="width:100%;min-height:52px;border:3px solid #0F6F58;border-radius:999px;background:#3FBE9A;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(33,19,31,.28);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.28)">START GAME</button>
+          </div>
+        </div>
+
+        <div style="width:420px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+          <div style="font-family:Lilita One,cursive;font-size:22px;margin-bottom:12px">FACES 2–6</div>
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:13.5px;line-height:1.55;color:#C0A7B4">
+            <div><b style="color:#F7EFE1">Layout:</b> standard 3×3 die placement — corners first, centre only on odd counts. Same geometry as the logo's face, 18px padding, 6px gutters, pip = 1/3 of the face minus gutter.</div>
+            <div><b style="color:#F7EFE1">Colour:</b> pip <i>n</i> takes player <i>n</i>'s accent in seat order (jade, bubblegum, cornflower, pistachio, marigold, punch) with a 3px inset ring in its deep pair, so a pip is a chip is a table header.</div>
+            <div><b style="color:#F7EFE1">Motion:</b> a new pip fades and scales in over 120ms; the die itself never re-rotates — the −11° is fixed so the face reads as one object being edited, not re-thrown.</div>
+            <div><b style="color:#F7EFE1">Rotation:</b> allowed here, because nobody compares numbers on it. The seat list below it stays level.</div>
+            <div><b style="color:#F7EFE1">Range:</b> 2–6; −/+ disable at the ends rather than wrapping. Both controls are 52px, the number chips 48px.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section style="min-width:2680px;padding:56px 64px 40px;background:radial-gradient(1000px 600px at 80% -10%, #2A1730 0%, #160c14 60%);color:#F7EFE1;font-family:Nunito,sans-serif">
+  <div id="2a" style="display:flex;flex-direction:column;gap:44px">
+
+    <div style="display:flex;align-items:flex-start;gap:20px">
+      <span style="font-family:Lilita One,cursive;font-size:15px;letter-spacing:.12em;background:#3FBE9A;color:#21131F;padding:7px 14px 5px;border-radius:999px;box-shadow:0 4px 0 rgba(0,0,0,.5);transform:rotate(-2deg)">2A</span>
+      <div style="max-width:760px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-family:Lilita One,cursive;font-size:52px;line-height:.95">PIP — LOGO SYSTEM</div>
+        <div style="font-size:15.5px;line-height:1.55;color:#C0A7B4;text-wrap:pretty">Same mark logic as 1A: cream squircle die, 11° tilt, two of four pips swapped to jade and bubblegum. Here the die stops standing next to the word and becomes the dot of the <b style="color:#F7EFE1">i</b>.</div>
+      </div>
+      <div style="flex:1"></div>
+      <div style="max-width:600px;font-size:14px;line-height:1.6;color:#C0A7B4;border-left:3px solid #4B3145;padding-left:18px">
+        <b style="color:#F7EFE1">Why direction A wins.</b> The name is already the word for the dot on a die, so the strongest fusion is the most literal one: the die <i>is</i> the tittle. It needs no explanation, it survives being cropped to the die alone (the app icon and the wordmark are then the same drawing at two scales), and it leaves the letterforms untouched — so the word stays readable at 14px in a settings row. B and C are kept as secondary marks: B for one-colour stamps, C as the squint test that proves the icon still reads at 16px.
+      </div>
+    </div>
+
+    <div>
+      <div style="font-family:Lilita One,cursive;font-size:26px;margin-bottom:14px">EXPLORATIONS</div>
+      <div style="display:flex;gap:22px;flex-wrap:wrap">
+
+        <div style="width:420px;background:#2C1A29;border:2px solid #3FBE9A;border-radius:22px;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <span style="font-family:Lilita One,cursive;font-size:18px;background:#3FBE9A;color:#21131F;border-radius:999px;padding:4px 12px 2px">A · CHOSEN</span>
+            <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">DIE AS THE DOT OF THE i</span>
+          </div>
+          <div style="background:#21131F;border-radius:16px;height:180px;display:flex;align-items:center;justify-content:center">
+            <div style="font-family:Lilita One,cursive;font-size:96px;line-height:1;display:flex;align-items:baseline;color:#F7EFE1">
+              <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+              <span style="display:inline-block;position:relative;transform:rotate(1deg);margin:0 .04em 0 .13em">i<span style="position:absolute;left:50%;top:.06em;transform:translate(-50%,-50%)"><svg width="46" height="46" viewBox="0 0 64 64"><g transform="rotate(-11 32 32)"><rect x="6" y="6" width="52" height="52" rx="14" fill="#F7EFE1"></rect><circle cx="19" cy="19" r="6" fill="#21131F"></circle><circle cx="45" cy="19" r="6" fill="#3FBE9A"></circle><circle cx="19" cy="45" r="6" fill="#F576A8"></circle><circle cx="45" cy="45" r="6" fill="#21131F"></circle></g></svg></span></span>
+              <span style="display:inline-block;transform:rotate(3deg)">p</span>
+            </div>
+          </div>
+          <div style="font-size:13.5px;line-height:1.5;color:#C0A7B4;margin-top:14px">The die sits where a dot belongs, so nothing is decoration. Crops to the icon with no redraw.</div>
+        </div>
+
+        <div style="width:420px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <span style="font-family:Lilita One,cursive;font-size:18px;background:#3A2436;color:#F7EFE1;border-radius:999px;padding:4px 12px 2px">B</span>
+            <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">P COUNTER = ONE PIP</span>
+          </div>
+          <div style="background:#21131F;border-radius:16px;height:180px;display:flex;align-items:center;justify-content:center">
+            <div style="font-family:Lilita One,cursive;font-size:96px;line-height:1;display:flex;align-items:baseline;color:#F7EFE1">
+              <span style="display:inline-block;position:relative;transform:rotate(-2deg)">P<span style="position:absolute;left:44%;top:28%;width:22px;height:22px;border-radius:50%;background:#3FBE9A"></span></span>
+              <span style="display:inline-block;transform:rotate(1deg)">i</span>
+              <span style="display:inline-block;transform:rotate(2deg)">p</span>
+            </div>
+          </div>
+          <div style="font-size:13.5px;line-height:1.5;color:#C0A7B4;margin-top:14px">The letterform becomes a one-face die. Beautiful large, but the pip closes the counter and the P muddies below 20px. Kept for stamps and stickers.</div>
+        </div>
+
+        <div style="width:420px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <span style="font-family:Lilita One,cursive;font-size:18px;background:#3A2436;color:#F7EFE1;border-radius:999px;padding:4px 12px 2px">C</span>
+            <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">SQUINT = THREE-PIP FACE</span>
+          </div>
+          <div style="background:#21131F;border-radius:16px;height:180px;display:flex;align-items:center;justify-content:center;gap:26px">
+            <div style="font-family:Lilita One,cursive;font-size:74px;line-height:1;display:flex;align-items:baseline;color:#F7EFE1;letter-spacing:.02em">
+              <span style="display:inline-block;position:relative;transform:rotate(-3deg)">P<span style="position:absolute;left:42%;top:26%;width:17px;height:17px;border-radius:50%;background:#F576A8"></span></span>
+              <span style="display:inline-block;position:relative;transform:rotate(1deg);margin:0 .04em 0 .13em">i<span style="position:absolute;left:50%;top:.06em;transform:translate(-50%,-50%);width:17px;height:17px;border-radius:50%;background:#F7EFE1"></span></span>
+              <span style="display:inline-block;position:relative;transform:rotate(3deg)">p<span style="position:absolute;left:42%;top:34%;width:17px;height:17px;border-radius:50%;background:#3FBE9A"></span></span>
+            </div>
+            <div style="width:64px;height:64px;border-radius:18px;background:#F7EFE1;position:relative;transform:rotate(-11deg)">
+              <div style="position:absolute;left:9px;top:9px;width:13px;height:13px;border-radius:50%;background:#F576A8"></div>
+              <div style="position:absolute;left:25px;top:25px;width:13px;height:13px;border-radius:50%;background:#21131F"></div>
+              <div style="position:absolute;right:9px;bottom:9px;width:13px;height:13px;border-radius:50%;background:#3FBE9A"></div>
+            </div>
+          </div>
+          <div style="font-size:13.5px;line-height:1.5;color:#C0A7B4;margin-top:14px">Three round elements on one diagonal — squinted, the word is a three-pip face. This diagonal is exactly what the 16px icon keeps.</div>
+        </div>
+
+        <div style="width:420px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <span style="font-family:Lilita One,cursive;font-size:18px;background:#3A2436;color:#F7EFE1;border-radius:999px;padding:4px 12px 2px">D</span>
+            <span style="font-weight:900;font-size:12px;letter-spacing:.12em;color:#C0A7B4">STACKED · SPLASH &amp; AVATAR</span>
+          </div>
+          <div style="background:#21131F;border-radius:16px;height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+            <svg width="66" height="66" viewBox="0 0 64 64"><g transform="rotate(-11 32 32)"><rect x="6" y="6" width="52" height="52" rx="14" fill="#F7EFE1"></rect><circle cx="19" cy="19" r="6" fill="#21131F"></circle><circle cx="45" cy="19" r="6" fill="#3FBE9A"></circle><circle cx="19" cy="45" r="6" fill="#F576A8"></circle><circle cx="45" cy="45" r="6" fill="#21131F"></circle></g></svg>
+            <div style="font-family:Lilita One,cursive;font-size:58px;line-height:1;display:flex;color:#F7EFE1;letter-spacing:.04em">
+              <span style="display:inline-block;transform:rotate(-3deg)">P</span><span style="display:inline-block;transform:rotate(1deg);color:#3FBE9A">I</span><span style="display:inline-block;transform:rotate(3deg)">P</span>
+            </div>
+          </div>
+          <div style="font-size:13.5px;line-height:1.5;color:#C0A7B4;margin-top:14px">All-caps here: the dot is gone, so the die returns to the top as a separate element. Centre axis is shared, ±4° max.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:22px;flex-wrap:wrap">
+
+      <div style="width:600px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:24px;margin-bottom:14px">PRIMARY HORIZONTAL LOCKUP</div>
+        <div style="background:#21131F;border-radius:18px;padding:34px 30px;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+          <div style="font-family:Lilita One,cursive;font-size:110px;line-height:1;display:flex;align-items:baseline;color:#F7EFE1">
+            <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+            <span style="display:inline-block;position:relative;transform:rotate(1deg);margin:0 .04em 0 .13em">i<span style="position:absolute;left:50%;top:.06em;transform:translate(-50%,-50%)"><svg width="52" height="52" viewBox="0 0 64 64"><g transform="rotate(-11 32 32)"><rect x="6" y="6" width="52" height="52" rx="14" fill="#F7EFE1"></rect><circle cx="19" cy="19" r="6" fill="#21131F"></circle><circle cx="45" cy="19" r="6" fill="#3FBE9A"></circle><circle cx="19" cy="45" r="6" fill="#F576A8"></circle><circle cx="45" cy="45" r="6" fill="#21131F"></circle></g></svg></span></span>
+            <span style="display:inline-block;transform:rotate(3deg)">p</span>
+          </div>
+        </div>
+        <div style="background:#F7EFE1;border-radius:18px;padding:34px 30px;display:flex;align-items:center;justify-content:center">
+          <div style="font-family:Lilita One,cursive;font-size:110px;line-height:1;display:flex;align-items:baseline;color:#21131F">
+            <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+            <span style="display:inline-block;position:relative;transform:rotate(1deg);margin:0 .04em 0 .13em">i<span style="position:absolute;left:50%;top:.06em;transform:translate(-50%,-50%)"><svg width="52" height="52" viewBox="0 0 64 64"><g transform="rotate(-11 32 32)"><rect x="6" y="6" width="52" height="52" rx="14" fill="#21131F"></rect><circle cx="19" cy="19" r="6" fill="#F7EFE1"></circle><circle cx="45" cy="19" r="6" fill="#0F6F58"></circle><circle cx="19" cy="45" r="6" fill="#A82F6A"></circle><circle cx="45" cy="45" r="6" fill="#F7EFE1"></circle></g></svg></span></span>
+            <span style="display:inline-block;transform:rotate(3deg)">p</span>
+          </div>
+        </div>
+        <div style="font-size:13.5px;line-height:1.55;color:#C0A7B4;margin-top:14px"><b style="color:#F7EFE1">Cream mode inverts the die body, not the pips' role:</b> plum body, cream pips, deep jade and deep bubblegum. Die width = 0.47 × cap height; its optical centre sits on the i's stem axis; clearance above the stem = 0.06 × cap height.</div>
+      </div>
+
+      <div style="width:380px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:24px;margin-bottom:14px">STACKED LOCKUP</div>
+        <div style="background:#21131F;border-radius:18px;padding:30px;display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:12px">
+          <svg width="104" height="104" viewBox="0 0 64 64"><g transform="rotate(-11 32 32)"><rect x="6" y="6" width="52" height="52" rx="14" fill="#F7EFE1"></rect><circle cx="19" cy="19" r="6" fill="#21131F"></circle><circle cx="45" cy="19" r="6" fill="#3FBE9A"></circle><circle cx="19" cy="45" r="6" fill="#F576A8"></circle><circle cx="45" cy="45" r="6" fill="#21131F"></circle></g></svg>
+          <div style="font-family:Lilita One,cursive;font-size:66px;line-height:1;display:flex;color:#F7EFE1;letter-spacing:.04em">
+            <span style="display:inline-block;transform:rotate(-3deg)">P</span><span style="display:inline-block;transform:rotate(1deg);color:#3FBE9A">I</span><span style="display:inline-block;transform:rotate(3deg)">P</span>
+          </div>
+          <div style="font-weight:900;font-size:10px;letter-spacing:.26em;color:#C0A7B4">WHOSE TURN IS IT ANYWAY</div>
+        </div>
+        <div style="background:#F7EFE1;border-radius:18px;padding:30px;display:flex;flex-direction:column;align-items:center;gap:16px">
+          <svg width="104" height="104" viewBox="0 0 64 64"><g transform="rotate(-11 32 32)"><rect x="6" y="6" width="52" height="52" rx="14" fill="#21131F"></rect><circle cx="19" cy="19" r="6" fill="#F7EFE1"></circle><circle cx="45" cy="19" r="6" fill="#0F6F58"></circle><circle cx="19" cy="45" r="6" fill="#A82F6A"></circle><circle cx="45" cy="45" r="6" fill="#F7EFE1"></circle></g></svg>
+          <div style="font-family:Lilita One,cursive;font-size:66px;line-height:1;display:flex;color:#21131F;letter-spacing:.04em">
+            <span style="display:inline-block;transform:rotate(-3deg)">P</span><span style="display:inline-block;transform:rotate(1deg);color:#0F6F58">I</span><span style="display:inline-block;transform:rotate(3deg)">P</span>
+          </div>
+          <div style="font-weight:900;font-size:10px;letter-spacing:.26em;color:#6E5460">WHOSE TURN IS IT ANYWAY</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-family:Lilita One,cursive;font-size:24px;margin-bottom:6px">LEGIBILITY LADDER — RENDERED AT ACTUAL SIZE</div>
+      <div style="font-size:13.5px;color:#C0A7B4;margin-bottom:16px;max-width:900px;line-height:1.55">Detail is removed, never shrunk. 512–64px carry the full four-pip die. At 32px the tilt drops to 7° and the die grows to 46u while the pips hold the 64px proportion at r=5.4/64 — enlarging them here is what made the small sizes read as blobs. At 16px only the diagonal survives: three pips at r=6.6/64 on a rounded square, no tilt, no plate radius finer than 3px.</div>
+      <div style="background:#3A2436;border-radius:22px;padding:30px;display:flex;align-items:flex-end;gap:40px;flex-wrap:wrap">
+        <div style="text-align:center">
+          <svg width="512" height="512" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#21131F"></rect><g transform="rotate(-11 32 32)"><rect x="14" y="14" width="36" height="36" rx="10" fill="#F7EFE1"></rect><circle cx="23" cy="23" r="4" fill="#21131F"></circle><circle cx="41" cy="23" r="4" fill="#3FBE9A"></circle><circle cx="23" cy="41" r="4" fill="#F576A8"></circle><circle cx="41" cy="41" r="4" fill="#21131F"></circle></g></svg>
+          <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4;margin-top:12px">512</div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:34px">
+          <div style="text-align:center">
+            <svg width="192" height="192" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#21131F"></rect><g transform="rotate(-11 32 32)"><rect x="14" y="14" width="36" height="36" rx="10" fill="#F7EFE1"></rect><circle cx="23" cy="23" r="4" fill="#21131F"></circle><circle cx="41" cy="23" r="4" fill="#3FBE9A"></circle><circle cx="23" cy="41" r="4" fill="#F576A8"></circle><circle cx="41" cy="41" r="4" fill="#21131F"></circle></g></svg>
+            <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4;margin-top:12px">192</div>
+          </div>
+          <div style="text-align:center">
+            <svg width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#21131F"></rect><g transform="rotate(-11 32 32)"><rect x="12" y="12" width="40" height="40" rx="11" fill="#F7EFE1"></rect><circle cx="22" cy="22" r="4.6" fill="#21131F"></circle><circle cx="42" cy="22" r="4.6" fill="#3FBE9A"></circle><circle cx="22" cy="42" r="4.6" fill="#F576A8"></circle><circle cx="42" cy="42" r="4.6" fill="#21131F"></circle></g></svg>
+            <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4;margin-top:12px">64</div>
+          </div>
+          <div style="text-align:center">
+            <svg width="32" height="32" viewBox="0 0 64 64"><rect width="64" height="64" rx="13" fill="#21131F"></rect><g transform="rotate(-7 32 32)"><rect x="9" y="9" width="46" height="46" rx="12" fill="#F7EFE1"></rect><circle cx="21" cy="21" r="5.4" fill="#21131F"></circle><circle cx="43" cy="21" r="5.4" fill="#3FBE9A"></circle><circle cx="21" cy="43" r="5.4" fill="#F576A8"></circle><circle cx="43" cy="43" r="5.4" fill="#21131F"></circle></g></svg>
+            <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4;margin-top:12px">32</div>
+          </div>
+          <div style="text-align:center">
+            <svg width="16" height="16" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#21131F"></rect><rect x="6" y="6" width="52" height="52" rx="13" fill="#F7EFE1"></rect><circle cx="20" cy="20" r="6.6" fill="#F576A8"></circle><circle cx="32" cy="32" r="6.6" fill="#21131F"></circle><circle cx="44" cy="44" r="6.6" fill="#3FBE9A"></circle></svg>
+            <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4;margin-top:12px">16</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;padding-left:10px;border-left:1px solid #4B3145">
+          <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4;padding-left:14px">32 &amp; 16 ENLARGED 6× FOR INSPECTION ONLY</div>
+          <div style="display:flex;gap:18px;padding-left:14px">
+            <svg width="192" height="192" viewBox="0 0 64 64" style="image-rendering:auto"><rect width="64" height="64" rx="13" fill="#21131F"></rect><g transform="rotate(-7 32 32)"><rect x="9" y="9" width="46" height="46" rx="12" fill="#F7EFE1"></rect><circle cx="21" cy="21" r="5.4" fill="#21131F"></circle><circle cx="43" cy="21" r="5.4" fill="#3FBE9A"></circle><circle cx="21" cy="43" r="5.4" fill="#F576A8"></circle><circle cx="43" cy="43" r="5.4" fill="#21131F"></circle></g></svg>
+            <svg width="192" height="192" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#21131F"></rect><rect x="6" y="6" width="52" height="52" rx="13" fill="#F7EFE1"></rect><circle cx="20" cy="20" r="6.6" fill="#F576A8"></circle><circle cx="32" cy="32" r="6.6" fill="#21131F"></circle><circle cx="44" cy="44" r="6.6" fill="#3FBE9A"></circle></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:22px;flex-wrap:wrap">
+      <div style="width:600px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:24px;margin-bottom:14px">MASKABLE</div>
+        <div style="display:flex;gap:26px;align-items:flex-start">
+          <div style="text-align:center">
+            <div style="position:relative;width:192px;height:192px">
+              <svg width="192" height="192" viewBox="0 0 64 64" style="display:block"><rect width="64" height="64" fill="#21131F"></rect><g transform="rotate(-11 32 32)"><rect x="17" y="17" width="30" height="30" rx="8" fill="#F7EFE1"></rect><circle cx="24.5" cy="24.5" r="3.4" fill="#21131F"></circle><circle cx="39.5" cy="24.5" r="3.4" fill="#3FBE9A"></circle><circle cx="24.5" cy="39.5" r="3.4" fill="#F576A8"></circle><circle cx="39.5" cy="39.5" r="3.4" fill="#21131F"></circle></g></svg>
+              <div style="position:absolute;left:10%;top:10%;width:80%;height:80%;border:2px dashed #F5B02E;border-radius:50%;opacity:.85"></div>
+              <div style="position:absolute;left:14.5%;top:14.5%;width:71%;height:71%;border:2px dashed rgba(245,176,46,.45);border-radius:26%"></div>
+            </div>
+            <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4;margin-top:12px">192 · SAFE AREA MARKED</div>
+          </div>
+          <div style="display:flex;gap:18px;align-items:flex-end">
+            <div style="text-align:center">
+              <svg width="120" height="120" viewBox="0 0 64 64" style="border-radius:50%;display:block"><rect width="64" height="64" fill="#21131F"></rect><g transform="rotate(-11 32 32)"><rect x="17" y="17" width="30" height="30" rx="8" fill="#F7EFE1"></rect><circle cx="24.5" cy="24.5" r="3.4" fill="#21131F"></circle><circle cx="39.5" cy="24.5" r="3.4" fill="#3FBE9A"></circle><circle cx="24.5" cy="39.5" r="3.4" fill="#F576A8"></circle><circle cx="39.5" cy="39.5" r="3.4" fill="#21131F"></circle></g></svg>
+              <div style="font-weight:900;font-size:10px;letter-spacing:.14em;color:#C0A7B4;margin-top:10px">CIRCLE</div>
+            </div>
+            <div style="text-align:center">
+              <svg width="120" height="120" viewBox="0 0 64 64" style="border-radius:26%;display:block"><rect width="64" height="64" fill="#21131F"></rect><g transform="rotate(-11 32 32)"><rect x="17" y="17" width="30" height="30" rx="8" fill="#F7EFE1"></rect><circle cx="24.5" cy="24.5" r="3.4" fill="#21131F"></circle><circle cx="39.5" cy="24.5" r="3.4" fill="#3FBE9A"></circle><circle cx="24.5" cy="39.5" r="3.4" fill="#F576A8"></circle><circle cx="39.5" cy="39.5" r="3.4" fill="#21131F"></circle></g></svg>
+              <div style="font-weight:900;font-size:10px;letter-spacing:.14em;color:#C0A7B4;margin-top:10px">SQUIRCLE</div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:13.5px;line-height:1.55;color:#C0A7B4;margin-top:16px">Plum bleeds to all four edges (no plate radius — the mask supplies it). The die drops from 36 to 30 units and sits entirely inside the 80% safe circle, so the tilted corners never clip. <span style="font-family:ui-monospace,monospace;font-size:12px">"purpose":"maskable any"</span>.</div>
+      </div>
+
+      <div style="width:380px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:24px;margin-bottom:14px">MONOCHROME</div>
+        <div style="display:flex;gap:16px;margin-bottom:14px">
+          <div style="text-align:center">
+            <svg width="140" height="140" viewBox="0 0 64 64" style="outline:1px solid #4B3145;border-radius:25%"><rect width="64" height="64" rx="16" fill="#21131F"></rect><g transform="rotate(-11 32 32)"><rect x="14" y="14" width="36" height="36" rx="10" fill="#F7EFE1"></rect><circle cx="23" cy="23" r="4" fill="#21131F"></circle><circle cx="41" cy="23" r="4" fill="#21131F"></circle><circle cx="23" cy="41" r="4" fill="#21131F"></circle><circle cx="41" cy="41" r="4" fill="#21131F"></circle></g></svg>
+            <div style="font-weight:900;font-size:10px;letter-spacing:.14em;color:#C0A7B4;margin-top:10px">CREAM ON PLUM</div>
+          </div>
+          <div style="text-align:center">
+            <svg width="140" height="140" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#F7EFE1"></rect><g transform="rotate(-11 32 32)"><rect x="14" y="14" width="36" height="36" rx="10" fill="#21131F"></rect><circle cx="23" cy="23" r="4" fill="#F7EFE1"></circle><circle cx="41" cy="23" r="4" fill="#F7EFE1"></circle><circle cx="23" cy="41" r="4" fill="#F7EFE1"></circle><circle cx="41" cy="41" r="4" fill="#F7EFE1"></circle></g></svg>
+            <div style="font-weight:900;font-size:10px;letter-spacing:.14em;color:#C0A7B4;margin-top:10px">PLUM ON CREAM</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center;background:#21131F;border-radius:14px;padding:14px">
+          <svg width="32" height="32" viewBox="0 0 64 64"><rect width="64" height="64" rx="13" fill="#21131F"></rect><rect x="6" y="6" width="52" height="52" rx="13" fill="#F7EFE1"></rect><circle cx="20" cy="20" r="6.6" fill="#21131F"></circle><circle cx="32" cy="32" r="6.6" fill="#21131F"></circle><circle cx="44" cy="44" r="6.6" fill="#21131F"></circle></svg>
+          <svg width="16" height="16" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#21131F"></rect><rect x="6" y="6" width="52" height="52" rx="13" fill="#F7EFE1"></rect><circle cx="20" cy="20" r="6.6" fill="#21131F"></circle><circle cx="32" cy="32" r="6.6" fill="#21131F"></circle><circle cx="44" cy="44" r="6.6" fill="#21131F"></circle></svg>
+          <div style="font-size:12.5px;line-height:1.5;color:#C0A7B4">One-colour favicon: pips become holes in the die, so the diagonal still reads. Two ink levels only — safe for print and embroidery.</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-family:Lilita One,cursive;font-size:24px;margin-bottom:14px">IN USE — HOME HEADER, 380PX</div>
+      <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start">
+        <div style="width:380px;border-radius:26px;overflow:hidden;position:relative;background:#21131F;color:#F7EFE1;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+          <div data-amb style="position:absolute;top:-30%;left:-16%;width:80%;height:130%;border-radius:50%;background:radial-gradient(circle,#3FBE9A 0%,rgba(63,190,154,0) 70%);filter:blur(46px);opacity:.14;animation:amb-a 46s ease-in-out infinite"></div>
+          <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(247,239,225,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.045"></div>
+          <div style="position:relative;padding:24px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="font-weight:900;font-size:10px;letter-spacing:.24em;color:#C0A7B4">WHOSE TURN IS IT ANYWAY</div>
+            <div style="font-family:Lilita One,cursive;font-size:62px;line-height:1.05;margin-top:26px;display:flex;align-items:baseline;color:#F7EFE1">
+              <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+              <span style="display:inline-block;position:relative;transform:rotate(1deg);margin:0 .04em 0 .13em">i<span style="position:absolute;left:50%;top:.06em;transform:translate(-50%,-50%)"><svg width="30" height="30" viewBox="0 0 64 64"><g transform="rotate(-11 32 32)"><rect x="6" y="6" width="52" height="52" rx="14" fill="#F7EFE1"></rect><circle cx="19" cy="19" r="6" fill="#21131F"></circle><circle cx="45" cy="19" r="6" fill="#3FBE9A"></circle><circle cx="19" cy="45" r="6" fill="#F576A8"></circle><circle cx="45" cy="45" r="6" fill="#21131F"></circle></g></svg></span></span>
+              <span style="display:inline-block;transform:rotate(3deg)">p</span>
+            </div>
+            <div style="width:100%;margin-top:12px">
+              <button style="width:100%;min-height:52px;border:0;border-radius:999px;background:#3A2436;color:#F7EFE1;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">👥 JOIN A ROOM</button>
+            </div>
+            <div style="width:100%;display:flex;align-items:center;gap:10px;margin-top:18px">
+              <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4">DICE GAMES</div>
+              <div style="flex:1;height:3px;border-radius:2px;background:#3A2436"></div>
+            </div>
+            <div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+              <div style="border-radius:20px;padding:16px 14px 14px;min-height:96px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;background:#3FBE9A;color:#21131F;border:3px solid #0F6F58;box-shadow:0 6px 0 rgba(0,0,0,.55);transform:rotate(-1.5deg)">
+                <div style="font-size:22px;line-height:1;margin-bottom:4px">🎲</div>
+                <div style="font-weight:900;font-size:17px">Farkle</div>
+                <div style="font-weight:700;font-size:12px;opacity:.9">First to 10,000</div>
+              </div>
+              <div style="border-radius:20px;padding:16px 14px 14px;min-height:96px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;background:#F576A8;color:#21131F;border:3px solid #A82F6A;box-shadow:0 6px 0 rgba(0,0,0,.55);transform:rotate(1.2deg)">
+                <div style="font-size:22px;line-height:1;margin-bottom:4px">🎲</div>
+                <div style="font-weight:900;font-size:17px">Yahtzee</div>
+                <div style="font-weight:700;font-size:12px;opacity:.9">13 rounds</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="width:380px;border-radius:26px;overflow:hidden;position:relative;background:#F7EFE1;color:#21131F;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+          <div data-amb style="position:absolute;top:-30%;left:-16%;width:80%;height:130%;border-radius:50%;background:radial-gradient(circle,#0F6F58 0%,rgba(15,111,88,0) 70%);filter:blur(46px);opacity:.07;animation:amb-a 46s ease-in-out infinite"></div>
+          <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(33,19,31,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.03"></div>
+          <div style="position:relative;padding:24px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div style="font-weight:900;font-size:10px;letter-spacing:.24em;color:#6E5460">WHOSE TURN IS IT ANYWAY</div>
+            <div style="font-family:Lilita One,cursive;font-size:62px;line-height:1.05;margin-top:26px;display:flex;align-items:baseline;color:#21131F">
+              <span style="display:inline-block;transform:rotate(-3deg)">P</span>
+              <span style="display:inline-block;position:relative;transform:rotate(1deg);margin:0 .04em 0 .13em">i<span style="position:absolute;left:50%;top:.06em;transform:translate(-50%,-50%)"><svg width="30" height="30" viewBox="0 0 64 64"><g transform="rotate(-11 32 32)"><rect x="6" y="6" width="52" height="52" rx="14" fill="#21131F"></rect><circle cx="19" cy="19" r="6" fill="#F7EFE1"></circle><circle cx="45" cy="19" r="6" fill="#0F6F58"></circle><circle cx="19" cy="45" r="6" fill="#A82F6A"></circle><circle cx="45" cy="45" r="6" fill="#F7EFE1"></circle></g></svg></span></span>
+              <span style="display:inline-block;transform:rotate(3deg)">p</span>
+            </div>
+            <div style="width:100%;margin-top:12px">
+              <button style="width:100%;min-height:52px;border:2px solid #E2D0BC;border-radius:999px;background:#FFFAF1;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(33,19,31,.22);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.22)">👥 JOIN A ROOM</button>
+            </div>
+            <div style="width:100%;display:flex;align-items:center;gap:10px;margin-top:18px">
+              <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#6E5460">DICE GAMES</div>
+              <div style="flex:1;height:3px;border-radius:2px;background:#E2D0BC"></div>
+            </div>
+            <div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+              <div style="border-radius:20px;padding:16px 14px 14px;min-height:96px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;background:#3FBE9A;color:#21131F;border:3px solid #0F6F58;box-shadow:0 6px 0 rgba(33,19,31,.22);transform:rotate(-1.5deg)">
+                <div style="font-size:22px;line-height:1;margin-bottom:4px">🎲</div>
+                <div style="font-weight:900;font-size:17px">Farkle</div>
+                <div style="font-weight:700;font-size:12px;opacity:.9">First to 10,000</div>
+              </div>
+              <div style="border-radius:20px;padding:16px 14px 14px;min-height:96px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;background:#F576A8;color:#21131F;border:3px solid #A82F6A;box-shadow:0 6px 0 rgba(33,19,31,.22);transform:rotate(1.2deg)">
+                <div style="font-size:22px;line-height:1;margin-bottom:4px">🎲</div>
+                <div style="font-weight:900;font-size:17px">Yahtzee</div>
+                <div style="font-weight:700;font-size:12px;opacity:.9">13 rounds</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:22px;flex-wrap:wrap">
+      <div style="width:640px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px;display:flex;flex-direction:column">
+        <div style="font-family:Lilita One,cursive;font-size:24px;margin-bottom:12px">SVG SOURCE — APP ICON (512 / 192 / 64)</div>
+        <pre style="margin:0;background:#21131F;border-radius:14px;padding:18px;font-family:ui-monospace,SFMono-Regular,monospace;font-size:11.5px;line-height:1.65;color:#DCC9D3;overflow:auto;white-space:pre">&lt;svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"&gt;
+  &lt;rect width="64" height="64" rx="16" fill="#21131F"/&gt;
+  &lt;g transform="rotate(-11 32 32)"&gt;
+    &lt;rect x="14" y="14" width="36" height="36" rx="10" fill="#F7EFE1"/&gt;
+    &lt;circle cx="23" cy="23" r="4" fill="#21131F"/&gt;
+    &lt;circle cx="41" cy="23" r="4" fill="#3FBE9A"/&gt;
+    &lt;circle cx="23" cy="41" r="4" fill="#F576A8"/&gt;
+    &lt;circle cx="41" cy="41" r="4" fill="#21131F"/&gt;
+  &lt;/g&gt;
+&lt;/svg&gt;
+
+&lt;!-- maskable: plate bleeds, die 30u, inside 80% safe circle --&gt;
+&lt;svg viewBox="0 0 64 64"&gt;
+  &lt;rect width="64" height="64" fill="#21131F"/&gt;
+  &lt;g transform="rotate(-11 32 32)"&gt;
+    &lt;rect x="17" y="17" width="30" height="30" rx="8" fill="#F7EFE1"/&gt;
+    &lt;circle cx="24.5" cy="24.5" r="3.4" fill="#21131F"/&gt;
+    &lt;circle cx="39.5" cy="24.5" r="3.4" fill="#3FBE9A"/&gt;
+    &lt;circle cx="24.5" cy="39.5" r="3.4" fill="#F576A8"/&gt;
+    &lt;circle cx="39.5" cy="39.5" r="3.4" fill="#21131F"/&gt;
+  &lt;/g&gt;
+&lt;/svg&gt;
+
+&lt;!-- 16px: diagonal only, no tilt --&gt;
+&lt;svg viewBox="0 0 64 64"&gt;
+  &lt;rect width="64" height="64" rx="12" fill="#21131F"/&gt;
+  &lt;rect x="6" y="6" width="52" height="52" rx="13" fill="#F7EFE1"/&gt;
+  &lt;circle cx="20" cy="20" r="6.6" fill="#F576A8"/&gt;
+  &lt;circle cx="32" cy="32" r="6.6" fill="#21131F"/&gt;
+  &lt;circle cx="44" cy="44" r="6.6" fill="#3FBE9A"/&gt;
+&lt;/svg&gt;</pre>
+      </div>
+      <div style="width:340px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:24px;margin-bottom:12px">CONSTRUCTION</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13.5px;line-height:1.55;color:#C0A7B4">
+          <div><b style="color:#F7EFE1">Grid:</b> 64 × 64 units. Every value is a whole unit or a half, so the mark redraws exactly at any size.</div>
+          <div><b style="color:#F7EFE1">Ratios:</b> plate radius = 16u = <b style="color:#F7EFE1">1/4</b> of the canvas · die = 36u = <b style="color:#F7EFE1">9/16</b> of the canvas · die radius = 10u = <b style="color:#F7EFE1">5/18</b> of the die · pip r = 4u = <b style="color:#F7EFE1">1/9</b> of the die · pip centres inset 9u = <b style="color:#F7EFE1">1/4</b> of the die from its edge.</div>
+          <div><b style="color:#F7EFE1">Tilt:</b> −11° about the canvas centre (32,32). Never the plate, only the die.</div>
+          <div><b style="color:#F7EFE1">Pip order:</b> reading TL→BR, plum · jade · bubblegum · plum. Accents always on the counter-diagonal so the tilt reads as a throw, not a slip.</div>
+          <div><b style="color:#F7EFE1">Wordmark:</b> Lilita One. P −3°, i +1°, p +3°. Die width = 0.47 × cap height, centred on the i stem, 0.06 × cap height of clearance. The font's own tittle sits under the die and is fully covered — no dotless-i substitution needed.</div>
+          <div><b style="color:#F7EFE1">Theme colour:</b> <span style="font-family:ui-monospace,monospace;font-size:12px">#21131F</span> in both modes, for manifest, splash and status bar.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section style="min-width:2680px;padding:56px 64px 96px;background:radial-gradient(1200px 700px at 12% -10%, #241528 0%, #160c14 60%);color:#F7EFE1;font-family:Nunito,sans-serif">
+
+  <div id="1a" style="display:flex;flex-direction:column;gap:44px">
+
+    <div style="display:flex;align-items:flex-start;gap:20px">
+      <span style="font-family:Lilita One,cursive;font-size:15px;letter-spacing:.12em;background:#F5B02E;color:#21131F;padding:7px 14px 5px;border-radius:999px;box-shadow:0 4px 0 rgba(0,0,0,.5);transform:rotate(-2deg)">1A</span>
+      <div style="max-width:860px;display:flex;flex-direction:column;gap:14px">
+        <div style="font-family:Lilita One,cursive;font-size:52px;line-height:.95;letter-spacing:.005em">STAGE 6 — <span style="color:#3FBE9A">PLUM</span> <span style="color:#F576A8">&amp;</span> <span style="color:#F5B02E">PAPER</span></div>
+        <div style="font-size:16px;line-height:1.55;color:#C0A7B4;text-wrap:pretty">Same emotional note as Stage 5, re-mixed. Eight accents, one spec, two grounds, ambient background instead of confetti.</div>
+      </div>
+      <div style="flex:1"></div>
+      <div style="max-width:640px;font-size:14.5px;line-height:1.6;color:#C0A7B4;text-wrap:pretty;border-left:3px solid #4B3145;padding-left:18px">
+        <b style="color:#F7EFE1">Palette reasoning.</b> The plum ground moved off blue-violet toward a warmer mulberry (#21131F) so cream sits on it like ink on a matchbox, not like text on a screen. The accents are mixed on one axis at a time: all eight share a mid-to-high chroma and are spaced ~40–50° apart in hue, but their <i>lightness deliberately varies</i> (marigold L≈0.80, cornflower L≈0.62) — that lightness spread is what keeps four filled chips distinguishable in one table header, including for red–green colour blindness, where hue alone collapses. Coral replaces Stage 5's pink-red so it does not sit next to the bubblegum; the yellow is pulled toward marigold and the green split into pistachio and jade so the warm and cool halves each have a light and a deep member. Both modes now run the <i>same</i> six fills with the same ink text — one button set, nothing to re-learn between themes. The deep versions of those hues (L≈0.35, chroma held) became a 3px border instead of a second fill palette: it gives a bright chip a hard edge against cream paper, adds a sticker-like weight on plum, and keeps every filled chip's contrast promise a single fixed fact rather than a per-mode one.
+      </div>
+    </div>
+
+    <div style="display:flex;gap:24px;flex-wrap:wrap">
+
+      <div style="width:430px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:26px;margin-bottom:4px">1 · PALETTE</div>
+        <div style="font-size:13px;color:#C0A7B4;line-height:1.5;margin-bottom:18px">Every accent has one fixed foreground. Never a per-use decision.</div>
+        <div style="font-size:11px;font-weight:900;letter-spacing:.14em;color:#C0A7B4;margin-bottom:8px">DARK · GROUNDS</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
+          <div><div style="height:44px;border-radius:10px;background:#21131F;border:1px solid #4B3145"></div><div style="font-size:10px;color:#C0A7B4;margin-top:5px;font-family:ui-monospace,monospace">#21131F</div></div>
+          <div><div style="height:44px;border-radius:10px;background:#2C1A29;border:1px solid #4B3145"></div><div style="font-size:10px;color:#C0A7B4;margin-top:5px;font-family:ui-monospace,monospace">#2C1A29</div></div>
+          <div><div style="height:44px;border-radius:10px;background:#3A2436;border:1px solid #4B3145"></div><div style="font-size:10px;color:#C0A7B4;margin-top:5px;font-family:ui-monospace,monospace">#3A2436</div></div>
+          <div><div style="height:44px;border-radius:10px;background:#F7EFE1"></div><div style="font-size:10px;color:#C0A7B4;margin-top:5px;font-family:ui-monospace,monospace">#F7EFE1</div></div>
+        </div>
+        <div style="font-size:11px;font-weight:900;letter-spacing:.14em;color:#C0A7B4;margin-bottom:8px">DARK · PLAYER ACCENTS <span style="font-weight:700;letter-spacing:0">— all take ink text</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:18px">
+          <sc-for list="{{ accD }}" as="a" hint-placeholder-count="8">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:132px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:Lilita One,cursive;font-size:14px;letter-spacing:.06em;background:{{ a.hex }};color:#21131F">{{ a.name }}</div>
+              <div style="font-family:ui-monospace,monospace;font-size:11px;color:#C0A7B4;width:70px">{{ a.hex }}</div>
+              <div style="font-size:12px;color:#F7EFE1"><b>ink</b> · {{ a.cr }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:11px;font-weight:900;letter-spacing:.14em;color:#C0A7B4;margin-bottom:8px">THE DEEP SET · NOW A 3PX BORDER <span style="font-weight:700;letter-spacing:0">— same fill, both modes</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{ accL }}" as="a" hint-placeholder-count="8">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:132px;height:34px;border-radius:9px;border:3px solid {{ a.hex }};display:flex;align-items:center;justify-content:center;font-family:Lilita One,cursive;font-size:14px;letter-spacing:.06em;background:{{ a.fill }};color:#21131F">{{ a.name }}</div>
+              <div style="font-family:ui-monospace,monospace;font-size:11px;color:#C0A7B4;width:70px">{{ a.hex }}</div>
+              <div style="font-size:12px;color:#C0A7B4">edge vs fill {{ a.cr }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:14px;font-size:12.5px;line-height:1.55;color:#C0A7B4">One button set for both modes: the bright fill never changes, ink text never changes, and the deep hue moves to a 3px border — the same thickness as the sticker outline in card 3. On paper the border is what keeps a bright chip from dissolving into the cream ground (edge-vs-fill separation 3.0–4.0:1); on plum it just adds weight. <b style="color:#F7EFE1">The two additions.</b> <b style="color:#4FC3E8">Lagoon</b> and <b style="color:#C48BF0">orchid</b> fill the only two gaps left in the ring — the cyan between jade and cornflower, and the violet between cornflower and bubblegum — and both were pushed <i>light</i> (L≈0.78 and 0.68) on purpose, because the six already leaned dark in the cool half; a light cyan and a light violet mean a six-player table never has two deep cool chips touching. The deep set survives as <i>text</i> colour only — totals and accent letters on paper.</div>
+  <div style="margin-top:14px;padding-top:14px;border-top:1px solid #4B3145;font-size:12.5px;line-height:1.55;color:#C0A7B4">Text pairs: cream on plum <b style="color:#F7EFE1">15.5:1</b> · muted #C0A7B4 on plum <b style="color:#F7EFE1">7.9:1</b> · plum on paper <b style="color:#F7EFE1">15.5:1</b> · muted #6E5460 on paper <b style="color:#F7EFE1">5.9:1</b>.</div>
+      </div>
+
+      <div style="width:430px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:26px;margin-bottom:4px">2 · TYPE</div>
+        <div style="font-size:13px;color:#C0A7B4;line-height:1.5;margin-bottom:20px">Two families, one Google Fonts link. <b style="color:#F7EFE1">Lilita One</b> display · <b style="color:#F7EFE1">Nunito</b> 400–900 UI &amp; numerals (real tabular figures, which Baloo lacks).</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div><div style="font-size:10px;letter-spacing:.16em;color:#C0A7B4;font-weight:900;margin-bottom:4px">WORDMARK · LILITA 44/40 · .01EM</div><div style="font-family:Lilita One,cursive;font-size:44px;line-height:.9">TRACKER</div></div>
+          <div><div style="font-size:10px;letter-spacing:.16em;color:#C0A7B4;font-weight:900;margin-bottom:4px">SCREEN TITLE · LILITA 22 · .06EM UPPER</div><div style="font-family:Lilita One,cursive;font-size:22px;letter-spacing:.06em">FARKLE</div></div>
+          <div><div style="font-size:10px;letter-spacing:.16em;color:#C0A7B4;font-weight:900;margin-bottom:4px">CARD TITLE · NUNITO 900 · 19/22</div><div style="font-weight:900;font-size:19px">Left Right Center</div></div>
+          <div><div style="font-size:10px;letter-spacing:.16em;color:#C0A7B4;font-weight:900;margin-bottom:4px">BUTTON LABEL · LILITA 17 · .08EM UPPER</div><div style="font-family:Lilita One,cursive;font-size:17px;letter-spacing:.08em">ENTER SCORE</div></div>
+          <div><div style="font-size:10px;letter-spacing:.16em;color:#C0A7B4;font-weight:900;margin-bottom:4px">BODY · NUNITO 600 · 15/22</div><div style="font-weight:600;font-size:15px;line-height:1.47;color:#C0A7B4">First to 10,000 points. Six players, one phone, nobody arguing about the arithmetic.</div></div>
+          <div><div style="font-size:10px;letter-spacing:.16em;color:#C0A7B4;font-weight:900;margin-bottom:4px">MICRO LABEL · NUNITO 900 · 11 · .15EM UPPER</div><div style="font-weight:900;font-size:11px;letter-spacing:.15em">DICE GAMES</div></div>
+          <div><div style="font-size:10px;letter-spacing:.16em;color:#C0A7B4;font-weight:900;margin-bottom:4px">TABLE NUMERALS · NUNITO 800 · 17 · TABULAR</div><div style="font-weight:800;font-size:17px;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1;display:flex;gap:18px"><span>3,100</span><span>2,700</span><span>1,150</span><span>950</span></div></div>
+        </div>
+      </div>
+
+      <div style="width:430px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:26px;margin-bottom:4px">3 · SHAPE &amp; ELEVATION</div>
+        <div style="font-size:13px;color:#C0A7B4;line-height:1.5;margin-bottom:18px">Hard offset shadows, no blur. Press = the element lands in its own shadow. Try them.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:20px">
+          <button style="font-family:Lilita One,cursive;font-size:17px;letter-spacing:.08em;background:#F5B02E;color:#21131F;border:3px solid #8A5709;border-radius:999px;padding:13px 24px;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer;min-height:48px" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">ENTER SCORE</button>
+          <button style="font-family:Lilita One,cursive;font-size:17px;letter-spacing:.08em;background:#3A2436;color:#F7EFE1;border:0;border-radius:999px;padding:15px 26px;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer;min-height:48px" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">NEW GAME</button>
+          <button style="font-family:Lilita One,cursive;font-size:17px;letter-spacing:.08em;background:#3FBE9A;color:#21131F;border:3px solid #0F6F58;border-radius:999px;padding:13px 24px;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer;transform:rotate(-2deg);min-height:48px" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:rotate(-2deg) translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">INVITE</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:13.5px;line-height:1.5;color:#C0A7B4">
+          <div><b style="color:#F7EFE1">Border:</b> every accent-filled control carries a <b style="color:#F7EFE1">3px</b> border in the deep version of its own hue — the thickness the sticker outline used. Neutral controls take no accent border. The cream 3px outline is now reserved for the FAB-on-photo case only.</div>
+          <div><b style="color:#F7EFE1">Radii:</b> 999px actions · 20px cards &amp; tiles · 24px sheets · 12px chips · 10px swatches. Never below 10px, never square.</div>
+          <div><b style="color:#F7EFE1">Shadow:</b> <span style="font-family:ui-monospace,monospace;font-size:12px">0 5px 0 rgba(0,0,0,.55)</span> dark · <span style="font-family:ui-monospace,monospace;font-size:12px">0 5px 0 rgba(33,19,31,.22)</span> cream. Tiles 6px, sheets 0 -6px. No blur anywhere in core UI.</div>
+          <div><b style="color:#F7EFE1">Hover:</b> <span style="font-family:ui-monospace,monospace;font-size:12px">filter:brightness(1.06) saturate(1.03)</span>, 120ms — the fill catches a little more light, nothing moves. One composited filter, identical on every accent, and it never fires on touch, so phones only ever see the press.</div>
+          <div><b style="color:#F7EFE1">Press:</b> <span style="font-family:ui-monospace,monospace;font-size:12px">translateY(5px)</span> + shadow to 0, 90ms ease-out. Tap targets ≥ 44px, action bar buttons 52px.</div>
+          <div><b style="color:#F7EFE1">Rotation allowed:</b> game tiles (±1.5°), FAB, invite/sticker buttons, mascot, wordmark glyphs, winner card, empty-state art.</div>
+          <div><b style="color:#F7EFE1">Rotation forbidden:</b> anything in a row of numbers a person compares — the score table, its header chips, totals, standings rows, numeric keypads, input fields. Baselines stay level, always.</div>
+        </div>
+      </div>
+
+      <div style="width:430px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:26px;margin-bottom:4px">4 · AMBIENT BACKGROUND</div>
+        <div style="font-size:13px;color:#C0A7B4;line-height:1.5;margin-bottom:14px">Three blobs, real opacity. This is exactly what ships — look closely, it should be barely there.</div>
+        <div style="position:relative;height:200px;border-radius:18px;overflow:hidden;background:#21131F;border:1px solid #4B3145">
+          <div data-amb style="position:absolute;top:-18%;left:-12%;width:78%;height:130%;border-radius:50%;background:radial-gradient(circle,#3FBE9A 0%,rgba(63,190,154,0) 70%);filter:blur(46px);opacity:.14;animation:amb-a 46s ease-in-out infinite"></div>
+          <div data-amb style="position:absolute;bottom:-30%;right:-14%;width:70%;height:120%;border-radius:50%;background:radial-gradient(circle,#F576A8 0%,rgba(245,118,168,0) 70%);filter:blur(52px);opacity:.11;animation:amb-b 62s ease-in-out infinite"></div>
+          <div data-amb style="position:absolute;top:30%;left:38%;width:44%;height:80%;border-radius:44%;background:radial-gradient(circle,#F5B02E 0%,rgba(245,176,46,0) 72%);filter:blur(44px);opacity:.09;animation:amb-c 120s linear infinite"></div>
+          <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(247,239,225,.5) .5px, transparent .5px);background-size:3px 3px;opacity:.045"></div>
+          <div style="position:relative;padding:18px;font-family:Lilita One,cursive;font-size:20px">CONTENT SITS ABOVE</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:13.5px;line-height:1.5;color:#C0A7B4;margin-top:16px">
+          <div><b style="color:#F7EFE1">Shapes:</b> three radial-gradient ellipses, 44–52px blur, sized 70–78vw so no edge is legible. Jade / bubblegum / marigold in dark; the deep light-mode trio on paper at half those opacities.</div>
+          <div><b style="color:#F7EFE1">Opacity:</b> .14 / .11 / .09 dark, .07 / .06 / .05 cream, plus a 3px dot grain at .045 (.03 cream). Total ambient contrast against ground stays under 1.15:1.</div>
+          <div><b style="color:#F7EFE1">Motion:</b> 46s / 62s / 120s loops, <span style="font-family:ui-monospace,monospace;font-size:12px">translate3d</span> + <span style="font-family:ui-monospace,monospace;font-size:12px">scale</span> only — compositor-only, no layout, no paint, no per-frame JS. Blur is applied once to a static layer; the animation transforms the already-rasterised layer. Three composited quads at ~7% of a mid-range Android's frame budget.</div>
+          <div><b style="color:#F7EFE1">Layering:</b> a single <span style="font-family:ui-monospace,monospace;font-size:12px">position:fixed; inset:0; z-index:0; pointer-events:none</span> host behind an app shell at z-index 1. Nothing ambient can ever be above or catch a tap.</div>
+          <div><b style="color:#F7EFE1">Reduced motion:</b> <span style="font-family:ui-monospace,monospace;font-size:12px">animation:none</span> — blobs freeze at their start position and remain as a static tint. Nothing appears or disappears.</div>
+        </div>
+      </div>
+
+      <div style="width:430px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px">
+        <div style="font-family:Lilita One,cursive;font-size:26px;margin-bottom:4px">5 · IDENTITY</div>
+        <div style="font-size:13px;color:#C0A7B4;line-height:1.5;margin-bottom:18px">Game night, not spreadsheet. The mark is a die that has clearly been thrown.</div>
+        <div style="background:#21131F;border-radius:18px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:16px">
+          <div style="font-weight:900;font-size:10.5px;letter-spacing:.24em;color:#C0A7B4">WHOSE TURN IS IT ANYWAY</div>
+          <div style="font-family:Lilita One,cursive;font-size:46px;line-height:1;display:flex">
+            <span style="transform:rotate(-4deg)">T</span><span style="transform:rotate(2deg)">R</span><span style="transform:rotate(-1deg);color:#3FBE9A">A</span><span style="transform:rotate(3deg)">C</span><span style="transform:rotate(-2deg)">K</span><span style="transform:rotate(1deg);color:#F5B02E">E</span><span style="transform:rotate(-3deg)">R</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:18px;align-items:flex-end;margin-bottom:16px">
+          <div style="text-align:center">
+            <div style="width:120px;height:120px;border-radius:28px;background:#21131F;position:relative;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 rgba(0,0,0,.55)">
+              <div style="width:74px;height:74px;border-radius:20px;background:#F7EFE1;transform:rotate(-11deg);display:grid;grid-template-columns:repeat(2,1fr);gap:9px;padding:14px;box-shadow:0 4px 0 rgba(0,0,0,.3)">
+                <div style="border-radius:50%;background:#21131F"></div><div style="border-radius:50%;background:#3FBE9A"></div>
+                <div style="border-radius:50%;background:#F576A8"></div><div style="border-radius:50%;background:#21131F"></div>
+              </div>
+            </div>
+            <div style="font-size:10.5px;font-weight:900;letter-spacing:.14em;color:#C0A7B4;margin-top:8px">192PX ICON</div>
+          </div>
+          <div style="text-align:center">
+            <div style="width:56px;height:56px;border-radius:14px;background:#21131F;display:flex;align-items:center;justify-content:center">
+              <div style="width:38px;height:38px;border-radius:11px;background:#F7EFE1;transform:rotate(-11deg);display:grid;grid-template-columns:repeat(2,1fr);gap:5px;padding:7px">
+                <div style="border-radius:50%;background:#21131F"></div><div style="border-radius:50%;background:#3FBE9A"></div>
+                <div style="border-radius:50%;background:#F576A8"></div><div style="border-radius:50%;background:#21131F"></div>
+              </div>
+            </div>
+            <div style="font-size:10.5px;font-weight:900;letter-spacing:.14em;color:#C0A7B4;margin-top:8px">32PX</div>
+          </div>
+          <div style="text-align:center">
+            <div style="width:32px;height:32px;border-radius:9px;background:#21131F;display:flex;align-items:center;justify-content:center">
+              <div style="width:22px;height:22px;border-radius:7px;background:#F7EFE1;transform:rotate(-11deg);display:grid;grid-template-columns:repeat(2,1fr);gap:3px;padding:4px">
+                <div style="border-radius:50%;background:#21131F"></div><div style="border-radius:50%;background:#3FBE9A"></div>
+                <div style="border-radius:50%;background:#F576A8"></div><div style="border-radius:50%;background:#21131F"></div>
+              </div>
+            </div>
+            <div style="font-size:10.5px;font-weight:900;letter-spacing:.14em;color:#C0A7B4;margin-top:8px">16PX</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:13.5px;line-height:1.5;color:#C0A7B4">
+          <div><b style="color:#F7EFE1">Mark:</b> a cream die tilted 11° in a plum squircle, two of its four pips replaced by jade and bubblegum — the player-colour idea compressed into the logo. It survives to 16px because it is four circles on a rounded square: no strokes, no fine detail.</div>
+          <div><b style="color:#F7EFE1">Wordmark:</b> Lilita One, per-glyph rotation ±4°, cream with two accent letters (A jade, E marigold). Two, not seven — restraint is the whole difference from Stage 5.</div>
+          <div><b style="color:#F7EFE1">PWA:</b> <span style="font-family:ui-monospace,monospace;font-size:12px">theme_color #21131F</span>, <span style="font-family:ui-monospace,monospace;font-size:12px">background_color #21131F</span>, splash = mark centred on plum. Cream mode keeps the plum theme colour so the status bar never flashes white on launch.</div>
+        </div>
+      </div>
+
+      <div style="width:882px;background:#2C1A29;border:1px solid #4B3145;border-radius:22px;padding:24px;display:flex;flex-direction:column">
+        <div style="font-family:Lilita One,cursive;font-size:26px;margin-bottom:4px">THEME BLOCK</div>
+        <div style="font-size:13px;color:#C0A7B4;line-height:1.5;margin-bottom:14px">Drops straight into the existing <span style="font-family:ui-monospace,monospace;font-size:12px">data-theme</span> / <span style="font-family:ui-monospace,monospace;font-size:12px">data-mode</span> shape. No markup change required for palette, type, shape or ambient.</div>
+        <pre style="margin:0;flex:1;overflow:auto;background:#21131F;border-radius:14px;padding:18px;font-family:ui-monospace,SFMono-Regular,monospace;font-size:11.5px;line-height:1.65;color:#DCC9D3;white-space:pre">:root[data-theme="gamenight"][data-mode="dark"]{
+  --ground:#21131F; --surface:#2C1A29; --surface-2:#3A2436; --border:#4B3145;
+  --text:#F7EFE1;   --muted:#C0A7B4;  --row-a:#291728;    --row-b:#221320;
+  /* accents: ONE set for both modes — bright fill, ink text, 3px deep border */
+  --p1:#F2604C; --p1-fg:#21131F; --p1-bd:#B23A28;  /* punch      5.5:1 */
+  --p2:#F5B02E; --p2-fg:#21131F; --p2-bd:#8A5709;  /* marigold   9.4:1 */
+  --p3:#A8C64F; --p3-fg:#21131F; --p3-bd:#4F6B14;  /* pistachio  9.2:1 */
+  --p4:#3FBE9A; --p4-fg:#21131F; --p4-bd:#0F6F58;  /* jade       7.6:1 */
+  --p5:#4FC3E8; --p5-fg:#21131F; --p5-bd:#14607F;  /* lagoon     8.8:1 */
+  --p6:#7C93EE; --p6-fg:#21131F; --p6-bd:#3A4EAF;  /* cornflower 6.1:1 */
+  --p7:#C48BF0; --p7-fg:#21131F; --p7-bd:#6B33A8;  /* orchid     7.1:1 */
+  --p8:#F576A8; --p8-fg:#21131F; --p8-bd:#A82F6A;  /* bubblegum  6.8:1 */
+  --accent-border:3px;
+  --shadow:0 5px 0 rgba(0,0,0,.55);  --shadow-tile:0 6px 0 rgba(0,0,0,.55);
+  --amb-1:#3FBE9A; --amb-2:#F576A8; --amb-3:#F5B02E;
+  --amb-o1:.14; --amb-o2:.11; --amb-o3:.09; --amb-grain:.045;
+  --theme-color:#21131F;
+}
+:root[data-theme="gamenight"][data-mode="light"]{
+  --ground:#F7EFE1; --surface:#FFFAF1; --surface-2:#F0E3D2; --border:#E2D0BC;
+  --text:#21131F;   --muted:#6E5460;  --row-a:#FFFAF1;    --row-b:#F0E4D4;
+  /* accents inherit from the dark block unchanged — fills, ink text, borders.
+     The deep hues stay available as accent TEXT on paper (totals, letters). */
+  --p1-ink:#B23A28; --p2-ink:#8A5709; --p3-ink:#4F6B14; --p4-ink:#0F6F58;
+  --p5-ink:#14607F; --p6-ink:#3A4EAF; --p7-ink:#6B33A8; --p8-ink:#A82F6A;
+  --shadow:0 5px 0 rgba(33,19,31,.22); --shadow-tile:0 6px 0 rgba(33,19,31,.22);
+  --amb-1:#0F6F58; --amb-2:#A82F6A; --amb-3:#8A5709;
+  --amb-o1:.07; --amb-o2:.06; --amb-o3:.05; --amb-grain:.03;
+  --theme-color:#21131F;   /* stays plum: no white status-bar flash */
+}
+/* type */
+:root{ --font-display:"Lilita One",cursive; --font-ui:"Nunito",system-ui,sans-serif;
+  --t-wordmark:44px/.9; --t-title:22px; --t-card:19px; --t-btn:17px;
+  --t-body:15px/1.47; --t-micro:11px; --t-num:17px; --num:tabular-nums; }
+/* shape */
+:root{ --r-action:999px; --r-card:20px; --r-sheet:24px; --r-chip:12px;
+  --press:translateY(5px); --tilt:1.5deg; --tap:44px; }</pre>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font-family:Lilita One,cursive;font-size:32px">6 · ARTBOARDS — DARK PLUM <span style="color:#C0A7B4;font-size:18px;letter-spacing:.1em">380PX</span></div>
+      <div style="display:flex;gap:28px;flex-wrap:wrap">
+
+        <div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:.15em;color:#C0A7B4;margin-bottom:10px">HOME · GAME GRID</div>
+          <div style="width:380px;height:800px;border-radius:26px;overflow:hidden;position:relative;background:#21131F;color:#F7EFE1;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+            <div data-amb style="position:absolute;top:-14%;left:-16%;width:76%;height:52%;border-radius:50%;background:radial-gradient(circle,#3FBE9A 0%,rgba(63,190,154,0) 70%);filter:blur(46px);opacity:.14;animation:amb-a 46s ease-in-out infinite"></div>
+            <div data-amb style="position:absolute;bottom:2%;right:-20%;width:78%;height:44%;border-radius:50%;background:radial-gradient(circle,#F576A8 0%,rgba(245,118,168,0) 70%);filter:blur(52px);opacity:.11;animation:amb-b 62s ease-in-out infinite"></div>
+            <div data-amb style="position:absolute;top:44%;left:20%;width:60%;height:34%;border-radius:44%;background:radial-gradient(circle,#F5B02E 0%,rgba(245,176,46,0) 72%);filter:blur(44px);opacity:.09;animation:amb-c 120s linear infinite"></div>
+            <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(247,239,225,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.045"></div>
+
+            <div style="position:relative;height:100%;display:flex;flex-direction:column">
+              <div style="padding:22px 20px 14px;display:flex;flex-direction:column;align-items:center;gap:5px">
+                <div style="width:52px;height:52px;border-radius:16px;background:#2C1A29;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 rgba(0,0,0,.5);transform:rotate(-3deg);margin-bottom:8px">
+                  <div style="width:32px;height:32px;border-radius:10px;background:#F7EFE1;transform:rotate(-11deg);display:grid;grid-template-columns:repeat(2,1fr);gap:4px;padding:6px">
+                    <div style="border-radius:50%;background:#21131F"></div><div style="border-radius:50%;background:#3FBE9A"></div>
+                    <div style="border-radius:50%;background:#F576A8"></div><div style="border-radius:50%;background:#21131F"></div>
+                  </div>
+                </div>
+                <div style="font-weight:900;font-size:10px;letter-spacing:.24em;color:#C0A7B4">WHOSE TURN IS IT ANYWAY</div>
+                <div style="font-family:Lilita One,cursive;font-size:42px;line-height:1;display:flex">
+                  <span style="transform:rotate(-4deg)">T</span><span style="transform:rotate(2deg)">R</span><span style="transform:rotate(-1deg);color:#3FBE9A">A</span><span style="transform:rotate(3deg)">C</span><span style="transform:rotate(-2deg)">K</span><span style="transform:rotate(1deg);color:#F5B02E">E</span><span style="transform:rotate(-3deg)">R</span>
+                </div>
+              </div>
+              <div style="padding:6px 20px 16px">
+                <button style="width:100%;min-height:52px;border:0;border-radius:999px;background:#3A2436;color:#F7EFE1;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">👥 JOIN A ROOM</button>
+              </div>
+              <div style="flex:1;overflow:hidden;padding:0 20px 20px">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4">DICE GAMES</div>
+                  <div style="flex:1;height:3px;border-radius:2px;background:#3A2436"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+                  <sc-for list="{{ diceD }}" as="g" hint-placeholder-count="4">
+                    <div style="transform:rotate({{ g.rot }})"><button style="width:100%;border-radius:20px;padding:16px 14px 14px;min-height:118px;display:flex;flex-direction:column;gap:4px;justify-content:flex-end;align-items:flex-start;text-align:left;font-family:Nunito,sans-serif;cursor:pointer;background:{{ g.bg }};color:{{ g.fg }};border:3px solid {{ g.bd }};box-shadow:0 6px 0 rgba(0,0,0,.55)" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(6px);box-shadow:0 0 0 rgba(0,0,0,.55)">
+                      <div style="font-size:24px;line-height:1;margin-bottom:6px">{{ g.emoji }}</div>
+                      <div style="font-weight:900;font-size:17px;line-height:1.1">{{ g.name }}</div>
+                      <div style="font-weight:700;font-size:12px;opacity:.9">{{ g.sub }}</div>
+                    </button></div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4">CARD GAMES</div>
+                  <div style="flex:1;height:3px;border-radius:2px;background:#3A2436"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <sc-for list="{{ cardD }}" as="g" hint-placeholder-count="2">
+                    <div style="transform:rotate({{ g.rot }})"><button style="width:100%;border-radius:20px;padding:16px 14px 14px;min-height:118px;display:flex;flex-direction:column;gap:4px;justify-content:flex-end;align-items:flex-start;text-align:left;font-family:Nunito,sans-serif;cursor:pointer;background:{{ g.bg }};color:{{ g.fg }};border:3px solid {{ g.bd }};box-shadow:0 6px 0 rgba(0,0,0,.55)" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(6px);box-shadow:0 0 0 rgba(0,0,0,.55)">
+                      <div style="font-size:24px;line-height:1;margin-bottom:6px">{{ g.emoji }}</div>
+                      <div style="font-weight:900;font-size:17px;line-height:1.1">{{ g.name }}</div>
+                      <div style="font-weight:700;font-size:12px;opacity:.9">{{ g.sub }}</div>
+                    </button></div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:.15em;color:#C0A7B4;margin-bottom:10px">SCORE TRACKER · MID-GAME</div>
+          <div style="width:380px;height:800px;border-radius:26px;overflow:hidden;position:relative;background:#21131F;color:#F7EFE1;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+            <div data-amb style="position:absolute;top:8%;right:-24%;width:70%;height:40%;border-radius:50%;background:radial-gradient(circle,#F5B02E 0%,rgba(245,176,46,0) 70%);filter:blur(48px);opacity:.09;animation:amb-b 62s ease-in-out infinite"></div>
+            <div data-amb style="position:absolute;bottom:-10%;left:-18%;width:74%;height:40%;border-radius:50%;background:radial-gradient(circle,#3FBE9A 0%,rgba(63,190,154,0) 70%);filter:blur(48px);opacity:.13;animation:amb-a 46s ease-in-out infinite"></div>
+            <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(247,239,225,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.045"></div>
+
+            <div style="position:relative;height:100%;display:flex;flex-direction:column">
+              <div style="padding:16px 18px 14px;display:flex;align-items:center;gap:12px;border-bottom:3px solid #3A2436">
+                <div style="width:44px;height:44px;border-radius:999px;background:#F5B02E;color:#21131F;border:3px solid #8A5709;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.5)">‹</div>
+                <div style="flex:1;text-align:center;font-family:Lilita One,cursive;font-size:22px;letter-spacing:.06em">FARKLE</div>
+                <div style="width:44px;height:44px;border-radius:999px;background:#3A2436;border:3px solid #4B3145;box-shadow:0 4px 0 rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">?</div>
+                <div style="width:44px;height:44px;border-radius:999px;background:#3A2436;border:3px solid #4B3145;box-shadow:0 4px 0 rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-size:16px">⚙</div>
+              </div>
+              <div style="padding:14px 18px 10px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:8px;align-items:center">
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.1em;background:#2C1A29;border:2px solid #4B3145;border-radius:999px;padding:7px 12px">ROOM 4KJ2</div>
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.1em;background:#3FBE9A;color:#21131F;border:3px solid #0F6F58;border-radius:999px;padding:5px 10px;box-shadow:0 3px 0 rgba(0,0,0,.5);transform:rotate(-1.5deg)">🔗 INVITE</div>
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.1em;background:#F2604C;color:#21131F;border:3px solid #B23A28;border-radius:999px;padding:5px 10px;box-shadow:0 3px 0 rgba(0,0,0,.5);transform:rotate(1.5deg)">SCORER</div>
+                </div>
+                <div style="background:#2C1A29;border:2px solid #4B3145;border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:10px">
+                  <div style="font-size:16px">👑</div>
+                  <div style="font-weight:900;font-size:14px">BEN LEADS BY <span style="font-variant-numeric:tabular-nums">400</span></div>
+                  <div style="flex:1"></div>
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.1em;color:#C0A7B4">ROUND 6</div>
+                </div>
+              </div>
+
+              <div style="padding:6px 18px 0">
+                <div style="display:grid;grid-template-columns:40px repeat(4,1fr);gap:6px;align-items:end;padding-bottom:8px">
+                  <div style="font-weight:900;font-size:11px;color:#C0A7B4;text-align:center">#</div>
+                  <sc-for list="{{ playersD }}" as="p" hint-placeholder-count="4">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                      <div style="font-weight:900;font-size:10px;letter-spacing:.08em;color:#C0A7B4">{{ p.rank }}</div>
+                      <div style="width:100%;border-radius:12px;background:{{ p.bg }};color:#21131F;border:3px solid {{ p.bd }};font-weight:900;font-size:13px;text-align:center;padding:5px 2px;position:relative">{{ p.name }}<span style="position:absolute;top:-9px;right:-4px;font-size:13px">{{ p.crown }}</span></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="flex:1;overflow:hidden;padding:0 18px">
+                <div style="border-radius:16px;overflow:hidden;border:2px solid #3A2436">
+                  <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+                    <div style="display:grid;grid-template-columns:40px repeat(4,1fr);gap:6px;padding:11px 0;background:{{ r.bg }}">
+                      <div style="text-align:center;font-weight:800;font-size:13px;color:#C0A7B4;font-variant-numeric:tabular-nums">{{ r.n }}</div>
+                      <sc-for list="{{ r.v }}" as="v" hint-placeholder-count="4">
+                        <div style="text-align:center;font-weight:800;font-size:17px;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1">{{ v }}</div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                  <div style="display:grid;grid-template-columns:40px repeat(4,1fr);gap:6px;padding:13px 0;background:#3A2436;border-top:3px solid #4B3145">
+                    <div style="text-align:center;font-family:Lilita One,cursive;font-size:12px;letter-spacing:.06em;color:#C0A7B4;align-self:center">TOT</div>
+                    <sc-for list="{{ totalsD }}" as="t" hint-placeholder-count="4">
+                      <div style="text-align:center;font-weight:900;font-size:19px;font-variant-numeric:tabular-nums;color:{{ t.c }};text-decoration:{{ t.u }};text-decoration-thickness:3px;text-underline-offset:4px">{{ t.v }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;margin-top:14px">
+                  <div style="width:60px;height:60px;border-radius:999px;background:#F2604C;color:#21131F;border:3px solid #B23A28;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;box-shadow:0 5px 0 rgba(0,0,0,.55);transform:rotate(-3deg)">+</div>
+                </div>
+              </div>
+
+              <div style="padding:14px 18px 18px;display:flex;gap:10px;border-top:3px solid #3A2436;background:rgba(33,19,31,.6)">
+                <button style="flex:2;min-height:52px;border:3px solid #8A5709;border-radius:999px;background:#F5B02E;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">ENTER SCORE</button>
+                <button style="flex:1;min-height:52px;border:0;border-radius:999px;background:#3A2436;color:#F7EFE1;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">NEW GAME</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:.15em;color:#C0A7B4;margin-bottom:10px">SCORE ENTRY SHEET</div>
+          <div style="width:380px;height:800px;border-radius:26px;overflow:hidden;position:relative;background:#21131F;color:#F7EFE1;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+            <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(247,239,225,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.045"></div>
+            <div style="position:relative;height:100%;display:flex;flex-direction:column">
+              <div style="padding:16px 18px 12px;display:flex;align-items:center;gap:12px;border-bottom:3px solid #3A2436;opacity:.4">
+                <div style="width:40px;height:40px;border-radius:999px;background:#3A2436"></div>
+                <div style="flex:1;text-align:center;font-family:Lilita One,cursive;font-size:20px;letter-spacing:.06em">FARKLE</div>
+                <div style="width:40px;height:40px;border-radius:999px;background:#3A2436"></div>
+              </div>
+              <div style="flex:1;opacity:.28;padding:14px 18px;display:flex;flex-direction:column;gap:9px">
+                <sc-for list="{{ ghost }}" as="g" hint-placeholder-count="7">
+                  <div style="height:26px;border-radius:8px;background:{{ g }}"></div>
+                </sc-for>
+              </div>
+              <div style="position:absolute;inset:0;background:rgba(22,12,20,.55)"></div>
+
+              <div style="position:absolute;left:0;right:0;bottom:0;background:#2C1A29;border-top:3px solid #4B3145;border-radius:24px 24px 0 0;padding:14px 18px 20px;box-shadow:0 -8px 0 rgba(0,0,0,.35)">
+                <div style="width:56px;height:5px;border-radius:3px;background:#4B3145;margin:0 auto 14px"></div>
+                <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px">
+                  <div style="font-family:Lilita One,cursive;font-size:26px">ROUND 7</div>
+                  <div style="font-weight:700;font-size:13px;color:#C0A7B4">tap a player, type the score</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:9px;margin:14px 0 16px">
+                  <sc-for list="{{ entryD }}" as="e" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:96px 1fr 100px;gap:10px;align-items:center">
+                      <div style="border-radius:12px;background:{{ e.bg }};color:#21131F;border:3px solid {{ e.chipBd }};font-weight:900;font-size:14px;text-align:center;padding:9px 4px">{{ e.name }}</div>
+                      <div style="min-height:48px;border-radius:12px;background:#21131F;border:2px solid {{ e.border }};display:flex;align-items:center;justify-content:flex-end;padding:0 14px;font-weight:900;font-size:22px;font-variant-numeric:tabular-nums;color:{{ e.valColor }}">{{ e.val }}</div>
+                      <div style="font-weight:800;font-size:12px;color:#C0A7B4;text-align:right;font-variant-numeric:tabular-nums">→ {{ e.total }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+                  <sc-for list="{{ quick }}" as="q" hint-placeholder-count="4">
+                    <div style="min-height:44px;border-radius:12px;background:#3A2436;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums;box-shadow:0 4px 0 rgba(0,0,0,.5)">{{ q }}</div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;gap:10px">
+                  <button style="flex:1;min-height:52px;border:0;border-radius:999px;background:#3A2436;color:#F7EFE1;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">CANCEL</button>
+                  <button style="flex:2;min-height:52px;border:3px solid #0F6F58;border-radius:999px;background:#3FBE9A;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">SAVE ROUND</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:.15em;color:#C0A7B4;margin-bottom:10px">WINNER CELEBRATION</div>
+          <div style="width:380px;height:800px;border-radius:26px;overflow:hidden;position:relative;background:#21131F;color:#F7EFE1;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+            <div data-amb style="position:absolute;top:-6%;left:-14%;width:90%;height:56%;border-radius:50%;background:radial-gradient(circle,#3FBE9A 0%,rgba(63,190,154,0) 70%);filter:blur(50px);opacity:.2;animation:amb-a 46s ease-in-out infinite"></div>
+            <div data-amb style="position:absolute;bottom:-16%;right:-20%;width:88%;height:52%;border-radius:50%;background:radial-gradient(circle,#F5B02E 0%,rgba(245,176,46,0) 70%);filter:blur(50px);opacity:.16;animation:amb-b 62s ease-in-out infinite"></div>
+            <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(247,239,225,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.045"></div>
+
+            <div style="position:relative;height:100%;display:flex;flex-direction:column;padding:28px 20px 20px">
+              <div style="text-align:center;font-weight:900;font-size:10px;letter-spacing:.24em;color:#C0A7B4;margin-bottom:18px">FARKLE · 6 ROUNDS · 21 MINUTES</div>
+              <div style="background:#3FBE9A;color:#21131F;border:3px solid #0F6F58;border-radius:24px;padding:24px 18px 20px;text-align:center;box-shadow:0 8px 0 rgba(0,0,0,.55);transform:rotate(-2deg);margin-bottom:26px">
+                <div style="font-size:42px;line-height:1;margin-bottom:8px">👑</div>
+                <div style="font-weight:900;font-size:11px;letter-spacing:.2em;margin-bottom:2px">1ST PLACE · WINNER</div>
+                <div style="font-family:Lilita One,cursive;font-size:52px;line-height:1">BEN</div>
+                <div style="font-weight:900;font-size:22px;font-variant-numeric:tabular-nums;margin-top:2px">10,150 pts</div>
+              </div>
+              <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#C0A7B4;margin-bottom:10px">FINAL STANDINGS</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ standD }}" as="s" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:34px 22px 1fr auto;gap:10px;align-items:center;background:{{ s.row }};border:2px solid #3A2436;border-radius:14px;padding:11px 14px">
+                    <div style="font-family:Lilita One,cursive;font-size:16px;color:#C0A7B4">{{ s.place }}</div>
+                    <div style="width:18px;height:18px;border-radius:6px;background:{{ s.bg }};border:2px solid {{ s.bd }}"></div>
+                    <div style="font-weight:900;font-size:16px">{{ s.name }}</div>
+                    <div style="font-weight:900;font-size:18px;font-variant-numeric:tabular-nums">{{ s.pts }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="flex:1"></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <button style="width:100%;min-height:52px;border:3px solid #8A5709;border-radius:999px;background:#F5B02E;color:#21131F;font-family:Lilita One,cursive;font-size:17px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">REMATCH · SAME PLAYERS</button>
+                <button style="width:100%;min-height:52px;border:0;border-radius:999px;background:#3A2436;color:#F7EFE1;font-family:Lilita One,cursive;font-size:17px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)">BACK TO GAMES</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font-family:Lilita One,cursive;font-size:32px">ARTBOARDS — CREAM LIGHT <span style="color:#C0A7B4;font-size:18px;letter-spacing:.1em">380PX</span></div>
+      <div style="display:flex;gap:28px;flex-wrap:wrap">
+
+        <div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:.15em;color:#C0A7B4;margin-bottom:10px">HOME · GAME GRID</div>
+          <div style="width:380px;height:800px;border-radius:26px;overflow:hidden;position:relative;background:#F7EFE1;color:#21131F;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+            <div data-amb style="position:absolute;top:-14%;left:-16%;width:76%;height:52%;border-radius:50%;background:radial-gradient(circle,#0F6F58 0%,rgba(15,111,88,0) 70%);filter:blur(46px);opacity:.07;animation:amb-a 46s ease-in-out infinite"></div>
+            <div data-amb style="position:absolute;bottom:2%;right:-20%;width:78%;height:44%;border-radius:50%;background:radial-gradient(circle,#A82F6A 0%,rgba(168,47,106,0) 70%);filter:blur(52px);opacity:.06;animation:amb-b 62s ease-in-out infinite"></div>
+            <div data-amb style="position:absolute;top:44%;left:20%;width:60%;height:34%;border-radius:44%;background:radial-gradient(circle,#8A5709 0%,rgba(138,87,9,0) 72%);filter:blur(44px);opacity:.05;animation:amb-c 120s linear infinite"></div>
+            <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(33,19,31,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.03"></div>
+
+            <div style="position:relative;height:100%;display:flex;flex-direction:column">
+              <div style="padding:22px 20px 14px;display:flex;flex-direction:column;align-items:center;gap:5px">
+                <div style="width:52px;height:52px;border-radius:16px;background:#21131F;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 rgba(33,19,31,.22);transform:rotate(-3deg);margin-bottom:8px">
+                  <div style="width:32px;height:32px;border-radius:10px;background:#F7EFE1;transform:rotate(-11deg);display:grid;grid-template-columns:repeat(2,1fr);gap:4px;padding:6px">
+                    <div style="border-radius:50%;background:#21131F"></div><div style="border-radius:50%;background:#3FBE9A"></div>
+                    <div style="border-radius:50%;background:#F576A8"></div><div style="border-radius:50%;background:#21131F"></div>
+                  </div>
+                </div>
+                <div style="font-weight:900;font-size:10px;letter-spacing:.24em;color:#6E5460">WHOSE TURN IS IT ANYWAY</div>
+                <div style="font-family:Lilita One,cursive;font-size:42px;line-height:1;display:flex">
+                  <span style="transform:rotate(-4deg)">T</span><span style="transform:rotate(2deg)">R</span><span style="transform:rotate(-1deg);color:#0F6F58">A</span><span style="transform:rotate(3deg)">C</span><span style="transform:rotate(-2deg)">K</span><span style="transform:rotate(1deg);color:#8A5709">E</span><span style="transform:rotate(-3deg)">R</span>
+                </div>
+              </div>
+              <div style="padding:6px 20px 16px">
+                <button style="width:100%;min-height:52px;border:0;border-radius:999px;background:#FFFAF1;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(33,19,31,.22);cursor:pointer;border:2px solid #E2D0BC" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.22)">👥 JOIN A ROOM</button>
+              </div>
+              <div style="flex:1;overflow:hidden;padding:0 20px 20px">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#6E5460">DICE GAMES</div>
+                  <div style="flex:1;height:3px;border-radius:2px;background:#E2D0BC"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+                  <sc-for list="{{ diceL }}" as="g" hint-placeholder-count="4">
+                    <div style="transform:rotate({{ g.rot }})"><button style="width:100%;border-radius:20px;padding:16px 14px 14px;min-height:118px;display:flex;flex-direction:column;gap:4px;justify-content:flex-end;align-items:flex-start;text-align:left;font-family:Nunito,sans-serif;cursor:pointer;background:{{ g.bg }};color:{{ g.fg }};border:3px solid {{ g.bd }};box-shadow:0 6px 0 rgba(33,19,31,.22)" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(6px);box-shadow:0 0 0 rgba(33,19,31,.22)">
+                      <div style="font-size:24px;line-height:1;margin-bottom:6px">{{ g.emoji }}</div>
+                      <div style="font-weight:900;font-size:17px;line-height:1.1">{{ g.name }}</div>
+                      <div style="font-weight:700;font-size:12px;opacity:.9">{{ g.sub }}</div>
+                    </button></div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#6E5460">CARD GAMES</div>
+                  <div style="flex:1;height:3px;border-radius:2px;background:#E2D0BC"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <sc-for list="{{ cardL }}" as="g" hint-placeholder-count="2">
+                    <div style="transform:rotate({{ g.rot }})"><button style="width:100%;border-radius:20px;padding:16px 14px 14px;min-height:118px;display:flex;flex-direction:column;gap:4px;justify-content:flex-end;align-items:flex-start;text-align:left;font-family:Nunito,sans-serif;cursor:pointer;background:{{ g.bg }};color:{{ g.fg }};border:3px solid {{ g.bd }};box-shadow:0 6px 0 rgba(33,19,31,.22)" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(6px);box-shadow:0 0 0 rgba(33,19,31,.22)">
+                      <div style="font-size:24px;line-height:1;margin-bottom:6px">{{ g.emoji }}</div>
+                      <div style="font-weight:900;font-size:17px;line-height:1.1">{{ g.name }}</div>
+                      <div style="font-weight:700;font-size:12px;opacity:.9">{{ g.sub }}</div>
+                    </button></div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:.15em;color:#C0A7B4;margin-bottom:10px">SCORE TRACKER · MID-GAME</div>
+          <div style="width:380px;height:800px;border-radius:26px;overflow:hidden;position:relative;background:#F7EFE1;color:#21131F;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+            <div data-amb style="position:absolute;top:8%;right:-24%;width:70%;height:40%;border-radius:50%;background:radial-gradient(circle,#8A5709 0%,rgba(138,87,9,0) 70%);filter:blur(48px);opacity:.05;animation:amb-b 62s ease-in-out infinite"></div>
+            <div data-amb style="position:absolute;bottom:-10%;left:-18%;width:74%;height:40%;border-radius:50%;background:radial-gradient(circle,#0F6F58 0%,rgba(15,111,88,0) 70%);filter:blur(48px);opacity:.07;animation:amb-a 46s ease-in-out infinite"></div>
+            <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(33,19,31,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.03"></div>
+
+            <div style="position:relative;height:100%;display:flex;flex-direction:column">
+              <div style="padding:16px 18px 14px;display:flex;align-items:center;gap:12px;border-bottom:3px solid #E2D0BC">
+                <div style="width:44px;height:44px;border-radius:999px;background:#F5B02E;color:#21131F;border:3px solid #8A5709;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;box-shadow:0 4px 0 rgba(33,19,31,.22)">‹</div>
+                <div style="flex:1;text-align:center;font-family:Lilita One,cursive;font-size:22px;letter-spacing:.06em">FARKLE</div>
+                <div style="width:44px;height:44px;border-radius:999px;background:#FFFAF1;border:3px solid #E2D0BC;box-shadow:0 4px 0 rgba(33,19,31,.22);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px">?</div>
+                <div style="width:44px;height:44px;border-radius:999px;background:#FFFAF1;border:3px solid #E2D0BC;box-shadow:0 4px 0 rgba(33,19,31,.22);display:flex;align-items:center;justify-content:center;font-size:16px">⚙</div>
+              </div>
+              <div style="padding:14px 18px 10px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:8px;align-items:center">
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.1em;background:#FFFAF1;border:2px solid #E2D0BC;border-radius:999px;padding:7px 12px">ROOM 4KJ2</div>
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.1em;background:#3FBE9A;color:#21131F;border:3px solid #0F6F58;border-radius:999px;padding:5px 10px;box-shadow:0 3px 0 rgba(33,19,31,.22);transform:rotate(-1.5deg)">🔗 INVITE</div>
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.1em;background:#F2604C;color:#21131F;border:3px solid #B23A28;border-radius:999px;padding:5px 10px;box-shadow:0 3px 0 rgba(33,19,31,.22);transform:rotate(1.5deg)">SCORER</div>
+                </div>
+                <div style="background:#FFFAF1;border:2px solid #E2D0BC;border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:10px">
+                  <div style="font-size:16px">👑</div>
+                  <div style="font-weight:900;font-size:14px">BEN LEADS BY <span style="font-variant-numeric:tabular-nums">400</span></div>
+                  <div style="flex:1"></div>
+                  <div style="font-weight:900;font-size:11px;letter-spacing:.1em;color:#6E5460">ROUND 6</div>
+                </div>
+              </div>
+
+              <div style="padding:6px 18px 0">
+                <div style="display:grid;grid-template-columns:40px repeat(4,1fr);gap:6px;align-items:end;padding-bottom:8px">
+                  <div style="font-weight:900;font-size:11px;color:#6E5460;text-align:center">#</div>
+                  <sc-for list="{{ playersL }}" as="p" hint-placeholder-count="4">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                      <div style="font-weight:900;font-size:10px;letter-spacing:.08em;color:#6E5460">{{ p.rank }}</div>
+                      <div style="width:100%;border-radius:12px;background:{{ p.bg }};color:#21131F;border:3px solid {{ p.bd }};font-weight:900;font-size:13px;text-align:center;padding:5px 2px;position:relative">{{ p.name }}<span style="position:absolute;top:-9px;right:-4px;font-size:13px">{{ p.crown }}</span></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="flex:1;overflow:hidden;padding:0 18px">
+                <div style="border-radius:16px;overflow:hidden;border:2px solid #E2D0BC">
+                  <sc-for list="{{ rowsL }}" as="r" hint-placeholder-count="6">
+                    <div style="display:grid;grid-template-columns:40px repeat(4,1fr);gap:6px;padding:11px 0;background:{{ r.bg }}">
+                      <div style="text-align:center;font-weight:800;font-size:13px;color:#6E5460;font-variant-numeric:tabular-nums">{{ r.n }}</div>
+                      <sc-for list="{{ r.v }}" as="v" hint-placeholder-count="4">
+                        <div style="text-align:center;font-weight:800;font-size:17px;font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1">{{ v }}</div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                  <div style="display:grid;grid-template-columns:40px repeat(4,1fr);gap:6px;padding:13px 0;background:#F0E3D2;border-top:3px solid #E2D0BC">
+                    <div style="text-align:center;font-family:Lilita One,cursive;font-size:12px;letter-spacing:.06em;color:#6E5460;align-self:center">TOT</div>
+                    <sc-for list="{{ totalsL }}" as="t" hint-placeholder-count="4">
+                      <div style="text-align:center;font-weight:900;font-size:19px;font-variant-numeric:tabular-nums;color:{{ t.c }};text-decoration:{{ t.u }};text-decoration-thickness:3px;text-underline-offset:4px">{{ t.v }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;margin-top:14px">
+                  <div style="width:60px;height:60px;border-radius:999px;background:#F2604C;color:#21131F;border:3px solid #B23A28;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;box-shadow:0 5px 0 rgba(33,19,31,.28);transform:rotate(-3deg)">+</div>
+                </div>
+              </div>
+
+              <div style="padding:14px 18px 18px;display:flex;gap:10px;border-top:3px solid #E2D0BC;background:rgba(247,239,225,.7)">
+                <button style="flex:2;min-height:52px;border:3px solid #8A5709;border-radius:999px;background:#F5B02E;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(33,19,31,.28);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.28)">ENTER SCORE</button>
+                <button style="flex:1;min-height:52px;border:2px solid #E2D0BC;border-radius:999px;background:#FFFAF1;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(33,19,31,.22);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.22)">NEW GAME</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:.15em;color:#C0A7B4;margin-bottom:10px">SCORE ENTRY SHEET</div>
+          <div style="width:380px;height:800px;border-radius:26px;overflow:hidden;position:relative;background:#F7EFE1;color:#21131F;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+            <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(33,19,31,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.03"></div>
+            <div style="position:relative;height:100%;display:flex;flex-direction:column">
+              <div style="padding:16px 18px 12px;display:flex;align-items:center;gap:12px;border-bottom:3px solid #E2D0BC;opacity:.5">
+                <div style="width:40px;height:40px;border-radius:999px;background:#F0E3D2"></div>
+                <div style="flex:1;text-align:center;font-family:Lilita One,cursive;font-size:20px;letter-spacing:.06em">FARKLE</div>
+                <div style="width:40px;height:40px;border-radius:999px;background:#F0E3D2"></div>
+              </div>
+              <div style="flex:1;opacity:.5;padding:14px 18px;display:flex;flex-direction:column;gap:9px">
+                <sc-for list="{{ ghostL }}" as="g" hint-placeholder-count="7">
+                  <div style="height:26px;border-radius:8px;background:{{ g }}"></div>
+                </sc-for>
+              </div>
+              <div style="position:absolute;inset:0;background:rgba(33,19,31,.42)"></div>
+
+              <div style="position:absolute;left:0;right:0;bottom:0;background:#FFFAF1;border-top:3px solid #E2D0BC;border-radius:24px 24px 0 0;padding:14px 18px 20px;box-shadow:0 -8px 0 rgba(33,19,31,.14)">
+                <div style="width:56px;height:5px;border-radius:3px;background:#E2D0BC;margin:0 auto 14px"></div>
+                <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px">
+                  <div style="font-family:Lilita One,cursive;font-size:26px">ROUND 7</div>
+                  <div style="font-weight:700;font-size:13px;color:#6E5460">tap a player, type the score</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:9px;margin:14px 0 16px">
+                  <sc-for list="{{ entryL }}" as="e" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:96px 1fr 100px;gap:10px;align-items:center">
+                      <div style="border-radius:12px;background:{{ e.bg }};color:#21131F;border:3px solid {{ e.chipBd }};font-weight:900;font-size:14px;text-align:center;padding:9px 4px">{{ e.name }}</div>
+                      <div style="min-height:48px;border-radius:12px;background:#F7EFE1;border:2px solid {{ e.border }};display:flex;align-items:center;justify-content:flex-end;padding:0 14px;font-weight:900;font-size:22px;font-variant-numeric:tabular-nums;color:{{ e.valColor }}">{{ e.val }}</div>
+                      <div style="font-weight:800;font-size:12px;color:#6E5460;text-align:right;font-variant-numeric:tabular-nums">→ {{ e.total }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+                  <sc-for list="{{ quick }}" as="q" hint-placeholder-count="4">
+                    <div style="min-height:44px;border-radius:12px;background:#F0E3D2;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums;box-shadow:0 4px 0 rgba(33,19,31,.18)">{{ q }}</div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;gap:10px">
+                  <button style="flex:1;min-height:52px;border:2px solid #E2D0BC;border-radius:999px;background:#F7EFE1;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(33,19,31,.22);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.22)">CANCEL</button>
+                  <button style="flex:2;min-height:52px;border:3px solid #0F6F58;border-radius:999px;background:#3FBE9A;color:#21131F;font-family:Lilita One,cursive;font-size:16px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(33,19,31,.28);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.28)">SAVE ROUND</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:11px;font-weight:900;letter-spacing:.15em;color:#C0A7B4;margin-bottom:10px">WINNER CELEBRATION</div>
+          <div style="width:380px;height:800px;border-radius:26px;overflow:hidden;position:relative;background:#F7EFE1;color:#21131F;box-shadow:0 10px 0 rgba(0,0,0,.4)">
+            <div data-amb style="position:absolute;top:-6%;left:-14%;width:90%;height:56%;border-radius:50%;background:radial-gradient(circle,#0F6F58 0%,rgba(15,111,88,0) 70%);filter:blur(50px);opacity:.1;animation:amb-a 46s ease-in-out infinite"></div>
+            <div data-amb style="position:absolute;bottom:-16%;right:-20%;width:88%;height:52%;border-radius:50%;background:radial-gradient(circle,#8A5709 0%,rgba(138,87,9,0) 70%);filter:blur(50px);opacity:.08;animation:amb-b 62s ease-in-out infinite"></div>
+            <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(33,19,31,.5) .5px,transparent .5px);background-size:3px 3px;opacity:.03"></div>
+
+            <div style="position:relative;height:100%;display:flex;flex-direction:column;padding:28px 20px 20px">
+              <div style="text-align:center;font-weight:900;font-size:10px;letter-spacing:.24em;color:#6E5460;margin-bottom:18px">FARKLE · 6 ROUNDS · 21 MINUTES</div>
+              <div style="background:#3FBE9A;color:#21131F;border:3px solid #0F6F58;border-radius:24px;padding:24px 18px 20px;text-align:center;box-shadow:0 8px 0 rgba(33,19,31,.28);transform:rotate(-2deg);margin-bottom:26px">
+                <div style="font-size:42px;line-height:1;margin-bottom:8px">👑</div>
+                <div style="font-weight:900;font-size:11px;letter-spacing:.2em;margin-bottom:2px">1ST PLACE · WINNER</div>
+                <div style="font-family:Lilita One,cursive;font-size:52px;line-height:1">BEN</div>
+                <div style="font-weight:900;font-size:22px;font-variant-numeric:tabular-nums;margin-top:2px">10,150 pts</div>
+              </div>
+              <div style="font-weight:900;font-size:11px;letter-spacing:.15em;color:#6E5460;margin-bottom:10px">FINAL STANDINGS</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ standL }}" as="s" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:34px 22px 1fr auto;gap:10px;align-items:center;background:{{ s.row }};border:2px solid #E2D0BC;border-radius:14px;padding:11px 14px">
+                    <div style="font-family:Lilita One,cursive;font-size:16px;color:#6E5460">{{ s.place }}</div>
+                    <div style="width:18px;height:18px;border-radius:6px;background:{{ s.bg }};border:2px solid {{ s.bd }}"></div>
+                    <div style="font-weight:900;font-size:16px">{{ s.name }}</div>
+                    <div style="font-weight:900;font-size:18px;font-variant-numeric:tabular-nums">{{ s.pts }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="flex:1"></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <button style="width:100%;min-height:52px;border:3px solid #8A5709;border-radius:999px;background:#F5B02E;color:#21131F;font-family:Lilita One,cursive;font-size:17px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(33,19,31,.28);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.28)">REMATCH · SAME PLAYERS</button>
+                <button style="width:100%;min-height:52px;border:2px solid #E2D0BC;border-radius:999px;background:#FFFAF1;color:#21131F;font-family:Lilita One,cursive;font-size:17px;letter-spacing:.08em;box-shadow:0 5px 0 rgba(33,19,31,.22);cursor:pointer" style-hover="filter:brightness(1.06) saturate(1.03)" style-active="transform:translateY(5px);box-shadow:0 0 0 rgba(33,19,31,.22)">BACK TO GAMES</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="max-width:1200px;font-size:13.5px;line-height:1.6;color:#C0A7B4;border-top:1px solid #4B3145;padding-top:20px">
+      <b style="color:#F7EFE1">Not colour alone:</b> the leader carries a 👑 on the header chip, an explicit rank line (1ST / 2ND / 3RD / 4TH) above each name, a 3px underline on the leading total, a written “BEN LEADS BY 400” banner, and place numerals in the standings. Removing every accent still leaves four independent signals.
+      <b style="color:#F7EFE1;margin-left:6px">Horizontal scroll:</b> beyond four players the table scrolls, with the round column sticky-left and the totals row sticky-bottom; both stay level and untilted.
+    </div>
+
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:2680,&quot;height&quot;:2400}}">
+class Component extends DCLogic {
+  state = { players: 4 };
+
+  faces = {
+    1: [[2, 2]],
+    2: [[1, 1], [3, 3]],
+    3: [[1, 1], [2, 2], [3, 3]],
+    4: [[1, 1], [3, 1], [1, 3], [3, 3]],
+    5: [[1, 1], [3, 1], [2, 2], [1, 3], [3, 3]],
+    6: [[1, 1], [3, 1], [1, 2], [3, 2], [1, 3], [3, 3]]
+  };
+
+  setCount(n) { this.setState({ players: Math.max(2, Math.min(6, n)) }); }
+
+  renderVals() {
+    const rowsRaw = [
+      ["1", ["550", "0", "800", "300"]],
+      ["2", ["1,200", "650", "950", "300"]],
+      ["3", ["1,850", "1,400", "950", "1,150"]],
+      ["4", ["2,300", "2,050", "1,700", "1,150"]],
+      ["5", ["3,100", "2,050", "2,400", "1,900"]],
+      ["6", ["3,100", "2,700", "2,400", "2,350"]]
+    ];
+    const rows = rowsRaw.map(([n, v], i) => ({ n, v, bg: i % 2 ? "#221320" : "#291728" }));
+    const rowsL = rowsRaw.map(([n, v], i) => ({ n, v, bg: i % 2 ? "#F0E4D4" : "#FFFAF1" }));
+
+    const D = { punch: "#F2604C", marigold: "#F5B02E", pistachio: "#A8C64F", jade: "#3FBE9A", lagoon: "#4FC3E8", corn: "#7C93EE", orchid: "#C48BF0", gum: "#F576A8" };
+    const L = { punch: "#B23A28", marigold: "#8A5709", pistachio: "#4F6B14", jade: "#0F6F58", lagoon: "#14607F", corn: "#3A4EAF", orchid: "#6B33A8", gum: "#A82F6A" };
+
+    const gamesBase = [
+      { name: "Farkle", sub: "First to 10,000", emoji: "🎲", key: "jade", rot: "-1.5deg" },
+      { name: "Yahtzee", sub: "13 rounds", emoji: "🎲", key: "gum", rot: "1.2deg" },
+      { name: "Left Right Center", sub: "Last chip wins", emoji: "🪙", key: "marigold", rot: "1.5deg" },
+      { name: "Liar's Dice", sub: "Last standing", emoji: "🤥", key: "pistachio", rot: "-1.2deg" }
+    ];
+    const cardsBase = [
+      { name: "Cribbage", sub: "First to 121", emoji: "📌", key: "corn", rot: "1.4deg" },
+      { name: "Euchre", sub: "First to 10", emoji: "♠️", key: "punch", rot: "-1.4deg" }
+    ];
+    const mk = list => list.map(g => ({ ...g, bg: D[g.key], fg: "#21131F", bd: L[g.key] }));
+
+    const pNames = [["Ben", "1ST", "👑"], ["Mia", "2ND", ""], ["Sam", "3RD", ""], ["Jo", "4TH", ""]];
+    const pKeys = ["jade", "gum", "corn", "pistachio"];
+    const players = () => pNames.map(([name, rank, crown], i) => ({ name, rank, crown, bg: D[pKeys[i]], bd: L[pKeys[i]] }));
+
+    const totalVals = ["3,100", "2,700", "2,400", "2,350"];
+    const totals = pal => totalVals.map((v, i) => ({ v, c: pal[pKeys[i]], u: i === 0 ? "underline" : "none" }));
+
+    const entryVals = [["Ben", "550"], ["Mia", "0"], ["Sam", "300"], ["Jo", "—"]];
+    const entry = (pal, muted) => entryVals.map(([name, val], i) => ({
+      name, val,
+      bg: D[pKeys[i]], chipBd: L[pKeys[i]],
+      border: i === 0 ? pal[pKeys[0]] : (muted === "dark" ? "#4B3145" : "#E2D0BC"),
+      valColor: val === "—" ? (muted === "dark" ? "#C0A7B4" : "#6E5460") : (muted === "dark" ? "#F7EFE1" : "#21131F"),
+      total: ["3,650", "2,700", "2,700", "2,350"][i]
+    }));
+
+    const standRaw = [["1ST", "Ben", "10,150"], ["2ND", "Mia", "9,400"], ["3RD", "Sam", "8,050"], ["4TH", "Jo", "6,900"]];
+    const stand = (pal, mode) => standRaw.map(([place, name, pts], i) => ({
+      place, name, pts, bg: D[pKeys[i]], bd: L[pKeys[i]],
+      row: mode === "dark" ? (i % 2 ? "#221320" : "#2C1A29") : (i % 2 ? "#F0E4D4" : "#FFFAF1")
+    }));
+
+    return {
+      rows, rowsL,
+      diceD: mk(gamesBase), cardD: mk(cardsBase),
+      diceL: mk(gamesBase), cardL: mk(cardsBase),
+      playersD: players(), playersL: players(),
+      totalsD: totals(D), totalsL: totals(L),
+      entryD: entry(D, "dark"), entryL: entry(L, "light"),
+      standD: stand(D, "dark"), standL: stand(L, "light"),
+      pcount: this.state.players,
+      pips: this.faces[this.state.players].map(([c, r], i) => ({
+        c: String(c), r: String(r),
+        color: [D.jade, D.gum, D.corn, D.pistachio, D.marigold, D.punch][i]
+      })),
+      pipsLight: this.faces[this.state.players].map(([c, r], i) => ({
+        c: String(c), r: String(r),
+        color: [D.jade, D.gum, D.corn, D.pistachio, D.marigold, D.punch][i],
+        edge: [L.jade, L.gum, L.corn, L.pistachio, L.marigold, L.punch][i]
+      })),
+      seats: ["Ben", "Mia", "Sam", "Jo", "Ada", "Ray"].slice(0, this.state.players).map((n, i) => ({
+        name: n, bg: [D.jade, D.gum, D.corn, D.pistachio, D.marigold, D.punch][i],
+        bd: [L.jade, L.gum, L.corn, L.pistachio, L.marigold, L.punch][i]
+      })),
+      counts: [2, 3, 4, 5, 6].map(n => ({
+        n: String(n),
+        bg: n === this.state.players ? "#F5B02E" : "#3A2436",
+        bd: n === this.state.players ? "#8A5709" : "#4B3145",
+        fg: n === this.state.players ? "#21131F" : "#F7EFE1",
+        on: () => this.setCount(n)
+      })),
+      dec: () => this.setCount(this.state.players - 1),
+      inc: () => this.setCount(this.state.players + 1),
+      quick: ["+50", "+100", "+500", "⌫"],
+      ghost: ["#291728", "#221320", "#291728", "#221320", "#291728", "#221320", "#291728"],
+      ghostL: ["#FFFAF1", "#F0E4D4", "#FFFAF1", "#F0E4D4", "#FFFAF1", "#F0E4D4", "#FFFAF1"],
+      accD: [
+        { name: "PUNCH", hex: "#F2604C", cr: "5.5:1" },
+        { name: "MARIGOLD", hex: "#F5B02E", cr: "9.4:1" },
+        { name: "PISTACHIO", hex: "#A8C64F", cr: "9.2:1" },
+        { name: "JADE", hex: "#3FBE9A", cr: "7.6:1" },
+        { name: "LAGOON", hex: "#4FC3E8", cr: "8.8:1" },
+        { name: "CORNFLOWER", hex: "#7C93EE", cr: "6.1:1" },
+        { name: "ORCHID", hex: "#C48BF0", cr: "7.1:1" },
+        { name: "BUBBLEGUM", hex: "#F576A8", cr: "6.8:1" }
+      ],
+      accL: [
+        { name: "PUNCH", hex: "#B23A28", fill: "#F2604C", cr: "3.0:1" },
+        { name: "MARIGOLD", hex: "#8A5709", fill: "#F5B02E", cr: "3.4:1" },
+        { name: "PISTACHIO", hex: "#4F6B14", fill: "#A8C64F", cr: "4.0:1" },
+        { name: "JADE", hex: "#0F6F58", fill: "#3FBE9A", cr: "3.3:1" },
+        { name: "LAGOON", hex: "#14607F", fill: "#4FC3E8", cr: "3.4:1" },
+        { name: "CORNFLOWER", hex: "#3A4EAF", fill: "#7C93EE", cr: "3.3:1" },
+        { name: "ORCHID", hex: "#6B33A8", fill: "#C48BF0", cr: "3.1:1" },
+        { name: "BUBBLEGUM", hex: "#A82F6A", fill: "#F576A8", cr: "3.1:1" }
+      ]
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+/* ============================================================
+   PIP — Game Night score tracker
+   Design tokens. Drop-in for a :root[data-theme][data-mode] shell.
+   Every value here is the value used in the HTML design reference.
+   ============================================================ */
+
+:root[data-theme="pip"][data-mode="dark"]{
+  /* grounds */
+  --ground:#21131F;      /* app background (mulberry plum)            */
+  --surface:#2C1A29;     /* cards, sheets                            */
+  --surface-2:#3A2436;   /* neutral buttons, table footer, dividers  */
+  --border:#4B3145;      /* neutral 2-3px borders                    */
+  --text:#F7EFE1;        /* cream ink            15.5:1 on ground     */
+  --muted:#C0A7B4;       /* secondary text        7.9:1 on ground     */
+  --row-a:#291728;       /* score table stripe A                     */
+  --row-b:#221320;       /* score table stripe B                     */
+
+  /* ---- player accents ----------------------------------------
+     ONE set for both modes. Bright fill + ink text, never changes.
+     The deep hue is a 3px border, not a second fill palette.
+     Contrast figure is fill vs. ink text (#21131F).             */
+  --p1:#F2604C; --p1-fg:#21131F; --p1-bd:#B23A28;  /* punch       5.5:1 */
+  --p2:#F5B02E; --p2-fg:#21131F; --p2-bd:#8A5709;  /* marigold    9.4:1 */
+  --p3:#A8C64F; --p3-fg:#21131F; --p3-bd:#4F6B14;  /* pistachio   9.2:1 */
+  --p4:#3FBE9A; --p4-fg:#21131F; --p4-bd:#0F6F58;  /* jade        7.6:1 */
+  --p5:#4FC3E8; --p5-fg:#21131F; --p5-bd:#14607F;  /* lagoon      8.8:1 */
+  --p6:#7C93EE; --p6-fg:#21131F; --p6-bd:#3A4EAF;  /* cornflower  6.1:1 */
+  --p7:#C48BF0; --p7-fg:#21131F; --p7-bd:#6B33A8;  /* orchid      7.1:1 */
+  --p8:#F576A8; --p8-fg:#21131F; --p8-bd:#A82F6A;  /* bubblegum   6.8:1 */
+  --accent-border:3px;
+
+  /* elevation — hard offset, zero blur */
+  --shadow:0 5px 0 rgba(0,0,0,.55);        /* buttons, chips     */
+  --shadow-tile:0 6px 0 rgba(0,0,0,.55);   /* game tiles, dice   */
+  --shadow-sheet:0 -8px 0 rgba(0,0,0,.35); /* bottom sheets      */
+  --shadow-screen:0 10px 0 rgba(0,0,0,.4); /* artboard/device    */
+
+  /* ambient background */
+  --amb-1:#3FBE9A; --amb-2:#F576A8; --amb-3:#F5B02E;
+  --amb-o1:.14; --amb-o2:.11; --amb-o3:.09;
+  --grain:rgba(247,239,225,.5); --grain-o:.045;
+
+  --theme-color:#21131F;   /* PWA theme_color + background_color */
+}
+
+:root[data-theme="pip"][data-mode="light"]{
+  --ground:#F7EFE1;
+  --surface:#FFFAF1;
+  --surface-2:#F0E3D2;
+  --border:#E2D0BC;
+  --text:#21131F;        /* 15.5:1 on ground */
+  --muted:#6E5460;       /*  5.9:1 on ground */
+  --row-a:#FFFAF1;
+  --row-b:#F0E4D4;
+
+  /* accents are INHERITED from the dark block unchanged.
+     Do not redeclare --p1..--p8 here. The deep hues stay available
+     as accent TEXT on paper (totals, wordmark letters):          */
+  --p1-ink:#B23A28; --p2-ink:#8A5709; --p3-ink:#4F6B14; --p4-ink:#0F6F58;
+  --p5-ink:#14607F; --p6-ink:#3A4EAF; --p7-ink:#6B33A8; --p8-ink:#A82F6A;
+
+  --shadow:0 5px 0 rgba(33,19,31,.22);
+  --shadow-tile:0 6px 0 rgba(33,19,31,.22);
+  --shadow-sheet:0 -8px 0 rgba(33,19,31,.18);
+  --shadow-screen:0 10px 0 rgba(33,19,31,.22);
+
+  --amb-1:#0F6F58; --amb-2:#A82F6A; --amb-3:#8A5709;
+  --amb-o1:.07; --amb-o2:.06; --amb-o3:.05;
+  --grain:rgba(33,19,31,.5); --grain-o:.03;
+
+  --theme-color:#21131F;   /* stays plum: no white status-bar flash */
+}
+
+/* ---- type ---------------------------------------------------- */
+/* <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"> */
+:root{
+  --font-display:"Lilita One", cursive;
+  --font-ui:"Nunito", system-ui, sans-serif;
+
+  --t-wordmark:44px;   --lh-wordmark:.9;    /* Lilita, .01em          */
+  --t-title:22px;                            /* Lilita, .06em, UPPER   */
+  --t-card:19px;       --lh-card:1.15;       /* Nunito 900             */
+  --t-btn:17px;                              /* Lilita, .08em, UPPER   */
+  --t-body:15px;       --lh-body:1.47;       /* Nunito 600             */
+  --t-micro:11px;                            /* Nunito 900, .15em UPPER*/
+  --t-num:17px;                              /* Nunito 800, tabular    */
+}
+
+/* ---- shape & motion ------------------------------------------ */
+:root{
+  --r-action:999px;  /* buttons, chips, pills   */
+  --r-card:20px;     /* cards, game tiles       */
+  --r-sheet:24px;    /* bottom sheets           */
+  --r-chip:12px;     /* table chips, inputs     */
+  --r-swatch:10px;   /* smallest allowed radius */
+  --r-screen:26px;   /* device / artboard       */
+
+  --press:translateY(5px);       /* buttons; tiles use 6px */
+  --press-tile:translateY(6px);
+  --hover:brightness(1.06) saturate(1.03);
+  --dur-hover:120ms;
+  --dur-press:90ms;
+  --ease:cubic-bezier(.2,.7,.3,1);
+
+  --tilt:1.5deg;   /* max tile rotation */
+  --tap:44px;      /* min tap target    */
+  --tap-action:52px;
+}
+
+/* ---- reference component recipes -----------------------------
+   Reproduce these RULES in your own component layer; the classes
+   below are the canonical values, not a stylesheet to ship.     */
+
+.pip-btn{
+  min-height:var(--tap-action);
+  padding:13px 24px;
+  border-radius:var(--r-action);
+  font-family:var(--font-display);
+  font-size:var(--t-btn);
+  letter-spacing:.08em;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  transition:filter var(--dur-hover) var(--ease),
+             transform var(--dur-press) ease-out,
+             box-shadow var(--dur-press) ease-out;
+}
+.pip-btn--accent{ background:var(--p2); color:var(--p2-fg);
+                  border:var(--accent-border) solid var(--p2-bd); }
+.pip-btn--neutral{ background:var(--surface-2); color:var(--text); border:0; padding:15px 26px; }
+@media (hover:hover){ .pip-btn:hover{ filter:var(--hover); } }
+.pip-btn:active{ transform:var(--press); box-shadow:0 0 0 rgba(0,0,0,.55); }
+
+.pip-tile{                      /* game tile: real <button> */
+  min-height:118px;
+  padding:16px 14px 14px;
+  border-radius:var(--r-card);
+  border:var(--accent-border) solid var(--p4-bd);
+  background:var(--p4); color:var(--p4-fg);
+  box-shadow:var(--shadow-tile);
+  font-family:var(--font-ui);
+  display:flex; flex-direction:column; justify-content:flex-end;
+  align-items:flex-start; gap:4px; text-align:left; cursor:pointer;
+}
+.pip-tile:active{ transform:var(--press-tile); box-shadow:0 0 0 rgba(0,0,0,.55); }
+
+.pip-num{ font-family:var(--font-ui); font-weight:800;
+          font-size:var(--t-num);
+          font-variant-numeric:tabular-nums;
+          font-feature-settings:'tnum' 1; }
+
+/* ---- ambient background --------------------------------------
+   One fixed host behind an app shell at z-index 1. Three
+   radial-gradient ellipses + a 3px dot grain. Transform-only
+   animation on an already-rasterised blurred layer.            */
+.pip-ambient{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.pip-ambient i{ position:absolute; border-radius:50%; display:block; }
+.pip-ambient i:nth-child(1){ top:-14%; left:-16%; width:76%; height:52%;
+  background:radial-gradient(circle, var(--amb-1) 0%, transparent 70%);
+  filter:blur(46px); opacity:var(--amb-o1); animation:amb-a 46s ease-in-out infinite; }
+.pip-ambient i:nth-child(2){ bottom:2%; right:-20%; width:78%; height:44%;
+  background:radial-gradient(circle, var(--amb-2) 0%, transparent 70%);
+  filter:blur(52px); opacity:var(--amb-o2); animation:amb-b 62s ease-in-out infinite; }
+.pip-ambient i:nth-child(3){ top:44%; left:20%; width:60%; height:34%; border-radius:44%;
+  background:radial-gradient(circle, var(--amb-3) 0%, transparent 72%);
+  filter:blur(44px); opacity:var(--amb-o3); animation:amb-c 120s linear infinite; }
+.pip-ambient u{ position:absolute; inset:0; display:block;
+  background-image:radial-gradient(var(--grain) .5px, transparent .5px);
+  background-size:3px 3px; opacity:var(--grain-o); }
+
+@keyframes amb-a{ 0%,100%{transform:translate3d(0,0,0) scale(1)}    50%{transform:translate3d(7%,5%,0) scale(1.12)} }
+@keyframes amb-b{ 0%,100%{transform:translate3d(0,0,0) scale(1.05)} 50%{transform:translate3d(-6%,-4%,0) scale(.94)} }
+@keyframes amb-c{ 0%{transform:translate3d(0,0,0) rotate(0)} 100%{transform:translate3d(0,0,0) rotate(360deg)} }
+
+@media (prefers-reduced-motion:reduce){
+  .pip-ambient i{ animation:none; }
+  .pip-btn, .pip-tile{ transition:none; }
+}

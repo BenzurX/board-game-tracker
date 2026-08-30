@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="PiP">
+  <!-- App icon lockup. Below 64px the wordmark is dropped and the mark reduces to
+       the one thing that still reads: a cream die tile carrying the jade centre
+       pip, on the plum ground. Art stays inside the middle 80% so Android's
+       circular and squircle masks cannot clip it. -->
+  <rect width="512" height="512" rx="112" fill="#21131F"/>
+  <g transform="rotate(-8 256 256)">
+    <rect x="106" y="106" width="300" height="300" rx="92" fill="#F7EFE1"/>
+  </g>
+  <circle cx="256" cy="256" r="54" fill="#3FBE9A"/>
+</svg>

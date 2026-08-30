@@ -1,108 +1,142 @@
-/* ── Variables - Shared (theme-independent) ─────────────── */
+/* ══ PIP - Design Tokens ═══════════════════════════════════
+   Values come from design_handoff_pip/theme.css and are authoritative: do not
+   retune a colour here without changing that file too. One theme, two modes.
+   The three old themes (Ember/Ocean/Forest) were removed in v0.25 - the palette
+   is now part of the identity rather than a preference.
+
+   Each mode block declares the Pip names first, then maps the legacy semantic
+   names (--bg, --card, --accent ...) onto them. The legacy names are what the
+   rest of this file was written against, so the mapping is what lets a 2000-line
+   stylesheet adopt the new palette without a rename sweep. New rules should
+   prefer the Pip names. */
+
+/* ── Variables - Shared (mode-independent) ─────────────── */
 :root {
-  --success:    #5cb85c;
-  --danger:     #d9534f;
-  --shadow:     0 4px 24px rgba(0, 0, 0, 0.5);
-  --radius:     12px;
-  --radius-sm:  8px;
+  /* Player accents - ONE set for both modes. Bright fill + ink text, never
+     cream text. The deep hue is a 3px border, not a second fill palette.
+     Contrast figure is fill vs the ink text colour. */
+  --p1: #F2604C; --p1-fg: #21131F; --p1-bd: #B23A28;  /* punch      5.5:1 */
+  --p2: #F5B02E; --p2-fg: #21131F; --p2-bd: #8A5709;  /* marigold   9.4:1 */
+  --p3: #A8C64F; --p3-fg: #21131F; --p3-bd: #4F6B14;  /* pistachio  9.2:1 */
+  --p4: #3FBE9A; --p4-fg: #21131F; --p4-bd: #0F6F58;  /* jade       7.6:1 */
+  --p5: #4FC3E8; --p5-fg: #21131F; --p5-bd: #14607F;  /* lagoon     8.8:1 */
+  --p6: #7C93EE; --p6-fg: #21131F; --p6-bd: #3A4EAF;  /* cornflower 6.1:1 */
+  --p7: #C48BF0; --p7-fg: #21131F; --p7-bd: #6B33A8;  /* orchid     7.1:1 */
+  --p8: #F576A8; --p8-fg: #21131F; --p8-bd: #A82F6A;  /* bubblegum  6.8:1 */
+  --accent-border: 3px;
 
-  /* Player accent colors */
-  --p0: #e8533a;
-  --p1: #3a9ee8;
-  --p2: #5cb85c;
-  --p3: #f0a820;
-  --p4: #a855f7;
-  --p5: #14b8a6;
+  /* The lightness of these hues deliberately varies (marigold L~0.80,
+     cornflower L~0.62). That spread, not hue, is what keeps four filled chips
+     apart in one table header for red-green colour blindness. Do not level it. */
+
+  --success: #3FBE9A;
+  --danger:  #F2604C;
+
+  /* Type */
+  --font-display: 'Lilita One', cursive;
+  --font-ui: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Shape */
+  --r-action: 999px;  /* buttons, chips, pills */
+  --r-card:   20px;   /* cards, game tiles     */
+  --r-sheet:  24px;   /* bottom sheets         */
+  --r-chip:   12px;   /* table chips, inputs   */
+  --r-swatch: 10px;   /* smallest allowed      */
+  --radius:    20px;  /* legacy alias -> card  */
+  --radius-sm: 12px;  /* legacy alias -> chip  */
+
+  /* Motion */
+  --press:      translateY(5px);
+  --press-tile: translateY(6px);
+  --hover:      brightness(1.06) saturate(1.03);
+  --dur-hover:  120ms;
+  --dur-press:  90ms;
+  --ease:       cubic-bezier(.2, .7, .3, 1);
+  --tilt:       1.5deg;
+  --tap:        44px;
+  --tap-action: 52px;
 }
 
-/* ── Variables - Ember Dark (default) ───────────────────── */
-html[data-theme="ember"][data-mode="dark"] {
-  --bg:           #1c1410;
-  --surface:      #2a1f18;
-  --card:         #3a2d25;
-  --card-hover:   #4a3d35;
-  --border:       rgba(242, 232, 217, 0.12);
-  --accent:       #d4870a;
-  --accent-bright:#f0a820;
-  --accent-dim:   rgba(212, 135, 10, 0.2);
-  --on-accent:    #1c1410;
-  --text:         #f2e8d9;
-  --text-muted:   #a89880;
+/* ── Variables - Pip Dark (mulberry plum) ──────────────── */
+html[data-theme="pip"][data-mode="dark"] {
+  --ground:    #21131F;
+  --surface:   #2C1A29;
+  --surface-2: #3A2436;
+  --border:    #4B3145;
+  --text:      #F7EFE1;   /* 15.5:1 on ground */
+  --muted:     #C0A7B4;   /*  7.9:1 on ground */
+  --row-a:     #291728;
+  --row-b:     #221320;
+
+  /* elevation - hard offset, zero blur */
+  --shadow:        0 5px 0 rgba(0, 0, 0, .55);
+  --shadow-tile:   0 6px 0 rgba(0, 0, 0, .55);
+  --shadow-sheet:  0 -8px 0 rgba(0, 0, 0, .35);
+  --shadow-screen: 0 10px 0 rgba(0, 0, 0, .4);
+  --shadow-none:   0 0 0 rgba(0, 0, 0, .55);
+
+  /* ambient background */
+  --amb-1: #3FBE9A; --amb-2: #F576A8; --amb-3: #F5B02E;
+  --amb-o1: .14; --amb-o2: .11; --amb-o3: .09;
+  --grain: rgba(247, 239, 225, .5); --grain-o: .045;
+
+  /* logo: the plate is a filled ghost on plum */
+  --logo-plate:  #2A1826;
+  --logo-ghost:  #3D2739;
+  --logo-stroke: #3A2436;
+  --logo-pip:    var(--p4);
+
+  /* legacy semantic aliases */
+  --bg:            var(--ground);
+  --card:          var(--surface-2);
+  --card-hover:    #462C41;
+  --accent:        var(--p2);
+  --accent-bright: #FFC14F;
+  --accent-dim:    rgba(245, 176, 46, .22);
+  --on-accent:     #21131F;
+  --text-muted:    var(--muted);
 }
 
-/* ── Variables - Ember Light ────────────────────────────── */
-html[data-theme="ember"][data-mode="light"] {
-  --bg:           #faf5ee;
-  --surface:      #f0e8da;
-  --card:         #e4d9c8;
-  --card-hover:   #d8cbb8;
-  --border:       rgba(42, 31, 24, 0.15);
-  --accent:       #b06800;
-  --accent-bright:#cc7a00;
-  --accent-dim:   rgba(176, 104, 0, 0.15);
-  --on-accent:    #faf5ee;
-  --text:         #2a1f18;
-  --text-muted:   #7a6858;
-}
+/* ── Variables - Pip Light (cream paper) ───────────────── */
+html[data-theme="pip"][data-mode="light"] {
+  --ground:    #F7EFE1;
+  --surface:   #FFFAF1;
+  --surface-2: #F0E3D2;
+  --border:    #E2D0BC;
+  --text:      #21131F;   /* 15.5:1 on ground */
+  --muted:     #6E5460;   /*  5.9:1 on ground */
+  --row-a:     #FFFAF1;
+  --row-b:     #F0E4D4;
 
-/* ── Variables - Ocean Dark ─────────────────────────────── */
-html[data-theme="ocean"][data-mode="dark"] {
-  --bg:           #0d1b2a;
-  --surface:      #162840;
-  --card:         #1d3554;
-  --card-hover:   #254368;
-  --border:       rgba(224, 240, 245, 0.12);
-  --accent:       #0e9fa8;
-  --accent-bright:#14c8d4;
-  --accent-dim:   rgba(14, 159, 168, 0.2);
-  --on-accent:    #0d1b2a;
-  --text:         #e0f0f5;
-  --text-muted:   #7aacba;
-}
+  /* Accents are inherited unchanged from the shared block. The deep hues stay
+     available as accent TEXT on paper (totals, wordmark letters) - never fills. */
+  --p1-ink: #B23A28; --p2-ink: #8A5709; --p3-ink: #4F6B14; --p4-ink: #0F6F58;
+  --p5-ink: #14607F; --p6-ink: #3A4EAF; --p7-ink: #6B33A8; --p8-ink: #A82F6A;
 
-/* ── Variables - Ocean Light ────────────────────────────── */
-html[data-theme="ocean"][data-mode="light"] {
-  --bg:           #eef5f8;
-  --surface:      #dcedf5;
-  --card:         #c5dfe8;
-  --card-hover:   #b0d0dc;
-  --border:       rgba(13, 27, 42, 0.15);
-  --accent:       #0a7a82;
-  --accent-bright:#0e9fa8;
-  --accent-dim:   rgba(10, 122, 130, 0.15);
-  --on-accent:    #eef5f8;
-  --text:         #0d1b2a;
-  --text-muted:   #4a7a8a;
-}
+  --shadow:        0 5px 0 rgba(33, 19, 31, .22);
+  --shadow-tile:   0 6px 0 rgba(33, 19, 31, .22);
+  --shadow-sheet:  0 -8px 0 rgba(33, 19, 31, .18);
+  --shadow-screen: 0 10px 0 rgba(33, 19, 31, .22);
+  --shadow-none:   0 0 0 rgba(33, 19, 31, .22);
 
-/* ── Variables - Forest Dark ────────────────────────────── */
-html[data-theme="forest"][data-mode="dark"] {
-  --bg:           #0f1f10;
-  --surface:      #162d17;
-  --card:         #1e3d20;
-  --card-hover:   #264d28;
-  --border:       rgba(228, 242, 222, 0.12);
-  --accent:       #6b9c52;
-  --accent-bright:#85b869;
-  --accent-dim:   rgba(107, 156, 82, 0.2);
-  --on-accent:    #0f1f10;
-  --text:         #e4f2de;
-  --text-muted:   #7a9e72;
-}
+  --amb-1: #0F6F58; --amb-2: #A82F6A; --amb-3: #8A5709;
+  --amb-o1: .07; --amb-o2: .06; --amb-o3: .05;
+  --grain: rgba(33, 19, 31, .5); --grain-o: .03;
 
-/* ── Variables - Forest Light ───────────────────────────── */
-html[data-theme="forest"][data-mode="light"] {
-  --bg:           #f0f8ed;
-  --surface:      #dff0d8;
-  --card:         #cce4c2;
-  --card-hover:   #b8d8ae;
-  --border:       rgba(15, 31, 16, 0.15);
-  --accent:       #3d7a1c;
-  --accent-bright:#4e9a26;
-  --accent-dim:   rgba(61, 122, 28, 0.15);
-  --on-accent:    #f0f8ed;
-  --text:         #0f1f10;
-  --text-muted:   #4a6840;
+  /* logo: same drawing, plate becomes a keyline and the pip goes deep jade */
+  --logo-plate:  transparent;
+  --logo-ghost:  rgba(33, 19, 31, .2);
+  --logo-stroke: rgba(33, 19, 31, .28);
+  --logo-pip:    var(--p4-bd);
+
+  --bg:            var(--ground);
+  --card:          var(--surface-2);
+  --card-hover:    #E7D7C2;
+  --accent:        var(--p2);
+  --accent-bright: #E09A15;
+  --accent-dim:    rgba(245, 176, 46, .28);
+  --on-accent:     #21131F;
+  --text-muted:    var(--muted);
 }
 
 /* ── Reset & Base ──────────────────────────────────────── */
@@ -112,13 +146,27 @@ html[data-theme="forest"][data-mode="light"] {
 
 html, body {
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: var(--bg);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  background: var(--ground);
   color: var(--text);
+  /* The handoff specifies 15px body text, but every rem value in this file was
+     tuned against a 17px root. Keeping the root at 17px preserves those and
+     lands body copy at roughly the intended optical size in Nunito, which runs
+     smaller than the old system stack at the same pixel height. */
   font-size: 17px;
   line-height: 1.4;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
+}
+
+/* Every number a player compares against another number is tabular. Nunito was
+   chosen over a rounded display face specifically because it has real tabular
+   figures, so columns of scores line up digit for digit. */
+#score-table, .totals-label, input[type="number"], .win-row,
+.turn-total, .standings-row, .volume-value, .home-version, .settings-version {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
 }
 
 /* ── Screen System ─────────────────────────────────────── */
@@ -128,8 +176,76 @@ html, body {
   min-height: 100dvh;
   padding: 0;
   width: 100%;
+  /* Lifts every screen above the fixed ambient host, which sits at z-index 0. */
+  position: relative;
+  z-index: 1;
 }
 .screen.active { display: flex; }
+
+/* ── Ambient Background ────────────────────────────────── */
+/* Three blurred radial ellipses plus a dot grain on one fixed, non-interactive
+   host behind the app. Total contrast against the ground stays under 1.15:1 - it
+   should be barely perceptible, felt rather than seen.
+
+   Motion is transform-only on an already-rasterised blurred layer, so the blur
+   is painted once and the compositor moves it: no layout, no repaint, no
+   per-frame JS. Do not reimplement this with canvas. The three loop lengths
+   (46s / 62s / 120s) are deliberately not multiples of each other, so the
+   composition never settles into a repeating beat. */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ambient i {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+}
+.ambient i:nth-child(1) {
+  top: -14%; left: -16%; width: 76%; height: 52%;
+  background: radial-gradient(circle, var(--amb-1) 0%, transparent 70%);
+  filter: blur(46px);
+  opacity: var(--amb-o1);
+  animation: amb-a 46s ease-in-out infinite;
+}
+.ambient i:nth-child(2) {
+  bottom: 2%; right: -20%; width: 78%; height: 44%;
+  background: radial-gradient(circle, var(--amb-2) 0%, transparent 70%);
+  filter: blur(52px);
+  opacity: var(--amb-o2);
+  animation: amb-b 62s ease-in-out infinite;
+}
+.ambient i:nth-child(3) {
+  top: 44%; left: 20%; width: 60%; height: 34%; border-radius: 44%;
+  background: radial-gradient(circle, var(--amb-3) 0%, transparent 72%);
+  filter: blur(44px);
+  opacity: var(--amb-o3);
+  animation: amb-c 120s linear infinite;
+}
+.ambient u {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background-image: radial-gradient(var(--grain) .5px, transparent .5px);
+  background-size: 3px 3px;
+  opacity: var(--grain-o);
+}
+
+@keyframes amb-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(7%, 5%, 0) scale(1.12); }
+}
+@keyframes amb-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50%      { transform: translate3d(-6%, -4%, 0) scale(.94); }
+}
+@keyframes amb-c {
+  0%   { transform: translate3d(0, 0, 0) rotate(0); }
+  100% { transform: translate3d(0, 0, 0) rotate(360deg); }
+}
 
 /* ── Scrollbars ────────────────────────────────────────── */
 /* Built from the same custom properties as everything else, so switching theme
@@ -191,40 +307,44 @@ html, body {
 /* ── App Header (Home) ─────────────────────────────────── */
 .app-header {
   position: relative;
-  padding: 56px 24px 32px;
+  padding: 40px 24px 22px;
   text-align: center;
-  background: linear-gradient(180deg, var(--surface) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-.app-title {
-  font-family: 'Commissioner', sans-serif;
-  font-size: 2.4rem;
+/* Micro label: the one type role that is all tracking. Sits above the mark so
+   the wordmark itself never has to explain what the app is. */
+.app-eyebrow {
+  font-family: var(--font-ui);
   font-weight: 900;
-  letter-spacing: -0.5px;
-  color: var(--accent-bright);
-  text-shadow: 0 2px 12px rgba(240, 168, 32, 0.3);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
+
+/* The PiP mark. The dot of the i is the centre pip of a five-face die, and the
+   ghost plate behind the word is the die itself. Everything is drawn from
+   theme tokens, so cream mode reuses the same artwork with the plate reduced
+   to a keyline - there is no second light-mode file. */
+.app-logo {
+  display: block;
+  width: 168px;
+  height: auto;
+}
+.app-logo .logo-letter { fill: var(--text); }
+.app-logo .logo-plate  { fill: var(--logo-plate); stroke: var(--logo-stroke); }
+.app-logo .logo-ghost  { fill: var(--logo-ghost); }
+.app-logo .logo-pip    { fill: var(--logo-pip); }
 
 .app-subtitle {
-  margin-top: 12px;
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-}
-.app-subtitle::before,
-.app-subtitle::after {
-  content: '';
-  display: block;
-  width: 36px;
-  height: 1px;
-  background: var(--border);
-  flex-shrink: 0;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 /* ── Game Grid ─────────────────────────────────────────── */
@@ -263,7 +383,7 @@ html, body {
 }
 
 .game-icon  { font-size: 2.4rem; }
-.game-name  { font-family: 'Commissioner', sans-serif; font-size: 1.15rem; font-weight: 800; }
+.game-name  { font-family: var(--font-ui); font-size: 1.12rem; font-weight: 900; line-height: 1.15; }
 
 .category-divider {
   grid-column: 1 / -1;
@@ -292,7 +412,7 @@ html, body {
   gap: 12px;
   padding: 16px 20px 12px;
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 3px solid var(--surface-2);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -301,32 +421,33 @@ html, body {
 .screen-header h2 {
   flex: 1;
   text-align: center;
-  font-family: 'Commissioner', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: var(--accent-bright);
+  font-family: var(--font-display);
+  font-size: 1.28rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
 }
 
+/* Back is the one header control that carries an accent fill - it is the only
+   one with a destination, so it earns the colour. */
 .btn-back {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  background: none;
-  border: 1.5px solid var(--accent);
+  background: var(--p2);
+  border: var(--accent-border) solid var(--p2-bd);
   border-radius: 50%;
-  color: var(--accent);
+  color: var(--p2-fg);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: var(--tap);
+  height: var(--tap);
   padding: 0;
   white-space: nowrap;
-  transition: background 0.15s;
 }
-.btn-back:hover { background: var(--accent-dim); }
-.btn-back:active { opacity: 0.6; }
 .btn-back-icon { flex-shrink: 0; }
 .btn-back-label { display: none; }
 .player-name-full { display: none; }
@@ -355,19 +476,18 @@ html, body {
 }
 
 .btn-rules {
-  width: 36px;
-  height: 36px;
+  width: var(--tap);
+  height: var(--tap);
   border-radius: 50%;
-  border: 2px solid var(--accent);
-  background: none;
-  color: var(--accent-bright);
+  border: var(--accent-border) solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-display);
   font-size: 1.1rem;
-  font-weight: 800;
+  font-weight: 400;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s;
 }
-.btn-rules:hover { background: var(--accent-dim); }
 
 .icon-gear { width: 16px; height: 16px; flex-shrink: 0; }
 
@@ -559,49 +679,77 @@ html, body {
 }
 
 /* ── Buttons ───────────────────────────────────────────── */
-.btn-primary {
-  background: var(--accent);
-  color: var(--on-accent);
-  border: none;
-  border-radius: var(--radius-sm);
+/* One physical model for every control in the app: the element sits on a hard
+   offset shadow with zero blur, and a press moves it down by exactly the shadow
+   offset while the shadow collapses to nothing - the button lands in its own
+   shadow instead of scaling. Accent-filled controls always carry a 3px border in
+   their own deep hue; neutral controls carry no accent border. Hover is a filter
+   only, never a transform, and is gated on `hover: hover` so a phone shows the
+   press and nothing else. */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  min-height: var(--tap-action);
+  border-radius: var(--r-action);
+  font-family: var(--font-display);
   font-size: 1rem;
-  font-weight: 700;
-  padding: 14px 24px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 13px 24px;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
+  box-shadow: var(--shadow);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) ease-out,
+              box-shadow var(--dur-press) ease-out;
 }
-.btn-primary:active  { transform: scale(0.97); }
-.btn-primary:hover   { background: var(--accent-bright); }
+
+.btn-primary {
+  background: var(--p2);
+  color: var(--p2-fg);
+  border: var(--accent-border) solid var(--p2-bd);
+}
 
 .btn-secondary {
-  background: var(--card);
+  background: var(--surface-2);
   color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 14px 24px;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
+  border: none;
+  padding: 15px 26px;
 }
-.btn-secondary:active { transform: scale(0.97); }
-.btn-secondary:hover  { background: var(--card-hover); }
 
-/* Press feedback on everything else that is tappable. The two buttons above had
-   it already; the round chips, the back button and the danger button did not, so
-   a tap on those registered as nothing until the resulting screen changed. Kept
-   short - this should read as the button taking the press, not as an animation. */
-.btn-danger,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-danger:active {
+  transform: var(--press);
+  box-shadow: var(--shadow-none);
+}
+
+@media (hover: hover) {
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-danger:hover,
+  .btn-rules:hover,
+  .btn-qr:hover,
+  .btn-back:hover {
+    filter: var(--hover);
+  }
+}
+
+/* The round header controls are the same model at chip scale: 44px tap target,
+   3px border, and the same land-in-your-shadow press. */
 .btn-rules,
 .btn-qr,
 .btn-back {
-  transition: background 0.15s, transform 0.08s;
+  box-shadow: var(--shadow);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) ease-out,
+              box-shadow var(--dur-press) ease-out;
 }
-.btn-danger:active,
 .btn-rules:active,
 .btn-qr:active,
 .btn-back:active {
-  transform: scale(0.94);
+  transform: var(--press);
+  box-shadow: var(--shadow-none);
 }
 
 
@@ -1444,9 +1592,9 @@ html, body {
 }
 
 .qr-room-code-display {
-  font-family: 'Commissioner', sans-serif;
+  font-family: var(--font-display);
   font-size: 2rem;
-  font-weight: 900;
+  font-weight: 400;
   letter-spacing: 0.08em;
   text-align: center;
   color: var(--accent);
@@ -1577,8 +1725,8 @@ html, body {
   color: var(--text-muted);
 }
 .turn-toast-title {
-  font-family: 'Commissioner', sans-serif;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-weight: 400;
   font-size: 1.85rem;
   line-height: 1.05;
   overflow-wrap: anywhere;
@@ -1959,39 +2107,6 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 
-.theme-swatches {
-  display: flex;
-  gap: 12px;
-}
-
-.theme-swatch {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  background: var(--card);
-  border: 2px solid transparent;
-  border-radius: var(--radius-sm);
-  padding: 12px 8px;
-  cursor: pointer;
-  color: var(--text);
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: border-color 0.15s, background 0.15s;
-}
-.theme-swatch.active { border-color: var(--accent); background: var(--accent-dim); }
-.theme-swatch:hover:not(.active) { border-color: var(--accent); background: var(--card-hover); }
-
-.swatch-preview {
-  width: 48px;
-  height: 30px;
-  border-radius: 6px;
-}
-.swatch-ember  { background: linear-gradient(135deg, #1c1410 50%, #d4870a 50%); }
-.swatch-ocean  { background: linear-gradient(135deg, #0d1b2a 50%, #0e9fa8 50%); }
-.swatch-forest { background: linear-gradient(135deg, #0f1f10 50%, #6b9c52 50%); }
-
 .mode-toggle {
   display: flex;
   gap: 8px;
@@ -2035,6 +2150,11 @@ html, body {
   .btn-fab-score:active {
     transform: none;
   }
+
+  /* The ambient blobs freeze in place as a static tint. They are not hidden -
+     nothing should appear or disappear when a person turns motion off, the
+     background simply stops drifting. */
+  .ambient i { animation: none; }
 
   #score-table tbody tr.row-enter td,
   .winner-banner.celebrate,

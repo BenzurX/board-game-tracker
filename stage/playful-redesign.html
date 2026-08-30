@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playful Redesign - 5 Stages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Fredoka:wght@400;500;600;700&family=Lilita+One&family=Commissioner:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+/* CURRENT APP TOKENS (ocean dark, for the reference frame) */
+.t-current {
+  --bg:#0d1b2a; --surface:#162840; --card:#1d3554; --card-hover:#254368;
+  --border:rgba(224,240,245,0.12); --accent:#0e9fa8; --accent-bright:#14c8d4;
+  --accent-dim:rgba(14,159,168,0.2); --on-accent:#0d1b2a; --text:#e0f0f5; --text-muted:#7aacba;
+  --radius:12px; --radius-sm:8px; --shadow:0 4px 24px rgba(0,0,0,.5);
+  --font-ui:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-display:'Commissioner',sans-serif;
+}
+
+/* NEW DESIGN SYSTEM: "GLOVEBOX" */
+.gb {
+  /* ink / paper */
+  --ink:#272031; --ink-2:#332a3f; --ink-3:#403450;
+  --cream:#f6efe2; --muted:#9c8fae;
+  /* candy ramp */
+  --c-pink:#ec3f6e; --c-orange:#f4682e; --c-yellow:#f9bd18;
+  --c-lime:#9ac93c; --c-blue:#45b0e8; --c-teal:#2ec4b0;
+  /* semantic */
+  --bg:var(--ink); --surface:var(--ink-2); --card:var(--ink-3);
+  --text:var(--cream); --text-muted:var(--muted);
+  --accent:var(--c-yellow); --on-accent:#2a2233;
+  --border:rgba(246,239,226,.14);
+  /* shape */
+  --radius:20px; --radius-sm:14px; --radius-pill:999px;
+  /* sticker shadow: hard, no blur */
+  --drop:4px; --drop-lg:6px;
+  --font-ui:'Fredoka',system-ui,sans-serif;
+  --font-display:'Baloo 2','Fredoka',sans-serif;
+  --font-logo:'Lilita One',sans-serif;
+}
+
+/* PAGE CHROME */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#14101a;color:#e9e2f2;font-family:'Fredoka',system-ui,sans-serif;padding:32px 20px 90px;line-height:1.45}
+.wrap{max-width:1500px;margin:0 auto}
+h1.page{font-family:'Lilita One',sans-serif;font-size:2.6rem;letter-spacing:.01em;margin-bottom:6px}
+h1.page span:nth-child(1){color:#ec3f6e}h1.page span:nth-child(2){color:#f4682e}
+h1.page span:nth-child(3){color:#f9bd18}h1.page span:nth-child(4){color:#9ac93c}
+h1.page span:nth-child(5){color:#45b0e8}h1.page span:nth-child(6){color:#2ec4b0}
+p.lede{color:#a99cba;max-width:78ch;margin-bottom:34px}
+section.stage{margin:56px 0;padding-top:26px;border-top:2px dashed rgba(255,255,255,.12)}
+.stage-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.stage-num{font-family:'Lilita One',sans-serif;font-size:1.05rem;padding:4px 14px;border-radius:999px;background:#f9bd18;color:#2a2233;box-shadow:0 4px 0 rgba(0,0,0,.5)}
+.stage-title{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.6rem}
+.stage-note{color:#a99cba;max-width:82ch;margin:10px 0 4px}
+.stage-note b{color:#f6efe2}
+.trade{display:inline-block;margin:10px 0 22px;font-size:.85rem;color:#ffd7a8;background:rgba(244,104,46,.14);border:1px solid rgba(244,104,46,.4);padding:6px 12px;border-radius:10px}
+.frames{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.framewrap{display:flex;flex-direction:column;gap:8px}
+.framelabel{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#8d81a0;font-weight:600}
+.phone{width:380px;height:720px;border-radius:30px;overflow:hidden;border:8px solid #0a0710;box-shadow:0 18px 44px rgba(0,0,0,.55);container-type:inline-size;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:16px}
+.phone.tall{height:760px}
+
+/* SHARED APP SHELL (both token sets read the same vars) */
+.app-header{padding:22px 16px 14px;text-align:center;position:relative}
+.app-title{font-family:var(--font-display);font-weight:800;font-size:1.5rem}
+.app-subtitle{color:var(--text-muted);font-size:.85rem;margin-top:2px}
+.body-scroll{flex:1;overflow:auto;padding:0 14px 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.divider{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin-top:10px;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted)}
+.divider::after{content:"";flex:1;height:1px;background:var(--border)}
+.card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);text-align:center;color:var(--text)}
+.card .ico{font-size:2rem}
+.card .nm{font-family:var(--font-display);font-weight:800;font-size:1.08rem}
+.card .ds{font-size:.72rem;color:var(--text-muted)}
+.btn{font-family:var(--font-display);font-weight:800;border:none;border-radius:var(--radius-sm);padding:13px 18px;font-size:.95rem;width:100%;color:var(--on-accent);background:var(--accent)}
+.btn.sec{background:transparent;color:var(--text);border:1px solid var(--border)}
+.hdr{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--surface);border-bottom:1px solid var(--border)}
+.hdr h2{font-family:var(--font-display);font-weight:800;font-size:1.1rem;flex:1;text-align:center}
+.chip{width:32px;height:32px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:.85rem;color:var(--text);border:1px solid var(--border)}
+table.score{width:100%;border-collapse:collapse;font-size:.9rem}
+table.score th,table.score td{padding:9px 6px;text-align:center;border-bottom:1px solid var(--border)}
+table.score th{font-family:var(--font-display);font-weight:800;font-size:.78rem}
+table.score tfoot td{font-weight:800;border-top:2px solid var(--border);border-bottom:none}
+.actions{display:flex;gap:8px;padding:12px;background:var(--surface);border-top:1px solid var(--border)}
+.actions .btn{width:auto}.actions .btn:first-child{flex:2}.actions .btn.sec{flex:1}
+
+/* STAGE 1: paint + type only */
+.s1 .card{background:var(--card)}
+.s1 .app-title{font-family:var(--font-display)}
+
+/* STAGE 2: sticker buttons */
+.sticker{border-radius:var(--radius-pill);box-shadow:0 var(--drop) 0 rgba(0,0,0,.55);border:none;transform:translateY(0);transition:transform .08s,box-shadow .08s;font-family:var(--font-display);font-weight:800;letter-spacing:.02em}
+.sticker:active{transform:translateY(var(--drop));box-shadow:0 0 0 rgba(0,0,0,.55)}
+.s2 .btn{border-radius:var(--radius-pill);box-shadow:0 var(--drop) 0 rgba(0,0,0,.55);text-transform:uppercase;letter-spacing:.04em;transition:transform .08s,box-shadow .08s}
+.s2 .btn:active,.s3 .btn:active,.s4 .btn:active,.s5 .btn:active{transform:translateY(4px);box-shadow:0 0 0 rgba(0,0,0,.55)}
+.s2 .btn.sec{background:var(--ink-3);color:var(--cream);border:none}
+.s2 .card{border:none;box-shadow:0 var(--drop) 0 rgba(0,0,0,.45)}
+.s2 .chip{border:none;box-shadow:0 3px 0 rgba(0,0,0,.5)}
+
+/* STAGE 3: candy cards + colored data */
+.s3 .card,.s4 .card,.s5 .card{border:none;color:#2a2233;box-shadow:0 var(--drop-lg) 0 rgba(0,0,0,.45)}
+.s3 .card .ds,.s4 .card .ds,.s5 .card .ds{color:rgba(42,34,51,.72)}
+.c-pink{background:var(--c-pink);color:#fff}
+.c-orange{background:var(--c-orange);color:#fff}
+.c-yellow{background:var(--c-yellow);color:#2a2233}
+.c-lime{background:var(--c-lime);color:#2a2233}
+.c-blue{background:var(--c-blue);color:#fff}
+.c-teal{background:var(--c-teal);color:#fff}
+.card.c-pink,.card.c-orange,.card.c-blue,.card.c-teal{color:#fff}
+.card.c-pink .ds,.card.c-orange .ds,.card.c-blue .ds,.card.c-teal .ds{color:rgba(255,255,255,.85)}
+.s3 .btn,.s4 .btn,.s5 .btn{border-radius:var(--radius-pill);box-shadow:0 var(--drop) 0 rgba(0,0,0,.55);text-transform:uppercase;letter-spacing:.04em;transition:transform .08s,box-shadow .08s}
+.s3 .btn.sec,.s4 .btn.sec,.s5 .btn.sec{background:var(--ink-3);color:var(--cream);border:none}
+.namepill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.45);font-family:var(--font-display)}
+.s3 table.score th,.s4 table.score th,.s5 table.score th{padding-top:12px;padding-bottom:12px}
+.s3 table.score td,.s4 table.score td,.s5 table.score td{font-variant-numeric:tabular-nums;font-weight:500}
+.s3 tfoot td,.s4 tfoot td,.s5 tfoot td{font-family:var(--font-display);font-weight:800;font-size:1rem}
+
+/* STAGE 4: tilt, confetti field, badges */
+.confetti-bg{position:relative}
+.confetti-bg::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.85;
+  background-image:
+    radial-gradient(circle,var(--c-pink) 50%,transparent 51%),
+    radial-gradient(circle,var(--c-yellow) 50%,transparent 51%),
+    radial-gradient(circle,var(--c-blue) 50%,transparent 51%),
+    radial-gradient(circle,var(--c-lime) 50%,transparent 51%);
+  background-size:7px 7px,5px 5px,6px 6px,5px 5px;
+  background-position:22px 60px,300px 120px,60px 380px,330px 480px;
+  background-repeat:no-repeat}
+.s4 .card:nth-child(2),.s5 .card:nth-child(2){transform:rotate(-1.6deg)}
+.s4 .card:nth-child(3),.s5 .card:nth-child(3){transform:rotate(1.4deg)}
+.s4 .card:nth-child(5),.s5 .card:nth-child(5){transform:rotate(1.1deg)}
+.s4 .card:nth-child(6),.s5 .card:nth-child(6){transform:rotate(-1.2deg)}
+.burst{position:absolute;right:12px;top:14px;width:64px;height:64px;background:var(--c-yellow);color:#2a2233;display:grid;place-items:center;text-align:center;font-family:var(--font-display);font-weight:800;font-size:.6rem;line-height:1.05;
+  clip-path:polygon(50% 0,61% 15%,78% 8%,80% 27%,98% 30%,88% 46%,100% 60%,82% 67%,86% 86%,67% 82%,58% 99%,45% 85%,28% 95%,25% 76%,6% 74%,14% 57%,0 45%,17% 34%,10% 16%,29% 19%,37% 3%)}
+.leader{position:relative}
+.leader::after{content:"\1F451";position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-12deg);font-size:.9rem}
+.wobble{animation:wob 2.6s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@media (prefers-reduced-motion:reduce){.wobble{animation:none}}
+
+/* STAGE 5: full identity */
+.logo{font-family:var(--font-logo);font-size:2.15rem;letter-spacing:.01em;line-height:1;text-align:center}
+.logo i{font-style:normal;display:inline-block}
+.logo i:nth-child(1){color:var(--c-pink);transform:rotate(-4deg)}
+.logo i:nth-child(2){color:var(--c-orange);transform:rotate(2deg)}
+.logo i:nth-child(3){color:var(--c-yellow);transform:rotate(-2deg)}
+.logo i:nth-child(4){color:var(--c-lime);transform:rotate(3deg)}
+.logo i:nth-child(5){color:var(--c-blue);transform:rotate(-3deg)}
+.logo i:nth-child(6){color:var(--c-teal);transform:rotate(2deg)}
+.logo i:nth-child(7){color:var(--c-pink);transform:rotate(-2deg)}
+.eyebrow{text-align:center;font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text-muted);font-weight:600}
+.mascot{width:44px;height:44px;border-radius:12px;background:var(--c-teal);border:3px solid var(--cream);display:grid;place-items:center;font-size:1.1rem;box-shadow:0 5px 0 rgba(0,0,0,.5);transform:rotate(-6deg)}
+.ribbon{margin:12px 14px 0;text-align:center;background:var(--cream);color:#2a2233;font-family:var(--font-display);font-weight:800;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:9px;border-radius:999px;box-shadow:0 4px 0 rgba(0,0,0,.45)}
+.s5 .hdr{background:transparent;border-bottom:2px solid var(--border)}
+.s5 table.score tbody tr:nth-child(odd){background:rgba(255,255,255,.03)}
+.s5 .fab{position:absolute;right:16px;bottom:88px;width:60px;height:60px;border-radius:50%;background:var(--c-orange);color:#fff;display:grid;place-items:center;font-size:1.7rem;box-shadow:0 6px 0 rgba(0,0,0,.55);border:3px solid var(--cream)}
+
+/* DESIGN SYSTEM PANEL */
+.ds-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;margin-top:14px}
+.ds-box{background:#1d1826;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:18px}
+.ds-box h3{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:12px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.sw{width:88px;border-radius:12px;overflow:hidden;box-shadow:0 4px 0 rgba(0,0,0,.5)}
+.sw .chipc{height:52px}
+.sw .lbl{font-size:.6rem;padding:5px 6px;background:#131019;color:#b7abc6;letter-spacing:.04em}
+.typerow{margin-bottom:12px}
+.typerow small{display:block;color:#8d81a0;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.btn-demos{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.demo-btn{font-family:'Baloo 2',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.04em;font-size:.9rem;padding:12px 22px;border:none;border-radius:999px;color:#2a2233;box-shadow:0 5px 0 rgba(0,0,0,.55);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.demo-btn:active{transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,.55)}
+code{background:#0f0c15;padding:2px 6px;border-radius:6px;font-size:.82em;color:#ffd7a8}
+ul.rules{margin-left:18px;color:#a99cba}ul.rules li{margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1 class="page"><span>G</span><span>L</span><span>O</span><span>V</span><span>E</span><span>B</span>OX-style redesign - 5 stages</h1>
+<p class="lede">Each stage is a shippable stopping point. Stage 1 is a two-hour paint job; Stage 5 is a full identity change. Every stage builds on the one before it, so you can stop wherever the app stops feeling like "your" app. Reference frame first, then Home + Tracker for each stage.</p>
+
+<!-- DESIGN SYSTEM -->
+<section class="stage" style="border-top:none;padding-top:0">
+  <div class="stage-head"><span class="stage-num">SYSTEM</span><span class="stage-title">The Glovebox design system</span></div>
+  <div class="ds-panel">
+    <div class="ds-box">
+      <h3>Palette</h3>
+      <p style="color:#a99cba;font-size:.85rem;margin-bottom:12px">Dark plum ink, cream text, six candy accents. The six accents double as the player colors, so the palette and the data colors are the same set - no second system to maintain.</p>
+      <div class="swatches">
+        <div class="sw"><div class="chipc" style="background:#272031"></div><div class="lbl">--ink #272031</div></div>
+        <div class="sw"><div class="chipc" style="background:#332a3f"></div><div class="lbl">--ink-2 #332A3F</div></div>
+        <div class="sw"><div class="chipc" style="background:#403450"></div><div class="lbl">--ink-3 #403450</div></div>
+        <div class="sw"><div class="chipc" style="background:#f6efe2"></div><div class="lbl">--cream #F6EFE2</div></div>
+        <div class="sw"><div class="chipc" style="background:#ec3f6e"></div><div class="lbl">pink #EC3F6E</div></div>
+        <div class="sw"><div class="chipc" style="background:#f4682e"></div><div class="lbl">orange #F4682E</div></div>
+        <div class="sw"><div class="chipc" style="background:#f9bd18"></div><div class="lbl">yellow #F9BD18</div></div>
+        <div class="sw"><div class="chipc" style="background:#9ac93c"></div><div class="lbl">lime #9AC93C</div></div>
+        <div class="sw"><div class="chipc" style="background:#45b0e8"></div><div class="lbl">blue #45B0E8</div></div>
+        <div class="sw"><div class="chipc" style="background:#2ec4b0"></div><div class="lbl">teal #2EC4B0</div></div>
+      </div>
+    </div>
+    <div class="ds-box">
+      <h3>Type</h3>
+      <div class="typerow"><small>Logo / hero - Lilita One</small><span style="font-family:'Lilita One',sans-serif;font-size:2rem">GAME TRACKER</span></div>
+      <div class="typerow"><small>Display / buttons / names - Baloo 2 800</small><span style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.35rem">Enter Score &bull; Farkle &bull; 10,000</span></div>
+      <div class="typerow"><small>UI body / numbers - Fredoka 400-600</small><span style="font-family:'Fredoka',sans-serif;font-size:1.05rem">Running totals &bull; First to 10,000</span></div>
+      <div class="typerow"><small>Micro label - Fredoka 600, .14em tracking, uppercase</small><span style="font-family:'Fredoka',sans-serif;font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.75rem">Dice Games</span></div>
+      <p style="color:#a99cba;font-size:.82rem;margin-top:10px">Replaces Commissioner. Baloo 2 keeps a fat rounded terminal at small sizes, which Fredoka's display weights lose. Both are Google Fonts, so the existing single <code>&lt;link&gt;</code> stays a single link.</p>
+    </div>
+    <div class="ds-box">
+      <h3>Sticker buttons</h3>
+      <div class="btn-demos">
+        <button class="demo-btn" style="background:#f9bd18">Enter Score</button>
+        <button class="demo-btn" style="background:#ec3f6e;color:#fff">New Game</button>
+        <button class="demo-btn" style="background:#2ec4b0;color:#fff;border:3px solid #f6efe2">Invite</button>
+      </div>
+      <ul class="rules" style="margin-top:14px;font-size:.85rem">
+        <li>Radius: <code>999px</code> for actions, <code>20px</code> for cards. Never a small radius.</li>
+        <li>Shadow is a hard offset, no blur: <code>0 5px 0 rgba(0,0,0,.55)</code>.</li>
+        <li>Press = <code>translateY(5px)</code> + shadow to 0. The button physically lands.</li>
+        <li>Optional 3px cream outline promotes a button to "sticker" (used sparingly: invite, FAB, mascot).</li>
+        <li>Tilt (<code>rotate(&plusmn;1-2deg)</code>) is for decorative tiles only, never for text read in a row.</li>
+      </ul>
+    </div>
+    <div class="ds-box">
+      <h3>What carries over</h3>
+      <ul class="rules" style="font-size:.85rem">
+        <li>The three-theme x two-mode variable structure stays. Glovebox becomes a fourth theme (or replaces Ocean) - same CSS variable blocks, new values.</li>
+        <li><code>--p0..--p5</code> player accents remap to the candy six exactly.</li>
+        <li>Light mode = cream paper <code>#F6EFE2</code> ground, ink text, same candy accents at full saturation. Hard shadows drop to <code>rgba(42,34,51,.22)</code>.</li>
+        <li>No markup changes until Stage 3; Stages 1-2 are pure CSS.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CURRENT -->
+<section class="stage">
+  <div class="stage-head"><span class="stage-num" style="background:#7aacba">NOW</span><span class="stage-title">Current app (Ocean dark)</span></div>
+  <p class="stage-note">Reference. Muted navy, thin borders, 12px radius, soft blurred shadows, system font for body.</p>
+  <div class="frames">
+    <div class="framewrap"><span class="framelabel">Home</span>
+      <div class="phone t-current">
+        <div class="app-header"><div class="app-title">&#127922; Game Tracker</div><div class="app-subtitle">Pick a game to get started</div></div>
+        <div class="body-scroll">
+          <button class="btn sec" style="margin-bottom:12px">&#128101; Join a Multiplayer Room</button>
+          <div class="grid">
+            <div class="divider">Dice Games</div>
+            <div class="card"><span class="ico">&#127922;</span><span class="nm">Farkle</span><span class="ds">First to 10,000</span></div>
+            <div class="card"><span class="ico">&#127922;</span><span class="nm">Yahtzee</span><span class="ds">13 rounds</span></div>
+            <div class="card"><span class="ico">&#129689;</span><span class="nm">Left Right Center</span><span class="ds">Last chip wins</span></div>
+            <div class="card"><span class="ico">&#129320;</span><span class="nm">Liar's Dice</span><span class="ds">Last standing</span></div>
+            <div class="divider">Card Games</div>
+            <div class="card"><span class="ico">&#128204;</span><span class="nm">Cribbage</span><span class="ds">First to 121</span></div>
+            <div class="card"><span class="ico">&#9824;&#65039;</span><span class="nm">Euchre</span><span class="ds">First to 10</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="framewrap"><span class="framelabel">Tracker</span>
+      <div class="phone t-current">
+        <div class="hdr"><span class="chip">&#8249;</span><h2>Farkle</h2><span class="chip">?</span><span class="chip">&#9881;</span></div>
+        <div class="body-scroll" style="padding:0">
+          <table class="score">
+            <thead><tr><th>#</th><th>Ben</th><th>Mia</th><th>Sam</th><th>Jo</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>550</td><td>0</td><td>800</td><td>300</td></tr>
+              <tr><td>2</td><td>1,200</td><td>650</td><td>950</td><td>300</td></tr>
+              <tr><td>3</td><td>1,850</td><td>1,400</td><td>950</td><td>1,150</td></tr>
+              <tr><td>4</td><td>2,300</td><td>2,050</td><td>1,700</td><td>1,150</td></tr>
+              <tr><td>5</td><td>3,100</td><td>2,050</td><td>2,400</td><td>1,900</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td><td>3,100</td><td>2,050</td><td>2,400</td><td>1,900</td></tr></tfoot>
+          </table>
+        </div>
+        <div class="actions"><button class="btn">Enter Score</button><button class="btn sec">New Game</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGE 1 -->
+<section class="stage">
+  <div class="stage-head"><span class="stage-num" style="background:#45b0e8;color:#fff">STAGE 1</span><span class="stage-title">Repaint and re-letter</span></div>
+  <p class="stage-note"><b>CSS variables and one font link only.</b> Dark plum replaces navy, cream replaces cold blue-white, yellow becomes the primary accent, Baloo 2 + Fredoka replace Commissioner + system sans. Every shape, border and shadow untouched. Ship this alone and the app already reads playful instead of utilitarian.</p>
+  <span class="trade">Cost: ~1 hour. Risk: near zero, fully reversible. Ceiling: still visibly the same layout.</span>
+  <div class="frames">
+    <div class="framewrap"><span class="framelabel">Home</span>
+      <div class="phone gb s1">
+        <div class="app-header"><div class="app-title">&#127922; Game Tracker</div><div class="app-subtitle">Pick a game to get started</div></div>
+        <div class="body-scroll">
+          <button class="btn sec" style="margin-bottom:12px">&#128101; Join a Multiplayer Room</button>
+          <div class="grid">
+            <div class="divider">Dice Games</div>
+            <div class="card"><span class="ico">&#127922;</span><span class="nm">Farkle</span><span class="ds">First to 10,000</span></div>
+            <div class="card"><span class="ico">&#127922;</span><span class="nm">Yahtzee</span><span class="ds">13 rounds</span></div>
+            <div class="card"><span class="ico">&#129689;</span><span class="nm">Left Right Center</span><span class="ds">Last chip wins</span></div>
+            <div class="card"><span class="ico">&#129320;</span><span class="nm">Liar's Dice</span><span class="ds">Last standing</span></div>
+            <div class="divider">Card Games</div>
+            <div class="card"><span class="ico">&#128204;</span><span class="nm">Cribbage</span><span class="ds">First to 121</span></div>
+            <div class="card"><span class="ico">&#9824;&#65039;</span><span class="nm">Euchre</span><span class="ds">First to 10</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="framewrap"><span class="framelabel">Tracker</span>
+      <div class="phone gb s1">
+        <div class="hdr"><span class="chip">&#8249;</span><h2>Farkle</h2><span class="chip">?</span><span class="chip">&#9881;</span></div>
+        <div class="body-scroll" style="padding:0">
+          <table class="score">
+            <thead><tr><th>#</th><th>Ben</th><th>Mia</th><th>Sam</th><th>Jo</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>550</td><td>0</td><td>800</td><td>300</td></tr>
+              <tr><td>2</td><td>1,200</td><td>650</td><td>950</td><td>300</td></tr>
+              <tr><td>3</td><td>1,850</td><td>1,400</td><td>950</td><td>1,150</td></tr>
+              <tr><td>4</td><td>2,300</td><td>2,050</td><td>1,700</td><td>1,150</td></tr>
+              <tr><td>5</td><td>3,100</td><td>2,050</td><td>2,400</td><td>1,900</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td><td>3,100</td><td>2,050</td><td>2,400</td><td>1,900</td></tr></tfoot>
+          </table>
+        </div>
+        <div class="actions"><button class="btn">Enter Score</button><button class="btn sec">New Game</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGE 2 -->
+<section class="stage">
+  <div class="stage-head"><span class="stage-num" style="background:#9ac93c">STAGE 2</span><span class="stage-title">Sticker physics</span></div>
+  <p class="stage-note"><b>Shape and shadow rules.</b> Every button becomes a pill with a hard 4-5px drop shadow and presses down into it. Borders deleted in favour of shadow-defined edges; cards go to 20px radius. Uppercase button labels with light tracking. Biggest "feel" change per line of CSS - the app starts responding like a physical toy. <i>Press the buttons in the system panel above to feel it.</i></p>
+  <span class="trade">Cost: ~half a day. Risk: low. Watch the footer bar keeps enough height for the drop shadow so buttons do not look clipped.</span>
+  <div class="frames">
+    <div class="framewrap"><span class="framelabel">Home</span>
+      <div class="phone gb s2">
+        <div class="app-header"><div class="app-title">&#127922; Game Tracker</div><div class="app-subtitle">Pick a game to get started</div></div>
+        <div class="body-scroll">
+          <button class="btn sec" style="margin-bottom:16px">&#128101; Join a Room</button>
+          <div class="grid">
+            <div class="divider">Dice Games</div>
+            <div class="card"><span class="ico">&#127922;</span><span class="nm">Farkle</span><span class="ds">First to 10,000</span></div>
+            <div class="card"><span class="ico">&#127922;</span><span class="nm">Yahtzee</span><span class="ds">13 rounds</span></div>
+            <div class="card"><span class="ico">&#129689;</span><span class="nm">Left Right Center</span><span class="ds">Last chip wins</span></div>
+            <div class="card"><span class="ico">&#129320;</span><span class="nm">Liar's Dice</span><span class="ds">Last standing</span></div>
+            <div class="divider">Card Games</div>
+            <div class="card"><span class="ico">&#128204;</span><span class="nm">Cribbage</span><span class="ds">First to 121</span></div>
+            <div class="card"><span class="ico">&#9824;&#65039;</span><span class="nm">Euchre</span><span class="ds">First to 10</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="framewrap"><span class="framelabel">Tracker</span>
+      <div class="phone gb s2">
+        <div class="hdr"><span class="chip">&#8249;</span><h2>Farkle</h2><span class="chip">?</span><span class="chip">&#9881;</span></div>
+        <div class="body-scroll" style="padding:0">
+          <table class="score">
+            <thead><tr><th>#</th><th>Ben</th><th>Mia</th><th>Sam</th><th>Jo</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>550</td><td>0</td><td>800</td><td>300</td></tr>
+              <tr><td>2</td><td>1,200</td><td>650</td><td>950</td><td>300</td></tr>
+              <tr><td>3</td><td>1,850</td><td>1,400</td><td>950</td><td>1,150</td></tr>
+              <tr><td>4</td><td>2,300</td><td>2,050</td><td>1,700</td><td>1,150</td></tr>
+              <tr><td>5</td><td>3,100</td><td>2,050</td><td>2,400</td><td>1,900</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td><td>3,100</td><td>2,050</td><td>2,400</td><td>1,900</td></tr></tfoot>
+          </table>
+        </div>
+        <div class="actions"><button class="btn">Enter Score</button><button class="btn sec">New Game</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGE 3 -->
+<section class="stage">
+  <div class="stage-head"><span class="stage-num" style="background:#f9bd18">STAGE 3</span><span class="stage-title">Candy tiles and colour-coded scoring</span></div>
+  <p class="stage-note"><b>Colour becomes information.</b> Each game card takes a candy fill cycling through the six accents - the grid reads like the Glovebox pill wall. On the tracker every player owns one accent: their column header is a name pill in their colour, their total is tinted to match. "Who is winning" stops being a numeric comparison and becomes a colour one. Player colour assignment already exists (<code>--p0..--p5</code>), so this is a remap plus a header restyle.</p>
+  <span class="trade">Cost: 1-2 days. Risk: contrast. Yellow and lime need ink text, pink/orange/blue/teal need cream. Bake the pairing into the token, do not decide per use.</span>
+  <div class="frames">
+    <div class="framewrap"><span class="framelabel">Home</span>
+      <div class="phone gb s3">
+        <div class="app-header"><div class="app-title">&#127922; Game Tracker</div><div class="app-subtitle">Pick a game to get started</div></div>
+        <div class="body-scroll">
+          <button class="btn sec" style="margin-bottom:16px">&#128101; Join a Room</button>
+          <div class="grid">
+            <div class="divider">Dice Games</div>
+            <div class="card c-teal"><span class="ico">&#127922;</span><span class="nm">Farkle</span><span class="ds">First to 10,000</span></div>
+            <div class="card c-pink"><span class="ico">&#127922;</span><span class="nm">Yahtzee</span><span class="ds">13 rounds</span></div>
+            <div class="card c-yellow"><span class="ico">&#129689;</span><span class="nm">Left Right Center</span><span class="ds">Last chip wins</span></div>
+            <div class="card c-lime"><span class="ico">&#129320;</span><span class="nm">Liar's Dice</span><span class="ds">Last standing</span></div>
+            <div class="divider">Card Games</div>
+            <div class="card c-blue"><span class="ico">&#128204;</span><span class="nm">Cribbage</span><span class="ds">First to 121</span></div>
+            <div class="card c-orange"><span class="ico">&#9824;&#65039;</span><span class="nm">Euchre</span><span class="ds">First to 10</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="framewrap"><span class="framelabel">Tracker</span>
+      <div class="phone gb s3">
+        <div class="hdr"><span class="chip">&#8249;</span><h2>Farkle</h2><span class="chip">?</span><span class="chip">&#9881;</span></div>
+        <div class="body-scroll" style="padding:0">
+          <table class="score">
+            <thead><tr><th>#</th>
+              <th><span class="namepill c-yellow">Ben</span></th>
+              <th><span class="namepill c-pink">Mia</span></th>
+              <th><span class="namepill c-blue">Sam</span></th>
+              <th><span class="namepill c-lime">Jo</span></th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>550</td><td>0</td><td>800</td><td>300</td></tr>
+              <tr><td>2</td><td>1,200</td><td>650</td><td>950</td><td>300</td></tr>
+              <tr><td>3</td><td>1,850</td><td>1,400</td><td>950</td><td>1,150</td></tr>
+              <tr><td>4</td><td>2,300</td><td>2,050</td><td>1,700</td><td>1,150</td></tr>
+              <tr><td>5</td><td>3,100</td><td>2,050</td><td>2,400</td><td>1,900</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td>
+              <td style="color:#f9bd18">3,100</td><td style="color:#ec3f6e">2,050</td>
+              <td style="color:#45b0e8">2,400</td><td style="color:#9ac93c">1,900</td></tr></tfoot>
+          </table>
+        </div>
+        <div class="actions"><button class="btn">Enter Score</button><button class="btn sec">New Game</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGE 4 -->
+<section class="stage">
+  <div class="stage-head"><span class="stage-num" style="background:#f4682e;color:#fff">STAGE 4</span><span class="stage-title">Personality: tilt, confetti field, badges</span></div>
+  <p class="stage-note"><b>The decorative layer.</b> Cards get a 1-2 degree tilt so the grid looks hand-placed. Loose confetti dots sit behind content. A starburst badge calls out a count ("12 games"). The leader's column wears a crown; the winner banner becomes a sticker ribbon. Nothing here carries meaning not already carried elsewhere, so it all degrades safely.</p>
+  <span class="trade">Cost: 1-2 days. Risk: tilt on interactive rows hurts tap accuracy and readability - keep it on the home grid, never on the score table. Gate motion behind <code>prefers-reduced-motion</code>.</span>
+  <div class="frames">
+    <div class="framewrap"><span class="framelabel">Home</span>
+      <div class="phone gb s4">
+        <div class="app-header confetti-bg" style="padding-bottom:18px">
+          <div class="burst wobble">12<br>GAMES</div>
+          <div class="app-title">&#127922; Game Tracker</div><div class="app-subtitle">Pick a game to get started</div>
+        </div>
+        <div class="body-scroll confetti-bg">
+          <button class="btn sec" style="margin-bottom:16px">&#128101; Join a Room</button>
+          <div class="grid">
+            <div class="divider">Dice Games</div>
+            <div class="card c-teal"><span class="ico">&#127922;</span><span class="nm">Farkle</span><span class="ds">First to 10,000</span></div>
+            <div class="card c-pink"><span class="ico">&#127922;</span><span class="nm">Yahtzee</span><span class="ds">13 rounds</span></div>
+            <div class="card c-yellow"><span class="ico">&#129689;</span><span class="nm">Left Right Center</span><span class="ds">Last chip wins</span></div>
+            <div class="card c-lime"><span class="ico">&#129320;</span><span class="nm">Liar's Dice</span><span class="ds">Last standing</span></div>
+            <div class="divider">Card Games</div>
+            <div class="card c-blue"><span class="ico">&#128204;</span><span class="nm">Cribbage</span><span class="ds">First to 121</span></div>
+            <div class="card c-orange"><span class="ico">&#9824;&#65039;</span><span class="nm">Euchre</span><span class="ds">First to 10</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="framewrap"><span class="framelabel">Tracker</span>
+      <div class="phone gb s4">
+        <div class="hdr"><span class="chip">&#8249;</span><h2>Farkle</h2><span class="chip">?</span><span class="chip">&#9881;</span></div>
+        <div class="ribbon" style="background:var(--c-yellow)">&#128293; Ben leads by 1,050</div>
+        <div class="body-scroll confetti-bg" style="padding:12px 0 0">
+          <table class="score">
+            <thead><tr><th>#</th>
+              <th><span class="namepill c-yellow leader">Ben</span></th>
+              <th><span class="namepill c-pink">Mia</span></th>
+              <th><span class="namepill c-blue">Sam</span></th>
+              <th><span class="namepill c-lime">Jo</span></th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>550</td><td>0</td><td>800</td><td>300</td></tr>
+              <tr><td>2</td><td>1,200</td><td>650</td><td>950</td><td>300</td></tr>
+              <tr><td>3</td><td>1,850</td><td>1,400</td><td>950</td><td>1,150</td></tr>
+              <tr><td>4</td><td>2,300</td><td>2,050</td><td>1,700</td><td>1,150</td></tr>
+              <tr><td>5</td><td>3,100</td><td>2,050</td><td>2,400</td><td>1,900</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td>
+              <td style="color:#f9bd18">3,100</td><td style="color:#ec3f6e">2,050</td>
+              <td style="color:#45b0e8">2,400</td><td style="color:#9ac93c">1,900</td></tr></tfoot>
+          </table>
+        </div>
+        <div class="actions"><button class="btn">Enter Score</button><button class="btn sec">New Game</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGE 5 -->
+<section class="stage">
+  <div class="stage-head"><span class="stage-num" style="background:#ec3f6e;color:#fff">STAGE 5</span><span class="stage-title">Full identity</span></div>
+  <p class="stage-note"><b>The app gets a face.</b> Multicolour per-letter wordmark with rotated glyphs, a mascot tile, an eyebrow line above the logo, a cream capsule tagline at the bottom of home, transparent header with a fat rule, zebra score rows, and a sticker FAB with a cream outline. Themes get renamed to candy variants (Plum / Cream / Neon) rather than Ember / Ocean / Forest. This is where new icons, splash screen and PWA manifest colours change too.</p>
+  <span class="trade">Cost: several days plus new icon art. Risk: this is a rebrand - the app stops looking like the thing your group already knows. Ship as one release, not piecemeal, and snapshot the previous version first.</span>
+  <div class="frames">
+    <div class="framewrap"><span class="framelabel">Home</span>
+      <div class="phone gb s5 tall">
+        <div class="app-header confetti-bg" style="padding:16px 16px 14px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="mascot">&#127922;</div>
+            <div class="burst wobble" style="position:static;transform:none">12<br>GAMES</div>
+          </div>
+          <div class="eyebrow" style="margin-top:8px">Whose turn is it anyway</div>
+          <div class="logo"><i>T</i><i>R</i><i>A</i><i>C</i><i>K</i><i>E</i><i>R</i></div>
+        </div>
+        <div class="body-scroll confetti-bg">
+          <button class="btn sec" style="margin-bottom:16px">&#128101; Join a Room</button>
+          <div class="grid">
+            <div class="divider">Dice Games</div>
+            <div class="card c-teal"><span class="ico">&#127922;</span><span class="nm">Farkle</span><span class="ds">First to 10,000</span></div>
+            <div class="card c-pink"><span class="ico">&#127922;</span><span class="nm">Yahtzee</span><span class="ds">13 rounds</span></div>
+            <div class="card c-yellow"><span class="ico">&#129689;</span><span class="nm">Left Right Center</span><span class="ds">Last chip wins</span></div>
+            <div class="card c-lime"><span class="ico">&#129320;</span><span class="nm">Liar's Dice</span><span class="ds">Last standing</span></div>
+            <div class="divider">Card Games</div>
+            <div class="card c-blue"><span class="ico">&#128204;</span><span class="nm">Cribbage</span><span class="ds">First to 121</span></div>
+            <div class="card c-orange"><span class="ico">&#9824;&#65039;</span><span class="nm">Euchre</span><span class="ds">First to 10</span></div>
+          </div>
+        </div>
+        <div class="ribbon" style="margin-bottom:12px">Free &bull; No downloads &bull; Works offline</div>
+      </div>
+    </div>
+    <div class="framewrap"><span class="framelabel">Tracker</span>
+      <div class="phone gb s5 tall" style="position:relative">
+        <div class="hdr"><span class="chip sticker" style="background:var(--c-orange);color:#fff">&#8249;</span><h2 style="font-family:var(--font-logo);letter-spacing:.04em">FARKLE</h2><span class="chip sticker" style="background:var(--ink-3)">?</span><span class="chip sticker" style="background:var(--ink-3)">&#9881;</span></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 14px">
+          <span class="namepill" style="background:var(--cream);color:#2a2233">ROOM 4KJ2</span>
+          <span class="namepill c-teal">&#128279; Invite</span>
+          <span class="namepill c-orange">&#9997; Scorer</span>
+        </div>
+        <div class="ribbon" style="background:var(--c-yellow);margin-top:2px">&#128081; Ben leads by 1,050</div>
+        <div class="body-scroll confetti-bg" style="padding:12px 0 0">
+          <table class="score">
+            <thead><tr><th>#</th>
+              <th><span class="namepill c-yellow leader">Ben</span></th>
+              <th><span class="namepill c-pink">Mia</span></th>
+              <th><span class="namepill c-blue">Sam</span></th>
+              <th><span class="namepill c-lime">Jo</span></th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>550</td><td>0</td><td>800</td><td>300</td></tr>
+              <tr><td>2</td><td>1,200</td><td>650</td><td>950</td><td>300</td></tr>
+              <tr><td>3</td><td>1,850</td><td>1,400</td><td>950</td><td>1,150</td></tr>
+              <tr><td>4</td><td>2,300</td><td>2,050</td><td>1,700</td><td>1,150</td></tr>
+              <tr><td>5</td><td>3,100</td><td>2,050</td><td>2,400</td><td>1,900</td></tr>
+              <tr><td>6</td><td>3,100</td><td>2,700</td><td>2,400</td><td>2,350</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td>
+              <td style="color:#f9bd18">3,100</td><td style="color:#ec3f6e">2,700</td>
+              <td style="color:#45b0e8">2,400</td><td style="color:#9ac93c">2,350</td></tr></tfoot>
+          </table>
+        </div>
+        <div class="fab">+</div>
+        <div class="actions"><button class="btn">Enter Score</button><button class="btn sec">New Game</button></div>
+      </div>
+    </div>
+    <div class="framewrap"><span class="framelabel">Stage 5 light mode (cream paper)</span>
+      <div class="phone gb s5 tall" style="--bg:#f6efe2;--surface:#efe5d4;--card:#e6dac6;--text:#2a2233;--text-muted:#7b6f86;--cream:#2a2233;--ink-3:#e0d3bd;--border:rgba(42,34,51,.18)">
+        <div class="app-header" style="padding:16px 16px 14px">
+          <div class="eyebrow">Whose turn is it anyway</div>
+          <div class="logo"><i>T</i><i>R</i><i>A</i><i>C</i><i>K</i><i>E</i><i>R</i></div>
+        </div>
+        <div class="body-scroll">
+          <button class="btn sec" style="margin-bottom:16px;background:#e0d3bd;color:#2a2233;box-shadow:0 4px 0 rgba(42,34,51,.22)">&#128101; Join a Room</button>
+          <div class="grid">
+            <div class="divider">Dice Games</div>
+            <div class="card c-teal" style="box-shadow:0 6px 0 rgba(42,34,51,.22)"><span class="ico">&#127922;</span><span class="nm">Farkle</span><span class="ds">First to 10,000</span></div>
+            <div class="card c-pink" style="box-shadow:0 6px 0 rgba(42,34,51,.22)"><span class="ico">&#127922;</span><span class="nm">Yahtzee</span><span class="ds">13 rounds</span></div>
+            <div class="card c-yellow" style="box-shadow:0 6px 0 rgba(42,34,51,.22)"><span class="ico">&#129689;</span><span class="nm">Left Right Center</span><span class="ds">Last chip wins</span></div>
+            <div class="card c-lime" style="box-shadow:0 6px 0 rgba(42,34,51,.22)"><span class="ico">&#129320;</span><span class="nm">Liar's Dice</span><span class="ds">Last standing</span></div>
+            <div class="divider">Card Games</div>
+            <div class="card c-blue" style="box-shadow:0 6px 0 rgba(42,34,51,.22)"><span class="ico">&#128204;</span><span class="nm">Cribbage</span><span class="ds">First to 121</span></div>
+            <div class="card c-orange" style="box-shadow:0 6px 0 rgba(42,34,51,.22)"><span class="ico">&#9824;&#65039;</span><span class="nm">Euchre</span><span class="ds">First to 10</span></div>
+          </div>
+        </div>
+        <div class="ribbon" style="background:#2a2233;color:#f6efe2;margin-bottom:12px">Free &bull; No downloads &bull; Works offline</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

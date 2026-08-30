@@ -6,8 +6,11 @@ document.getElementById('settings-version').textContent = `v${APP_VERSION}`;
 document.getElementById('home-version').textContent = `v${APP_VERSION}`;
 
 // ── Theme Management ─────────────────────────────────────
-const THEMES = ['ember', 'ocean', 'forest'];
-const MODES  = ['dark', 'light', 'system'];
+// One theme, two modes. The three colour themes (Ember/Ocean/Forest) were
+// removed in v0.25: the Pip palette is part of the identity now, not a
+// preference, so the only stored display setting is dark/light/system.
+const THEME = 'pip';
+const MODES = ['dark', 'light', 'system'];
 
 // 'system' is stored as the user's preference but never written to the DOM -
 // resolve it to the OS's actual light/dark scheme so the theme CSS blocks (which
@@ -17,39 +20,29 @@ function resolveMode(mode) {
   return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
 }
 
-function applyTheme(theme, mode) {
-  if (!THEMES.includes(theme)) theme = 'ocean';
-  if (!MODES.includes(mode))   mode  = 'system';
-  document.documentElement.dataset.theme = theme;
+function applyMode(mode) {
+  if (!MODES.includes(mode)) mode = 'system';
+  document.documentElement.dataset.theme = THEME;
   document.documentElement.dataset.mode  = resolveMode(mode);
-  localStorage.setItem('theme', theme);
-  localStorage.setItem('mode',  mode);
-  updateSettingsUI(theme, mode);
+  localStorage.setItem('mode', mode);
+  updateSettingsUI(mode);
 }
 
 // Live-follow the OS theme while 'system' mode is selected.
 if (window.matchMedia) {
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if (localStorage.getItem('mode') === 'system') {
-      applyTheme(localStorage.getItem('theme') || 'ocean', 'system');
-    }
+    if (localStorage.getItem('mode') === 'system') applyMode('system');
   });
 }
 
-function updateSettingsUI(theme, mode) {
-  document.querySelectorAll('.theme-swatch').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.theme === theme);
-  });
+function updateSettingsUI(mode) {
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === mode);
   });
 }
 
-// Apply persisted theme on load (also set by inline script in <head> to prevent flash)
-applyTheme(
-  localStorage.getItem('theme') || 'ocean',
-  localStorage.getItem('mode')  || 'system'
-);
+// Apply persisted mode on load (also set by inline script in <head> to prevent flash)
+applyMode(localStorage.getItem('mode') || 'system');
 
 // The gear button appears on every screen (home, setup, tracker) - all wired to the same modal.
 ['btn-settings', 'btn-settings-setup', 'btn-settings-tracker'].forEach(id => {
@@ -57,7 +50,7 @@ applyTheme(
     // Use the stored preference, not dataset.mode - dataset.mode holds the resolved
     // dark/light value and is never literally 'system', which would make the System
     // button never show as active.
-    updateSettingsUI(document.documentElement.dataset.theme, localStorage.getItem('mode') || 'system');
+    updateSettingsUI(localStorage.getItem('mode') || 'system');
     document.getElementById('modal-settings').classList.remove('hidden');
   });
 });
@@ -68,18 +61,8 @@ function closeSettingsModal() {
   document.getElementById('modal-settings').classList.add('hidden');
 }
 
-document.querySelectorAll('.theme-swatch').forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Keep the stored mode preference (e.g. 'system') - dataset.mode is the
-    // resolved dark/light value and would overwrite 'system' with whichever one
-    // it currently resolves to.
-    applyTheme(btn.dataset.theme, localStorage.getItem('mode') || 'system');
-  });
-});
 document.querySelectorAll('.mode-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    applyTheme(document.documentElement.dataset.theme, btn.dataset.mode);
-  });
+  btn.addEventListener('click', () => applyMode(btn.dataset.mode));
 });
 
 // ── Volume (persisted for future sound effects) ──────────
@@ -336,7 +319,24 @@ Use "Enter Score" to log each player's dice remaining after a round, so you can 
   },
 };
 
-const PLAYER_COLORS = ['#3a9ee8', '#5cb85c', '#f0a820', '#a855f7', '#14b8a6', '#e8533a', '#ec4899', '#6366f1'];
+// Seats are handed out in this order, not palette order: the sequence alternates
+// warm and cool so no two adjacent seats sit close together on the wheel, and
+// the lightness spread across them is what keeps four filled chips apart in one
+// table header for red-green colour blindness. Fills only - the matching deep
+// border hue for each is PLAYER_COLOR_BORDERS below, at the same index.
+const PLAYER_COLORS = ['#3FBE9A', '#F576A8', '#7C93EE', '#A8C64F', '#F5B02E', '#F2604C', '#4FC3E8', '#C48BF0'];
+const PLAYER_COLOR_BORDERS = {
+  '#3FBE9A': '#0F6F58', // jade
+  '#F576A8': '#A82F6A', // bubblegum
+  '#7C93EE': '#3A4EAF', // cornflower
+  '#A8C64F': '#4F6B14', // pistachio
+  '#F5B02E': '#8A5709', // marigold
+  '#F2604C': '#B23A28', // punch
+  '#4FC3E8': '#14607F', // lagoon
+  '#C48BF0': '#6B33A8', // orchid
+};
+// Text on any accent fill is always ink. Never cream, never white.
+const PLAYER_INK = '#21131F';
 
 // ── Player Color Picker ──────────────────────────────────
 // Shared popover used by both the setup screen's player dots and the tracker

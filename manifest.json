@@ -1,12 +1,12 @@
 {
-  "name": "Game Tracker",
-  "short_name": "Game Tracker",
-  "description": "Score tracker for board and dice games",
+  "name": "PiP - Game Night Score Tracker",
+  "short_name": "PiP",
+  "description": "Keep score at game night: dice, cards and tiles, on one phone or a shared room.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0d1b2a",
-  "theme_color": "#0d1b2a",
+  "background_color": "#21131F",
+  "theme_color": "#21131F",
   "orientation": "any",
   "icons": [
     {
