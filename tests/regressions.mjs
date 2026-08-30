@@ -80,8 +80,10 @@ const groupRowIndex = index.indexOf('id="group-size-row"');
 const primaryNameIndex = index.indexOf('id="player-name-input"');
 assert.ok(groupRowIndex !== -1 && groupRowIndex < primaryNameIndex,
   'player-count selection must appear before the primary name field');
-assert.match(index, /class="group-size-label"[^>]*>Players:<\/label>/,
-  'the compact player-count row must use the Players label');
+assert.match(index, /id="group-count-die"[\s\S]*?class="die-cell"/,
+  'the join sheet must pick its player count with the die control');
+assert.match(app, /function paintDieFace\(die, count, colors\)/,
+  'the setup die and the join die must paint faces through one function');
 assert.doesNotMatch(index, /Players on this device|You'll enter scores for everyone on this device/,
   'the old players-on-this-device lines must be removed');
 assert.match(app, /const MP_MAX_GROUP_SIZE = 8/,
@@ -89,11 +91,11 @@ assert.match(app, /const MP_MAX_GROUP_SIZE = 8/,
 assert.match(worker, /const MAX_GROUP_SIZE = 8/,
   'the Worker must allow one device to represent all eight room seats');
 assert.match(app, /Math\.min\(MP_MAX_GROUP_SIZE, seatsLeft\)/,
-  'the join dropdown must cap device players at the remaining room seats');
-assert.match(style, /\.group-size-select[\s\S]*?padding:\s*10px 38px 10px 14px/,
-  'the player-count select must reserve space between its value and chevron');
-assert.match(style, /\.group-size-select-wrap::after/,
-  'the player-count select must use an inset custom chevron');
+  'the join die must cap device players at the remaining room seats');
+assert.match(style, /\.count-die-row--compact \.count-die[\s\S]*?width:\s*104px/,
+  'the join sheet must use the smaller die so it fits beside the name fields');
+assert.match(app, /function mpStepGroupSize\(delta\)[\s\S]*?showToast\(`This room only has \$\{cap\} seats left\.`\)/,
+  'trying to add more players than the room can seat must say so in a toast');
 assert.match(app, /if \(announce && turnChanged\) mpAnnounceTurn\(nextTurn\)/,
   'the your-turn toast must fire only when the current turn actually changes');
 assert.match(app, /msg\.currentTurnPlayerId, \{ announce: false, roundStarts: msg\.roundStarts \}\)/,

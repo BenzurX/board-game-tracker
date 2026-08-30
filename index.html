@@ -170,7 +170,6 @@
             </div>
           </div>
           <button type="button" class="count-step" id="btn-count-up" aria-label="Add a player">+</button>
-          <span class="count-tooltip" id="count-tooltip" role="status">Maximum of 8 players</span>
         </div>
         <p class="count-label" id="count-label">2 Players</p>
         <div id="player-inputs"></div>
@@ -241,6 +240,7 @@
           </tr>
         </tfoot>
       </table>
+      <div id="turn-column-frame" class="turn-column-frame hidden" aria-hidden="true"></div>
       <div id="winner-column-frame" class="winner-column-frame hidden" aria-hidden="true"></div>
     </div>
 
@@ -312,14 +312,18 @@
     <div class="modal-sheet modal-sheet--confirm">
       <h3 class="modal-title">Your Name</h3>
       <p class="modal-hint">This is what other players will see.</p>
-      <div class="group-size-row" id="group-size-row">
-        <label class="group-size-label" for="group-size-select">Players:</label>
-        <span class="group-size-select-wrap">
-          <select id="group-size-select" class="group-size-select">
-            <option value="1">1</option>
-          </select>
-        </span>
+      <div class="count-die-row count-die-row--compact" id="group-size-row">
+        <button type="button" class="count-step" id="btn-group-count-down" aria-label="Remove a player">&minus;</button>
+        <div class="count-die-wrap">
+          <div class="count-die" id="group-count-die" role="img" aria-label="1 player">
+            <span class="die-cell"></span><span class="die-cell"></span><span class="die-cell"></span>
+            <span class="die-cell"></span><span class="die-cell"></span><span class="die-cell"></span>
+            <span class="die-cell"></span><span class="die-cell"></span><span class="die-cell"></span>
+          </div>
+        </div>
+        <button type="button" class="count-step" id="btn-group-count-up" aria-label="Add a player">+</button>
       </div>
+      <p class="count-label count-label--compact" id="group-count-label">1 Player</p>
       <input type="text" id="player-name-input" class="player-name-modal-input" maxlength="20" autocomplete="off" placeholder="Your name">
       <div class="group-name-fields hidden" id="group-name-fields"></div>
       <p class="modal-hint mp-error hidden" id="player-name-error"></p>
@@ -474,6 +478,7 @@
   </div>
 
   <script src="qrcode.js"></script>
+  <script src="sfx.js"></script>
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator) {

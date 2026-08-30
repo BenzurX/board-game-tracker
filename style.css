@@ -726,25 +726,18 @@ html, body {
   color: var(--text);
 }
 
-.count-tooltip {
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  background: var(--text);
-  color: var(--ground);
-  font-family: var(--font-ui);
-  font-size: 0.78rem;
-  font-weight: 900;
-  padding: 6px 12px;
-  border-radius: var(--r-action);
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, 4px);
-  transition: opacity 0.15s, transform 0.15s;
-  z-index: 5;
+/* A smaller die for the join sheet, where it shares the modal with two or more
+   name fields and cannot take a third of the screen. */
+.count-die-row--compact { gap: 16px; margin-top: 14px; }
+.count-die-row--compact .count-step { width: 44px; height: 44px; font-size: 1.35rem; }
+.count-die-row--compact .count-die {
+  width: 104px;
+  height: 104px;
+  border-radius: 24px;
+  padding: 14px;
+  gap: 5px;
 }
-.count-tooltip.show { opacity: 1; transform: translate(-50%, 0); }
+.count-label--compact { font-size: 1.1rem; margin-top: 6px; }
 
 /* Game name input (custom games) */
 .game-name-input {
@@ -1001,12 +994,24 @@ html, body {
 #score-table tbody tr:nth-child(odd) td  { background: var(--row-a); }
 #score-table tbody tr:nth-child(even) td { background: var(--row-b); }
 #score-table tbody tr:hover td           { filter: brightness(1.08); }
+/* The tint marks the column; its outline is drawn by .turn-column-frame, which
+   can round its corners where an inset shadow never could. The sticky header
+   and footer keep their own drop shadow so rows still pass under them. */
 #score-table .current-turn {
   background: color-mix(in srgb, var(--accent) 42%, var(--bg)) !important;
-  box-shadow: inset 3px 0 var(--accent-bright), inset -3px 0 var(--accent-bright);
 }
-#score-table thead .current-turn { box-shadow: inset 3px 0 var(--accent-bright), inset -3px 0 var(--accent-bright), inset 0 3px var(--accent-bright), 0 4px 8px rgba(0, 0, 0, 0.25); }
-#score-table tfoot .current-turn { box-shadow: inset 3px 0 var(--accent-bright), inset -3px 0 var(--accent-bright), inset 0 -3px var(--accent-bright), 0 -4px 8px rgba(0, 0, 0, 0.25); }
+#score-table thead .current-turn { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25); }
+#score-table tfoot .current-turn { box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.25); }
+
+.turn-column-frame {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  border: var(--accent-border) solid var(--p2);
+  border-radius: 12px;
+  transition: left 220ms var(--ease), width 220ms var(--ease), border-color 220ms var(--ease);
+}
+.turn-column-frame.hidden { display: none; }
 
 .col-round {
   text-align: left;
@@ -1564,12 +1569,26 @@ html, body {
   padding: 10px 20px;
 }
 .mp-room-code {
-  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--r-action);
+  background: var(--surface);
+  border: 2px solid var(--border);
+  font-family: var(--font-ui);
+  font-weight: 900;
   letter-spacing: 0.04em;
-  font-size: 1.05rem;
-  color: var(--accent);
+  font-size: 0.95rem;
+  color: var(--text);
 }
-.mp-room-code .room-code-prefix { color: var(--text-muted); font-weight: 600; }
+.mp-room-code .room-code-prefix {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
 
 .btn-scorer { margin-left: auto; }
 
@@ -1638,55 +1657,6 @@ html, body {
 }
 .player-name-modal-input:focus { border-color: var(--accent); }
 
-/* Label sits against the dropdown rather than pinned to the opposite edge: with
-   the row's full width between them the label reads as a heading for the whole
-   modal instead of a label for the select. */
-.group-size-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
-  margin-bottom: 2px;
-}
-.group-size-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-dim, var(--text));
-}
-.group-size-select-wrap {
-  position: relative;
-  display: inline-flex;
-}
-.group-size-select-wrap::after {
-  content: '';
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  width: 7px;
-  height: 7px;
-  border-right: 2px solid var(--text-muted);
-  border-bottom: 2px solid var(--text-muted);
-  transform: translateY(-70%) rotate(45deg);
-  pointer-events: none;
-}
-.group-size-select {
-  padding: 10px 38px 10px 14px;
-  min-width: 72px;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 10px;
-  border: 2px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  outline: none;
-  cursor: pointer;
-  transition: border-color 0.15s;
-  -webkit-appearance: none;
-  appearance: none;
-}
-.group-size-select:focus { border-color: var(--accent); }
-
 .group-name-fields {
   display: flex;
   flex-direction: column;
@@ -1709,22 +1679,44 @@ html, body {
 }
 .btn-text:hover { background: var(--accent-dim); }
 
+/* Invite is jade, Scorer is punch - two filled chips on the shared button
+   model, each with its own deep border, tilted the way the handoff's room
+   strip is. Nothing here is a number being compared, so the tilt is safe. */
 .btn-qr {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  background: var(--accent-dim);
-  border: 1.5px solid var(--accent);
-  color: var(--accent);
+  min-height: var(--tap);
+  background: var(--p4);
+  border: var(--accent-border) solid var(--p4-bd);
+  color: var(--p4-fg);
+  font-family: var(--font-ui);
   font-size: 0.82rem;
-  font-weight: 700;
-  padding: 7px 16px;
-  border-radius: 999px;
+  font-weight: 900;
+  padding: 8px 16px;
+  border-radius: var(--r-action);
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
+  box-shadow: var(--shadow);
+  transform: rotate(-1.5deg);
+  transition: filter var(--dur-hover) var(--ease),
+              transform var(--dur-press) var(--ease),
+              box-shadow var(--dur-press) var(--ease);
 }
-.btn-qr:hover { background: var(--accent); color: var(--bg, #fff); }
-.btn-qr:active { transform: scale(0.96); }
+.btn-qr:active {
+  transform: rotate(-1.5deg) var(--press);
+  box-shadow: var(--shadow-none);
+}
+@media (hover: hover) {
+  .btn-qr:hover { filter: var(--hover); }
+}
+
+.btn-scorer {
+  background: var(--p1);
+  border-color: var(--p1-bd);
+  color: var(--p1-fg);
+  transform: rotate(1.5deg);
+}
+.btn-scorer:active { transform: rotate(1.5deg) var(--press); }
 
 .qr-canvas-wrap {
   display: flex;

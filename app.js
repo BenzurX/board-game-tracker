@@ -65,17 +65,42 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => applyMode(btn.dataset.mode));
 });
 
-// ── Volume (persisted for future sound effects) ──────────
+// ── Volume and button sounds ─────────────────────────────
+// The slider drives the one shared mixer in sfx.js. Zero is the mute: there is
+// no separate on/off switch to get out of sync with it.
 const VOLUME_KEY = 'bgt-volume';
 const volumeSlider = document.getElementById('volume-slider');
 const volumeValue = document.getElementById('volume-value');
 const savedVolume = parseInt(localStorage.getItem(VOLUME_KEY));
 volumeSlider.value = isNaN(savedVolume) ? 80 : Math.min(100, Math.max(0, savedVolume));
 volumeValue.textContent = `${volumeSlider.value}%`;
+applyVolume();
 volumeSlider.addEventListener('input', () => {
   volumeValue.textContent = `${volumeSlider.value}%`;
   localStorage.setItem(VOLUME_KEY, volumeSlider.value);
+  applyVolume();
+  // Dragging the slider is itself a button-shaped action, and hearing the level
+  // you just set is the only way to judge it.
+  if (window.sfx) window.sfx.play('pop');
 });
+
+function applyVolume() {
+  if (window.sfx) window.sfx.setVolume(volumeSlider.value / 100);
+}
+
+// One delegated listener rather than a call at every call site: every button in
+// the app pops, including ones rendered later. pointerdown, not click, so the
+// sound lands with the finger instead of after it - and disabled buttons emit
+// no pointer events, so they stay silent for free.
+document.addEventListener('pointerdown', e => {
+  if (!window.sfx) return;
+  // The context can only be created inside a gesture, so the first tap both
+  // unlocks audio and plays through it.
+  window.sfx.unlock();
+  const btn = e.target.closest('button');
+  if (!btn || btn.classList.contains('coming-soon')) return;
+  window.sfx.play('pop');
+}, true);
 
 // ── Game Definitions ────────────────────────────────────
 const GAMES = {
@@ -692,12 +717,8 @@ function renderPlayerInputs(count) {
 
 // The die face and the name rows are one piece of state: every pip takes its
 // colour from the row it stands for, so recolouring a player recolours a pip.
-function renderCountDie() {
-  const die = document.getElementById('count-die');
-  const count = setupPlayerCount();
+function paintDieFace(die, count, colors) {
   const lit = DIE_FACES[count] || [];
-  const colors = Array.from(document.querySelectorAll('#player-inputs .player-color-dot'))
-    .map(dot => dot.dataset.color);
   die.querySelectorAll('.die-cell').forEach((cell, i) => {
     const seat = lit.indexOf(i + 1);
     const on = seat !== -1;
@@ -705,26 +726,27 @@ function renderCountDie() {
     cell.style.background = on ? (colors[seat] || PLAYER_COLORS[seat % PLAYER_COLORS.length]) : '';
   });
   die.setAttribute('aria-label', count + (count === 1 ? ' player' : ' players'));
+}
+
+function renderCountDie() {
+  const count = setupPlayerCount();
+  paintDieFace(
+    document.getElementById('count-die'),
+    count,
+    Array.from(document.querySelectorAll('#player-inputs .player-color-dot')).map(dot => dot.dataset.color),
+  );
   document.getElementById('count-label').textContent =
     count + (count === 1 ? ' Player' : ' Players');
   document.getElementById('btn-count-down').disabled = count <= minSetupPlayers();
   document.getElementById('btn-count-up').disabled = count >= MAX_SETUP_PLAYERS;
 }
 
-function showCountTooltip(text) {
-  const tooltip = document.getElementById('count-tooltip');
-  tooltip.textContent = text;
-  tooltip.classList.add('show');
-  clearTimeout(tooltip._hideTimer);
-  tooltip._hideTimer = setTimeout(() => tooltip.classList.remove('show'), 2000);
-}
-
 function stepPlayerCount(delta) {
   const count = setupPlayerCount();
   const min = minSetupPlayers();
   const next = count + delta;
-  if (next > MAX_SETUP_PLAYERS) { showCountTooltip('Maximum of ' + MAX_SETUP_PLAYERS + ' players'); return; }
-  if (next < min) { showCountTooltip('Minimum of ' + min + (min === 1 ? ' player' : ' players')); return; }
+  if (next > MAX_SETUP_PLAYERS) { showToast(`A game holds ${MAX_SETUP_PLAYERS} players at most.`); return; }
+  if (next < min) { showToast(min === 1 ? 'A game needs at least one player.' : `A game needs at least ${min} players.`); return; }
   renderPlayerInputs(next);
 }
 
@@ -1162,6 +1184,10 @@ function renderTable() {
   lastRenderedTurnId = mpCurrentTurnPlayerId;
   boardMemoryPrimed = true;
 
+  showTurnColumnFrame(
+    mpCurrentTurnPlayerId ? players.findIndex(pl => pl.id === mpCurrentTurnPlayerId) : -1,
+  );
+
   // Rows have just changed height and count, so the floating button's clearance
   // and its locked state are both stale until re-derived.
   measureScoreFabClearance();
@@ -1491,6 +1517,9 @@ function checkWin() {
   document.querySelectorAll('#score-table .current-turn').forEach(cell => {
     cell.classList.remove('current-turn');
   });
+  // Whose turn it was stopped mattering the moment someone won; the winner
+  // frame owns the column outline from here.
+  document.getElementById('turn-column-frame').classList.add('hidden');
   showWinnerColumnFrame(winIdx);
 
   if (state.multiplayer && state.mpIsHost && !mpGameOverSent) {
@@ -1844,6 +1873,28 @@ function hideWinnerColumnFrame() {
   document.getElementById('winner-column-frame').classList.add('hidden');
 }
 
+// The turn highlight is a rounded frame laid over the column, matching the
+// winner frame's shape. Inset shadows on the cells could only ever draw square
+// corners, and a hard-cornered box around a rounded table looked like a bug.
+function showTurnColumnFrame(playerIndex) {
+  const frame = document.getElementById('turn-column-frame');
+  if (!frame) return;
+  if (state.gameOver) { frame.classList.add('hidden'); return; }
+  const table = document.getElementById('score-table');
+  const headerCell = playerIndex >= 0
+    ? document.querySelector(`#player-header-row th:nth-child(${playerIndex + 2})`)
+    : null;
+  if (!table || !headerCell) { frame.classList.add('hidden'); return; }
+  frame.style.left = `${headerCell.offsetLeft}px`;
+  frame.style.top = '0px';
+  frame.style.width = `${headerCell.offsetWidth}px`;
+  frame.style.height = `${table.offsetHeight}px`;
+  frame.style.borderColor = state.players[playerIndex]
+    ? state.players[playerIndex].color
+    : 'var(--p2)';
+  frame.classList.remove('hidden');
+}
+
 function showWinnerColumnFrame(playerIndex) {
   const frame = document.getElementById('winner-column-frame');
   const table = document.getElementById('score-table');
@@ -1857,6 +1908,9 @@ function showWinnerColumnFrame(playerIndex) {
 }
 
 window.addEventListener('resize', () => {
+  showTurnColumnFrame(
+    mpCurrentTurnPlayerId ? state.players.findIndex(pl => pl.id === mpCurrentTurnPlayerId) : -1,
+  );
   if (!state.gameOver) return;
   const totals = getTotals();
   const best = state.scoreDirection === 'low' ? Math.min(...totals) : Math.max(...totals);
@@ -3056,20 +3110,42 @@ function mpGroupSizeCap() {
   return Math.max(1, Math.min(MP_MAX_GROUP_SIZE, seatsLeft));
 }
 
+// Same control as the setup screen, capped by what the room can still take.
+// Pips are shown in palette order: the room assigns the real seat colours on
+// join, so these read as "how many of you", not as anyone's colour yet.
 function mpRenderGroupSizeOptions() {
-  const select = document.getElementById('group-size-select');
   const cap = mpGroupSizeCap();
-  select.innerHTML = '';
-  for (let n = 1; n <= cap; n += 1) {
-    const option = document.createElement('option');
-    option.value = String(n);
-    option.textContent = String(n);
-    select.appendChild(option);
-  }
   if (mpGroupSize > cap) mpGroupSize = cap;
-  select.value = String(mpGroupSize);
-  select.disabled = cap === 1;
+  paintDieFace(document.getElementById('group-count-die'), mpGroupSize, []);
+  document.getElementById('group-count-label').textContent =
+    mpGroupSize + (mpGroupSize === 1 ? ' Player' : ' Players');
+  document.getElementById('btn-group-count-down').disabled = mpGroupSize <= 1;
+  document.getElementById('btn-group-count-up').disabled = mpGroupSize >= cap;
 }
+
+function mpStepGroupSize(delta) {
+  const cap = mpGroupSizeCap();
+  const next = mpGroupSize + delta;
+  if (next > cap) {
+    // Two different walls, and which one you hit matters: the room's own limit,
+    // or the seats this particular room has left.
+    if (cap >= MP_MAX_GROUP_SIZE) {
+      showToast(`A room holds ${MP_MAX_GROUP_SIZE} players at most.`);
+    } else if (cap <= 1) {
+      showToast('This room is nearly full - there is only one seat left.');
+    } else {
+      showToast(`This room only has ${cap} seats left.`);
+    }
+    return;
+  }
+  if (next < 1) return;
+  mpGroupSize = next;
+  mpRenderGroupSizeOptions();
+  mpRenderGroupNameFields();
+}
+
+document.getElementById('btn-group-count-up').addEventListener('click', () => mpStepGroupSize(1));
+document.getElementById('btn-group-count-down').addEventListener('click', () => mpStepGroupSize(-1));
 
 // Name fields for everyone past the first - the first is the existing "your
 // name" input. Values are preserved across a size change so shrinking then
@@ -3107,10 +3183,6 @@ function mpReopenPlayerNameModalWithGroup() {
   });
 }
 
-document.getElementById('group-size-select').addEventListener('change', e => {
-  mpGroupSize = Math.max(1, Math.min(mpGroupSizeCap(), parseInt(e.target.value, 10) || 1));
-  mpRenderGroupNameFields();
-});
 function closePlayerNameModal() {
   document.getElementById('modal-player-name').classList.add('hidden');
 }

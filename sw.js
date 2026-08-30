@@ -1,4 +1,4 @@
-const CACHE = 'board-game-tracker-v47';
+const CACHE = 'board-game-tracker-v48';
 const APP_VERSION = '0.24';
 
 const ASSETS = [
@@ -6,6 +6,7 @@ const ASSETS = [
   './index.html',
   './style.css',
   './app.js',
+  './sfx.js',
   './qrcode.js',
   './manifest.json',
   './icons/pip-mark.svg',

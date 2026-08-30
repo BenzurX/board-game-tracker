@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="pip" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Victory Fanfare - 8 candidates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --p1:#F2604C; --p1-bd:#B23A28;
+    --p2:#F5B02E; --p2-bd:#8A5709;
+    --p3:#A8C64F; --p3-bd:#4F6B14;
+    --p4:#3FBE9A; --p4-bd:#0F6F58;
+    --p5:#4FC3E8; --p5-bd:#14607F;
+    --p6:#7C93EE; --p6-bd:#3A4EAF;
+    --p7:#C48BF0; --p7-bd:#6B33A8;
+    --p8:#F576A8; --p8-bd:#A82F6A;
+    --ink:#21131F;
+    --ground:#21131F; --surface:#2C1A29; --surface-2:#3A2436; --border:#4B3145;
+    --text:#F7EFE1; --muted:#C0A7B4;
+    --shadow:0 5px 0 rgba(0,0,0,.55);
+    --shadow-tile:0 6px 0 rgba(0,0,0,.55);
+    --shadow-none:0 0 0 rgba(0,0,0,.55);
+    --font-display:'Lilita One', cursive;
+    --font-ui:'Nunito', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 18px 64px;
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-weight: 600;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .eyebrow {
+    font-size: .62rem; font-weight: 900; letter-spacing: .24em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 6px;
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 2.2rem; margin: 0 0 6px; letter-spacing: .02em; }
+  .lede { color: var(--muted); font-size: .92rem; line-height: 1.5; margin: 0 0 22px; max-width: 60ch; }
+
+  .mixer {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 14px; padding: 12px 16px; margin-bottom: 26px;
+  }
+  .mixer label { font-size: .62rem; font-weight: 900; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
+  .mixer input { flex: 1; accent-color: var(--p2); }
+  .mixer output { font-weight: 900; min-width: 3.2em; text-align: right; }
+
+  .grid { display: grid; gap: 14px; }
+  @media (min-width: 620px) { .grid { grid-template-columns: 1fr 1fr; } }
+
+  .card {
+    background: var(--surface-2);
+    border: 3px solid var(--border);
+    border-radius: 20px;
+    padding: 16px 16px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .num {
+    font-size: .62rem; font-weight: 900; letter-spacing: .24em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .name { font-family: var(--font-display); font-weight: 400; font-size: 1.5rem; line-height: 1.05; }
+  .desc { font-size: .82rem; font-weight: 700; color: var(--muted); line-height: 1.45; flex: 1; }
+
+  .play {
+    align-self: flex-start;
+    min-height: 48px;
+    margin-top: 4px;
+    padding: 12px 26px;
+    border-radius: 999px;
+    border: 3px solid var(--bd);
+    background: var(--fill);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: filter 120ms cubic-bezier(.2,.7,.3,1),
+                transform 90ms cubic-bezier(.2,.7,.3,1),
+                box-shadow 90ms cubic-bezier(.2,.7,.3,1);
+  }
+  .play:active { transform: translateY(5px); box-shadow: var(--shadow-none); }
+  @media (hover: hover) { .play:hover { filter: brightness(1.06) saturate(1.03); } }
+
+  .card:nth-child(1) .play { --fill: var(--p2); --bd: var(--p2-bd); }
+  .card:nth-child(2) .play { --fill: var(--p4); --bd: var(--p4-bd); }
+  .card:nth-child(3) .play { --fill: var(--p8); --bd: var(--p8-bd); }
+  .card:nth-child(4) .play { --fill: var(--p6); --bd: var(--p6-bd); }
+  .card:nth-child(5) .play { --fill: var(--p1); --bd: var(--p1-bd); }
+  .card:nth-child(6) .play { --fill: var(--p5); --bd: var(--p5-bd); }
+  .card:nth-child(7) .play { --fill: var(--p3); --bd: var(--p3-bd); }
+  .card:nth-child(8) .play { --fill: var(--p7); --bd: var(--p7-bd); }
+
+  .foot { margin-top: 30px; color: var(--muted); font-size: .82rem; line-height: 1.6; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; color: var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Pip · sound design</p>
+  <h1>Victory Fanfare</h1>
+  <p class="lede">Eight candidates for the sound that plays when someone finally wins. All procedural Web Audio, no sample files, same engine as the button pop. Tap each a few times: every one picks a slightly different pitch variant per play, exactly like the pop does. Tell me a number and I will wire it up.</p>
+
+  <div class="mixer">
+    <label for="vol">Volume</label>
+    <input id="vol" type="range" min="0" max="100" value="70">
+    <output id="volout">70%</output>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <p class="foot">Every candidate is under three seconds and ends cleanly, so it can overlap the confetti burst without turning into a drone. If one is close but not right, say what to change - brighter, longer, less brass, more bells - rather than picking a different number.</p>
+</div>
+
+<script>
+// Same tone/noise/variant engine as sfx.js, inlined so this page stands alone.
+var MASTER_CEILING = 0.3;
+var ctx = null, master = null, volume = 0.7;
+
+function ensure() {
+  if (ctx) return;
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  ctx = new AC();
+  master = ctx.createGain();
+  master.connect(ctx.destination);
+  master.gain.value = MASTER_CEILING * volume;
+}
+
+function tone(o) {
+  if (!ctx) return;
+  var dur = o.dur === undefined ? 0.12 : o.dur;
+  var gain = o.gain === undefined ? 0.6 : o.gain;
+  var delay = o.delay || 0;
+  var attack = o.attack === undefined ? 0.006 : o.attack;
+  var t0 = ctx.currentTime + delay;
+  var osc = ctx.createOscillator();
+  var g = ctx.createGain();
+  osc.type = o.type || 'sine';
+  osc.frequency.setValueAtTime(o.freq, t0);
+  if (o.freqEnd) osc.frequency.exponentialRampToValueAtTime(o.freqEnd, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g); g.connect(master);
+  osc.start(t0); osc.stop(t0 + dur + 0.02);
+}
+
+function noise(o) {
+  if (!ctx) return;
+  o = o || {};
+  var dur = o.dur === undefined ? 0.18 : o.dur;
+  var gain = o.gain === undefined ? 0.4 : o.gain;
+  var delay = o.delay || 0;
+  var cutoff = o.cutoff === undefined ? 1000 : o.cutoff;
+  var t0 = ctx.currentTime + delay;
+  var frames = Math.floor(ctx.sampleRate * dur);
+  var buf = ctx.createBuffer(1, frames, ctx.sampleRate);
+  var data = buf.getChannelData(0);
+  for (var i = 0; i < frames; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / frames);
+  var src = ctx.createBufferSource(); src.buffer = buf;
+  var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cutoff;
+  var g = ctx.createGain(); g.gain.value = gain;
+  src.connect(lp); lp.connect(g); g.connect(master);
+  src.start(t0); src.stop(t0 + dur + 0.02);
+}
+
+// A swelling filtered-noise roll: the drum-roll and cymbal textures.
+function roll(o) {
+  var dur = o.dur, gain = o.gain, delay = o.delay || 0, cutoff = o.cutoff || 900;
+  var steps = Math.max(6, Math.round(dur * 26));
+  for (var i = 0; i < steps; i++) {
+    var k = i / (steps - 1);
+    noise({ dur: 0.05, gain: gain * (0.25 + 0.75 * k * k), cutoff: cutoff, delay: delay + k * dur });
+  }
+}
+
+function variant() {
+  var s = [-2, -1, 0, 1, 2][(Math.random() * 5) | 0];
+  return Math.pow(2, s / 12);
+}
+
+// Bell partials: inharmonic ratios, upper partials ringing longer than the body.
+function bell(freq, delay, level, len) {
+  var parts = [[1, 0.4, 1], [2.42, 0.24, 0.82], [3.88, 0.14, 0.6], [5.64, 0.08, 0.42]];
+  for (var i = 0; i < parts.length; i++) {
+    var r = parts[i][0], g = parts[i][1], d = parts[i][2];
+    var dt = i ? [-3 - i, 3 + i] : [0];
+    for (var j = 0; j < dt.length; j++) {
+      tone({
+        freq: freq * r + dt[j], dur: len * d, type: i ? 'triangle' : 'sine',
+        gain: (g * level) / dt.length, delay: delay, attack: 0.003
+      });
+    }
+  }
+}
+
+var FANFARES = [
+  {
+    name: 'Brass Herald',
+    desc: 'A stately horn call over an open-fifth drone: two repeated calls, a rising flourish, then a held arrival. Reads as a proclamation - ceremonial rather than giddy.',
+    play: function (p) {
+      var horn = function (f, delay, dur, gain) {
+        tone({ freq: f * p, dur: dur, type: 'sawtooth', gain: gain || 0.34, delay: delay, attack: 0.02 });
+      };
+      horn(392, 0.00, 0.18); horn(392, 0.16, 0.18);
+      horn(523, 0.32, 0.22); horn(659, 0.52, 0.20);
+      horn(784, 0.70, 0.62, 0.42);
+      tone({ freq: 131 * p, dur: 1.35, type: 'triangle', gain: 0.16, attack: 0.04 });
+      tone({ freq: 196 * p, dur: 1.35, type: 'triangle', gain: 0.13, attack: 0.04 });
+    }
+  },
+  {
+    name: 'Bell Tower Peal',
+    desc: 'Four struck bells falling through a major chord, each ringing long enough to overlap the next, so the tail becomes a peal rather than four separate dings. Warm and celebratory without any brass.',
+    play: function (p) {
+      bell(1047 * p, 0.00, 1.00, 1.5);
+      bell(784 * p, 0.18, 0.85, 1.7);
+      bell(659 * p, 0.36, 0.75, 1.9);
+      bell(523 * p, 0.54, 0.90, 2.2);
+      bell(1568 * p, 0.86, 0.45, 1.2);
+      tone({ freq: 131 * p, dur: 2.2, type: 'triangle', gain: 0.12, attack: 0.05 });
+    }
+  },
+  {
+    name: 'Arcade Jackpot',
+    desc: 'A fast square-wave run up the scale into a fat two-note stab, with coin-bright ticks scattered over the top. Loud, cheap in the best way, unmistakably a win.',
+    play: function (p) {
+      [523, 587, 659, 784, 880, 1047].forEach(function (f, i) {
+        tone({ freq: f * p, dur: 0.09, type: 'square', gain: 0.28, delay: i * 0.055 });
+      });
+      [1047, 1319, 1568].forEach(function (f) {
+        tone({ freq: f * p, dur: 0.6, type: 'square', gain: 0.24, delay: 0.36, attack: 0.008 });
+        tone({ freq: f * p + 4, dur: 0.6, type: 'square', gain: 0.2, delay: 0.36, attack: 0.008 });
+      });
+      [0.42, 0.52, 0.63, 0.75].forEach(function (d, i) {
+        tone({ freq: (2093 + i * 260) * p, dur: 0.08, type: 'sine', gain: 0.16, delay: d });
+      });
+    }
+  },
+  {
+    name: 'Orchestral Swell',
+    desc: 'A sawtooth chord that fades up under a low timpani rumble, then lands on a bright triad hit. The only candidate that starts quiet - it makes the arrival feel earned.',
+    play: function (p) {
+      [131, 196, 262, 330].forEach(function (f) {
+        tone({ freq: f * p, dur: 1.15, type: 'sawtooth', gain: 0.16, attack: 0.5 });
+      });
+      roll({ dur: 0.9, gain: 0.22, cutoff: 320 });
+      [523, 659, 784, 1047].forEach(function (f, i) {
+        tone({ freq: f * p, dur: 0.9, type: 'sawtooth', gain: 0.3, delay: 0.95 + i * 0.012, attack: 0.012 });
+      });
+      noise({ dur: 0.5, gain: 0.16, cutoff: 9000, delay: 0.95 });
+    }
+  },
+  {
+    name: 'Big Band Shout',
+    desc: 'Three syncopated chord stabs landing off the beat, then a fat sustained sixth chord. Swaggering and brassy - the sound of a table erupting.',
+    play: function (p) {
+      var stab = function (delay, freqs, gain) {
+        freqs.forEach(function (f) {
+          tone({ freq: f * p, dur: 0.15, type: 'sawtooth', gain: gain, delay: delay, attack: 0.008 });
+          tone({ freq: f * p * 0.5, dur: 0.15, type: 'triangle', gain: gain * 0.6, delay: delay, attack: 0.008 });
+        });
+      };
+      stab(0.00, [523, 659, 784], 0.26);
+      stab(0.22, [587, 740, 880], 0.26);
+      stab(0.38, [523, 659, 784], 0.26);
+      [523, 659, 784, 880].forEach(function (f) {
+        tone({ freq: f * p, dur: 1.1, type: 'sawtooth', gain: 0.24, delay: 0.6, attack: 0.015 });
+      });
+      tone({ freq: 131 * p, dur: 1.2, type: 'triangle', gain: 0.18, delay: 0.6, attack: 0.02 });
+      noise({ dur: 0.35, gain: 0.14, cutoff: 9000, delay: 0.6 });
+    }
+  },
+  {
+    name: 'Music Box Cascade',
+    desc: 'Pure sine notes raining down an octave and climbing back up, over a soft pad. Delicate and charming rather than loud - the gentlest option here.',
+    play: function (p) {
+      var down = [1568, 1319, 1047, 880, 784, 659];
+      down.forEach(function (f, i) {
+        tone({ freq: f * p, dur: 0.4, type: 'sine', gain: 0.3, delay: i * 0.075, attack: 0.004 });
+        tone({ freq: f * 2 * p, dur: 0.2, type: 'sine', gain: 0.06, delay: i * 0.075 });
+      });
+      [784, 1047, 1319, 1568, 2093].forEach(function (f, i) {
+        tone({ freq: f * p, dur: 0.5, type: 'sine', gain: 0.24, delay: 0.5 + i * 0.085, attack: 0.004 });
+      });
+      [262, 330, 392].forEach(function (f) {
+        tone({ freq: f * p, dur: 1.8, type: 'triangle', gain: 0.1, attack: 0.25 });
+      });
+    }
+  },
+  {
+    name: 'Drum Roll and Crash',
+    desc: 'A rolling snare that swells for a full second, a cymbal crash, and a held major chord underneath. Announces the result rather than decorating it.',
+    play: function (p) {
+      roll({ dur: 1.0, gain: 0.3, cutoff: 2600 });
+      noise({ dur: 1.1, gain: 0.3, cutoff: 11000, delay: 1.02 });
+      noise({ dur: 0.35, gain: 0.22, cutoff: 400, delay: 1.02 });
+      [262, 392, 523, 659, 784].forEach(function (f, i) {
+        tone({ freq: f * p, dur: 1.4, type: 'sawtooth', gain: 0.2, delay: 1.02 + i * 0.01, attack: 0.02 });
+      });
+      tone({ freq: 1047 * p, dur: 1.0, type: 'triangle', gain: 0.16, delay: 1.1, attack: 0.03 });
+    }
+  },
+  {
+    name: 'Choir Hallelujah',
+    desc: 'Three stacked vocal-ish chords stepping up through IV, V and I, each voice slightly detuned so the chord breathes. Full and human, the most "revelry" of the set.',
+    play: function (p) {
+      var chord = function (freqs, delay, dur, gain) {
+        freqs.forEach(function (f) {
+          [-2.5, 0, 2.5].forEach(function (dt) {
+            tone({
+              freq: f * p + dt, dur: dur, type: 'triangle',
+              gain: gain / 3, delay: delay, attack: 0.06
+            });
+          });
+        });
+      };
+      chord([349, 440, 523], 0.00, 0.42, 0.3);   // F
+      chord([392, 494, 587], 0.38, 0.42, 0.32);  // G
+      chord([523, 659, 784, 1047], 0.76, 1.5, 0.38); // C, held
+      tone({ freq: 131 * p, dur: 2.0, type: 'triangle', gain: 0.16, delay: 0.76, attack: 0.08 });
+      [1568, 2093].forEach(function (f, i) {
+        tone({ freq: f * p, dur: 1.1, type: 'sine', gain: 0.1, delay: 1.0 + i * 0.12, attack: 0.1 });
+      });
+    }
+  }
+];
+
+var grid = document.getElementById('grid');
+FANFARES.forEach(function (fx, i) {
+  var card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML =
+    '<p class="num">Candidate ' + (i + 1) + '</p>' +
+    '<p class="name"></p>' +
+    '<p class="desc"></p>' +
+    '<button class="play" type="button">Play</button>';
+  card.querySelector('.name').textContent = fx.name;
+  card.querySelector('.desc').textContent = fx.desc;
+  card.querySelector('.play').addEventListener('click', function () {
+    ensure();
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    fx.play(variant());
+  });
+  grid.appendChild(card);
+});
+
+var vol = document.getElementById('vol');
+var volout = document.getElementById('volout');
+vol.addEventListener('input', function () {
+  volume = vol.value / 100;
+  volout.textContent = vol.value + '%';
+  if (master) master.gain.value = MASTER_CEILING * volume;
+});
+</script>
+</body>
+</html>
