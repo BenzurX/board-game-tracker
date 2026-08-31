@@ -283,18 +283,42 @@
   <div class="page-header">
     <div><a class="back-link" href="../index.html">&#8592; Back to App</a></div>
     <div class="page-title">&#127922; Game Tracker</div>
-    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>16 snapshots</strong> captured</div>
+    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>17 snapshots</strong> captured</div>
   </div>
 
   <div class="timeline">
 
-    <!-- v0.26 - current -->
+    <!-- v0.27 - current -->
     <div class="version-entry current">
       <div class="v-dot">&#9679;</div>
       <div class="v-card">
         <div class="v-card-head">
-          <span class="v-badge">v0.26</span>
+          <span class="v-badge">v0.27</span>
           <span class="v-current-chip">CURRENT</span>
+          <span class="v-date">August 30, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Keyboard support, a one-player floor, and the turn outline that drifted off its own column</div>
+          <ul class="v-bullets">
+            <li>Enter now walks the Enter Score sheet field by field and saves from the last one, Enter joins a room from the code field, and Tab on setup goes name to name instead of stopping at the colour swatch</li>
+            <li>A game can be set up with a single player - the two-player floor was a rule about the game being played, not about the tracker</li>
+            <li>Setup calls the modes Single Device and Multi-Device Room: the question was never how many people are playing, it is how many devices are in the room</li>
+            <li>The turn outline is measured from a header cell, but the columns are max-content - a score going from 950 to 1,250 moved the column out from under its own outline. Both column frames now follow their column as it resizes</li>
+            <li>On phones the room bar drops the code so the invite and scoring buttons stay on one row, the floating score button is marigold rather than the danger red, and the final-round announcement gets a proper heading</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.27/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.26 -->
+    <div class="version-entry">
+      <div class="v-dot">&#9679;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.26</span>
           <span class="v-date">August 30, 2026</span>
         </div>
         <div class="v-card-body">

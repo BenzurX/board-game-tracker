@@ -2,6 +2,27 @@
 
 Newest entries first. Version scheme: flat decimal starting at 0.01, incrementing by 0.01 per release (0.01, 0.02 … 0.09, 0.10 …). Version 1.0 is not assigned without explicit approval. Minor additions increment by 0.01; significant grouped releases may skip ahead by more at the author's discretion.
 
+## 0.27 - 2026-08-30
+
+Keyboard support on desktop, a one-player floor, and the turn outline that drifted off its own column.
+
+### Changed
+- `Claude:` **Setup names the two modes by what they actually are.** "Solo / Same Device" and "Multiplayer Room" are now **Single Device** and **Multi-Device Room**. The distinction was never how many people are playing - a single device happily holds eight - it is how many devices are in the room, and the old wording said the opposite of that to anyone reading it quickly.
+- `Claude:` **A game can be set up with one player.** The two-player floor was a rule about the game being played, not about the tracker: a lone player keeping a running score, and a host opening a room before anyone has arrived, were both blocked by it. `minSetupPlayers()` now returns 1 flat and the start-game guard reads it instead of carrying its own copy of the rule, so the two can no longer disagree.
+- `Claude:` **The room code hides below 640px.** The bar had room for the code and one button, so the scoring button was wrapping onto a line of its own. The code is what gives up its space rather than the button: it is still on the invite sheet, which is where anyone reading it out loud is already headed, and a button that sits on one row at some widths and two at others is worse than one that never moves.
+- `Claude:` **Enter works in the score fields.** Enter moves to the next field, and on the last field it saves the round. Only the last field saves, so a keyboard entering five scores cannot submit four blanks by pressing Enter out of habit. The guard is the field's position rather than a desktop check, because a phone keyboard's Go button sends the same key.
+- `Claude:` **Enter joins a room.** The join modal's code field holds the whole form, so Enter now means Join. It routes through the button's own click rather than repeating the lookup, so the disabled state that stops a double submit covers this path too.
+- `Claude:` **Tab walks name to name on setup.** The colour dot is out of the tab order (`tabindex="-1"`): tabbing down a list of names should land on the next name, not stop at a swatch nobody reached for. It is still a button, so a pointer and a screen reader both still get to it.
+- `Claude:` **The floating score button is marigold.** It was punch red, which is the app's danger colour and reads as a destructive control - wrong for the button standing in for Enter Score while the action bar is collapsed. It now matches the button it replaces.
+- `Claude:` **The final-round announcement is a headed toast.** "FINAL ROUND" sits above the sentence in the display face, and the sentence itself loses the shouted double exclamation mark. It is the longest and most consequential thing the toast ever says and was arriving as one run-on line of bold body text. `showToast` takes an optional `title` for this, so any later notice worth a heading can have one.
+
+### Fixed
+- `Claude:` **The turn outline drifted off the column it was outlining.** The frame is an absolutely positioned overlay, measured once from the header cell it belongs to - but the columns are `max-content`, so a score going from 950 to 1,250, or a total counting up digit by digit, changes that column's width *after* the measurement was taken. The outline stayed where it was while the column moved out from under it, which the tint painted into the cells underneath made unmissable. Both the turn frame and the winner frame now follow their column via a `ResizeObserver` on the header cells, rebound on each show because the table is rebuilt wholesale on every render and the cells watched a moment ago are detached nodes.
+- `Claude:` **The confetti canvas is capped at 2x device pixels.** iOS limits how large a canvas backing store may be, and past that limit the resize fails silently: the canvas keeps its old dimensions, every draw lands outside them, and the celebration is simply missing with no error anywhere. Two device pixels per CSS pixel is already past what a falling 8px rectangle can show. This is the one silent failure in that path and a plausible cause of the confetti not firing on an iPad; if it recurs there, check Settings > Accessibility > Motion > Reduce Motion, because `fireConfetti` returns immediately when that is on.
+
+### Testing
+- `Claude:` New assertions cover the ResizeObserver that keeps the column frames on their column and its rebinding, the flat one-player floor, the colour dot's `tabindex`, both Enter paths (next field, save on the last, join on the code field), the room code's mobile hide, the marigold floating button, both setup mode labels, the headed final-round toast, and the confetti DPR cap.
+
 ---
 
 ## 0.26 - 2026-08-30

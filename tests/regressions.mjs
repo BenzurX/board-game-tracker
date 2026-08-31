@@ -198,10 +198,10 @@ assert.match(app, /dot\.dataset\.color = newColor;\s*row\.style\.setProperty\('-
   'changing a setup player color must immediately update the name-field focus border');
 assert.match(style, /\.table-scroll-wrap \{[^}]*background-image: radial-gradient\([^}]*var\(--grain-dot\)[^}]*background-size: 3px 3px;/,
   'the open tracker board must preserve the redesign\'s faint dot-grid grain');
-assert.match(style, /@keyframes amb-a \{[\s\S]*?23%[\s\S]*?51%[\s\S]*?78%/,
-  'ambient color must drift through several gentle waypoints instead of a mechanical two-point loop');
+assert.doesNotMatch(style, /@keyframes (?:amb-|dot-glow-)/,
+  'ambient blobs and dot highlights must remain static to avoid sustained mobile CPU/GPU load');
 assert.match(style, /background-color: color-mix\(in srgb, var\(--row-b\) 68%, transparent\)/,
-  'the dotted tracker surface must let the moving ambient color faintly show through');
+  'the dotted tracker surface must let the ambient color faintly show through');
 assert.match(style, /--grain-dot:[^;]+;[\s\S]*--grain-dot:[^;]+;/,
   'dark and light modes must each define the same effective dot treatment used across the app');
 assert.match(style, /\.table-scroll-wrap \{[^}]*var\(--grain-dot\)/,
@@ -210,20 +210,22 @@ assert.match(style, /#screen-setup \.screen-header,\s*#screen-tracker \.screen-h
   'Setup and Score title bars must share their rounded lower corners');
 assert.match(style, /#mp-room-bar\.hidden ~ \.table-scroll-wrap \{\s*margin-top: 12px;/,
   'single-player boards must have matching title-bar and footer-bar gaps');
-assert.match(style, /@keyframes amb-a \{[\s\S]*?translate3d\(16%/,
-  'ambient drift must travel far enough to be perceptible through the blurred background');
-assert.match(style, /\.ambient i:nth-child\(1\) \{\s*top: 8%; left: 12%; width: 65%; height: 45%;/,
-  'the upper ambient blob must remain inset enough for its full animated envelope');
-assert.match(style, /\.ambient i:nth-child\(2\) \{[\s\S]*?bottom: max\(10%, 72px\); right: 10%; width: 66%; height: 38%;/,
-  'the lower ambient blob must keep a blur-safe inset even on short viewports');
+assert.doesNotMatch(style, /\.ambient [ib][^{]*\{[^}]*will-change:/,
+  'static ambient layers must not reserve continuous compositor resources');
+assert.match(style, /\.ambient i:nth-child\(1\) \{\s*top: -14%; left: -16%; width: 76%; height: 52%;/,
+  'the upper ambient blob must retain the original separated composition');
+assert.match(style, /\.ambient i:nth-child\(2\) \{[\s\S]*?bottom: max\(2%, 72px\); right: -20%; width: 78%; height: 44%;/,
+  'the lower ambient blob must retain its original composition plus a blur-safe bottom inset');
 assert.match(style, /\.ambient u \{[^}]*mix-blend-mode: var\(--grain-blend\)/,
-  'stationary dots must brighten locally as ambient color passes beneath them');
+  'stationary dots must brighten locally over ambient color');
 assert.match(index, /class="ambient"[^>]*><i><\/i><i><\/i><i><\/i><b><\/b><b><\/b><b><\/b><u><\/u>/,
-  'each ambient color field needs a matching moving dot-glow layer');
+  'each ambient color field needs a matching static dot-glow layer');
 assert.match(style, /\.ambient b \{[^}]*background-image: radial-gradient\(var\(--dot-glow\)[^}]*opacity: \.16;/,
   'passing ambient fields must create a clearly visible colored lift in the dot grid');
-assert.match(style, /\.ambient b \{[^}]*inset: 0;[^}]*will-change: mask-position;/,
-  'dot highlights must keep a full-viewport stationary texture while only their masks move');
+assert.match(style, /\.ambient b \{[^}]*inset: 0;[^}]*mask-repeat: no-repeat;[^}]*opacity: \.16;/,
+  'dot highlights must keep a static full-viewport texture');
+assert.match(style, /#screen-victory \{[^}]*background: transparent;/,
+  'the victory screen must not cover the shared ambient background');
 assert.doesNotMatch(style, /\.ambient b:nth-of-type\([^)]*\)[^{]*\{[^}]*animation: amb-/,
   'highlight dot blocks must never transform with the ambient blobs');
 assert.match(app, /if \(!state\.multiplayer \|\| !playerId \|\| mpGameDecided\(\)\) return;/,
@@ -587,5 +589,61 @@ assert.match(sfx, /Sfx\.prototype\.pluck = function/,
   'the fanfare is built from plucks; tone alone cannot give a tine its attack');
 assert.match(sfx, /this\.tone\(\{ freq: o\.freq \* 2, dur: len \* 0\.45/,
   'the pluck’s octave partial must die faster than its body or it reads as an organ');
+
+// The column frames are positioned from a header cell measured once, and the
+// columns are max-content: a widening score moves the column out from under its
+// own outline. The observer is what keeps the two together.
+assert.match(app, /columnFrameObserver = new ResizeObserver\(repositionColumnFrames\)/,
+  'the turn and winner frames follow their column when a score changes its width');
+assert.match(app, /columnFrameObserver\.disconnect\(\);/,
+  'the observer is rebound on each show; the table is rebuilt, so old cells are detached');
+
+// A two-player floor is a rule about a game, not about the tracker - a lone
+// scorer and a host opening an empty room were both blocked by it.
+assert.match(app, /function minSetupPlayers\(\) \{\s*return 1;\s*\}/,
+  'a game may be set up with a single player, solo or multi-device');
+
+// Tabbing down a list of names should land on the next name, not on a swatch.
+assert.match(app, /class="player-color-dot" tabindex="-1"/,
+  'the colour dot stays out of the tab order between name fields');
+
+// Enter walks the sheet and saves on the last field only, so a keyboard cannot
+// submit a sheet of blanks by reflex.
+assert.match(app, /if \(e\.key !== 'Enter'\) return;\s*e\.preventDefault\(\);\s*const next = scoreInputs\[i \+ 1\];/,
+  'Enter moves to the next score field');
+assert.match(app, /if \(next\) \{ next\.focus\(\); return; \}\s*document\.getElementById\('btn-save-turn'\)\.click\(\);/,
+  'Enter on the last score field saves the round');
+assert.match(app, /getElementById\('join-room-code-input'\)\.addEventListener\('keydown'/,
+  'Enter submits the room code rather than needing the mouse');
+
+// The room code is on the invite sheet; the bar has room for two buttons or the
+// code and one, and the scoring button was wrapping to a line of its own.
+assert.match(style, /@media \(max-width: 639px\) \{\s*\.mp-room-code \{ display: none; \}/,
+  'the room code gives up its space on phones so the bar stays one row');
+
+// The floating button stands in for Enter Score and has to look like it.
+assert.match(style, /background: var\(--p2\);\s*color: var\(--p2-fg\);/,
+  'the floating score button is marigold, not the punch red that reads as danger');
+
+// Setup names the two modes by what they actually are: one device or several.
+assert.match(index, /data-mp="solo">Single Device</,
+  'the setup toggle says Single Device');
+assert.match(index, /data-mp="multiplayer">Multi-Device Room</,
+  'the setup toggle says Multi-Device Room');
+
+// The longest, most consequential thing the toast says gets a heading rather
+// than being one run-on line of bold body text.
+assert.match(app, /\{ title: 'Final Round' \}/,
+  'the final-round announcement is a headed toast');
+assert.match(app, /showToast\(waitingMessage, allIn && !allClosed \? \{ title: 'Not Your Turn' \} : \{\}\)/,
+  'the completed-seat waiting notice must be headed Not Your Turn');
+assert.match(app, /const TOAST_DURATION_MS = 6000;/,
+  'standard toast notifications must remain visible for six seconds');
+assert.match(style, /\.toast\.titled \{/,
+  'a headed toast stacks its heading above the sentence');
+
+// Past iOS's canvas cap the resize fails silently and nothing is ever drawn.
+assert.match(app, /const dpr = Math\.min\(window\.devicePixelRatio \|\| 1, 2\);/,
+  'the confetti backing store is capped so a high-DPR tablet still gets a canvas it can draw on');
 
 console.log('Regression checks passed');
