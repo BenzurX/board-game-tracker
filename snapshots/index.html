@@ -283,18 +283,41 @@
   <div class="page-header">
     <div><a class="back-link" href="../index.html">&#8592; Back to App</a></div>
     <div class="page-title">&#127922; Game Tracker</div>
-    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>17 snapshots</strong> captured</div>
+    <div class="page-sub">Version History &nbsp;&middot;&nbsp; <strong>18 snapshots</strong> captured</div>
   </div>
 
   <div class="timeline">
 
-    <!-- v0.27 - current -->
+    <!-- v0.28 - current -->
     <div class="version-entry current">
       <div class="v-dot">&#9679;</div>
       <div class="v-card">
         <div class="v-card-head">
-          <span class="v-badge">v0.27</span>
+          <span class="v-badge">v0.28</span>
           <span class="v-current-chip">CURRENT</span>
+          <span class="v-date">September 1, 2026</span>
+        </div>
+        <div class="v-card-body">
+          <div class="v-headline">Single-device turn order, a new Skyjo game, and the Farkle final round bug that started it</div>
+          <ul class="v-bullets">
+            <li>Farkle, Cribbage, Qwirkle, Yahtzee and Skyjo now enter scores one seat at a time in turn order on a single device too, not just in a multiplayer room, with their own Make It Their Turn control to correct who's up</li>
+            <li>New game: Skyjo - lowest running total wins, ends at 100, everyone gets one final turn once a player empties their grid, same as Farkle's final round</li>
+            <li>Fixes the reported bug: a single-device Farkle final round could end before every player actually took their turn, because solo and multiplayer tracked round completion two different ways</li>
+            <li>Fixes a second bug found after: farkling a cell by tapping the table directly (instead of the Enter Score sheet) could make that seat's own score permanently uneditable once the turn moved on</li>
+          </ul>
+        </div>
+        <div class="v-card-foot">
+          <a class="v-open-btn" href="v0.28/index.html" target="_blank">&#8599; Open</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- v0.27 -->
+    <div class="version-entry">
+      <div class="v-dot">&#9679;</div>
+      <div class="v-card">
+        <div class="v-card-head">
+          <span class="v-badge">v0.27</span>
           <span class="v-date">August 30, 2026</span>
         </div>
         <div class="v-card-body">

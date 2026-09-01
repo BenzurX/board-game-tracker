@@ -240,18 +240,62 @@ assert.match(app, /const crosser = mpTurnOrder\(r\)\.find\(pi => running\[pi\] >
   'the crosser is the first seat in turn order over the target, not the leftmost column - two seats can cross in one rotated round');
 assert.match(app, /function finalLapSettled\(trigger\)[\s\S]*?const order = mpTurnOrder\(trigger\.round\)[\s\S]*?for \(let i = 0; i < crosserPos; i\+\+\)/,
   'the Farkle final round must end once the seats that played before the crosser have played again, measured in turn order, not after a whole extra row');
-assert.match(app, /if \(state\.multiplayer && crosserPos === 0\) return roundIsComplete\(trigger\.round\)/,
-  'a multiplayer crosser who led the round off ends the game with that round - everyone already answered inside it. Solo is excluded: a solo round is entered whole, so nobody has answered the crossing yet and a real extra round is still owed');
+assert.match(app, /if \(crosserPos === 0\) return roundIsComplete\(trigger\.round\)/,
+  'a crosser who led the round off ends the game with that round - everyone already answered inside it. Applies uniformly to multiplayer and turn-ordered solo games (GAMES[...].soloTurnOrder), which track per-seat submission the same way');
 assert.match(app, /const isBlank = !state\.rounds\[ri\] \|\| state\.rounds\[ri\]\[pi\] === null;\s*if \(isOpenRound && isBlank && finalLapClosedSeats\(\)\.has\(pi\)\) return;/,
   'tapping an empty cell must not walk around the final-lap exclusion the Enter Score modal enforces - correcting a played score stays allowed');
 assert.match(app, /if \(finalLapClosedSeats\(\)\.has\(state\.players\.indexOf\(player\)\)\) return;/,
   'the your-turn card must not announce a seat the final lap has closed - the Worker still cycles the turn onto it');
 assert.match(app, /function finalLapClosedSeats\(\)[\s\S]*?if \(state\.rounds\.length - 1 <= trigger\.round\) return closed;[\s\S]*?for \(let i = crosserPos; i < order\.length; i\+\+\) closed\.add\(order\[i\]\)/,
   'once the extra round opens, every seat from the crosser onward in turn order is done - the Worker still offers them the turn, so the client must refuse');
-assert.match(app, /if \(mpRoundSubmitted\[pi\] \|\| player\.connected === false \|\| closed\.has\(pi\)\) continue;/,
+assert.match(app, /if \(state\.roundSubmitted\[pi\] \|\| player\.connected === false \|\| closed\.has\(pi\)\) continue;/,
   'a device holding several seats must not be offered a score for one the final lap has closed - this is the bug where a host owning 1-3 was still asked for the crosser');
-assert.match(app, /const hostPending = mpEach\s*\?\s*\[\]\s*:\s*state\.players\.filter\(\(_, pi\) => !hostClosed\.has\(pi\)\)/,
-  'host-scoring rooms enter the whole round at once, so the final-lap exclusion must be applied to the host list too');
+assert.match(app, /const hostPending = mpEach \|\| solo\s*\?\s*\[\]\s*:\s*state\.players\.filter\(\(_, pi\) => !hostClosed\.has\(pi\)\)/,
+  'host-scoring rooms (and non-turn-ordered solo games) enter the whole round at once, so the final-lap exclusion must be applied to the list they are shown too');
+
+// ── Solo turn-ordered scoring (Farkle final-round fix + broader redesign) ──
+// The whole point of this redesign: a solo round can no longer be treated as
+// "complete" just because a row exists, only because every eligible seat in
+// it actually submitted - closing the bug where scoring one seat during
+// Farkle's final round wrongly ended the game before the others played.
+for (const key of ['farkle', 'cribbage', 'qwirkle', 'yahtzee', 'skyjo']) {
+  const gameBlock = app.slice(app.indexOf(`  ${key}: {`), app.indexOf(`  ${key}: {`) + 1300);
+  assert.match(gameBlock, /soloTurnOrder: true/,
+    `${key} must enter solo scores one seat at a time, in turn order`);
+}
+assert.match(app, /roundSubmitted: \[\],\s*\/\/ parallel to players/,
+  'turn-submission tracking must live on state, not a bare module var, so it survives a solo reload mid-round');
+assert.match(app, /roundStarts: \[\],\s*\/\/ parallel to rounds/,
+  'round-starter tracking must live on state for the same reload-survival reason');
+assert.match(app, /currentTurnPlayerId: null,/,
+  'whose turn it is must live on state for the same reload-survival reason');
+assert.match(app, /function roundIsComplete\(r\) \{\s*if \(r < 0\) return false;\s*return state\.rounds\.length > r \+ 1;\s*\}/,
+  'a round only counts as complete once a later row proves it closed - no separate solo definition that treats a partially-filled row as done');
+assert.doesNotMatch(app, /if \(!state\.multiplayer\) return closed;/,
+  'finalLapClosedSeats must not exempt solo from final-lap seat exclusion - turn-ordered solo games need it too');
+assert.match(app, /function localSubmitScore\(pi, rawValue\)/,
+  'solo turn-ordered games need a local per-seat submit path, since there is no server to round-trip through');
+assert.match(app, /function advanceLocalTurn\(justScoredIndex\)/,
+  'solo turn-ordered games need a local turn-advance function mirroring the Worker\'s findNextUnsubmittedPlayerId');
+assert.match(app, /function openLocalRound\(\)[\s\S]*?state\.roundSubmitted = state\.players\.map\(\(\) => false\)/,
+  'opening a new local round must reset every seat back to unsubmitted');
+assert.match(app, /function advanceLocalRoundIfComplete\(\)[\s\S]*?if \(state\.roundSubmitted\.length === 0 \|\| state\.roundSubmitted\.some\(s => !s\)\) return;/,
+  'a new local round must only open once every seat in the current one has actually submitted');
+assert.match(app, /function declareLocalTurn\(playerId\)/,
+  'solo must be able to reassign whose turn it is locally, mirroring the Worker\'s host-only set-current-turn');
+assert.match(app, /const alreadySubmitted = state\.roundSubmitted\[pi\];[\s\S]*?if \(alreadySubmitted\) return;/,
+  'reassigning the turn back to a seat that already went this round must be treated as a correction, not a second turn-advance/round-open');
+assert.match(app, /if \(isOpenRound && isBlank\) \{\s*if \(finalLapClosedSeats\(\)\.has\(pi\)\) return;\s*const upIndex = state\.players\.findIndex\(p => p\.id === state\.currentTurnPlayerId\);\s*if \(pi !== upIndex\) return;/,
+  'tapping a blank cell in a turn-ordered game must be restricted to the seat whose turn it actually is, or strict turn order can be bypassed entirely');
+assert.match(app, /pendingCloser: null,/,
+  'the pending closer pick for a turn-ordered round must live on state, not a bare module var, so it survives a solo reload mid-round');
+assert.match(app, /const isFarkleZero = state\.gameKey === 'farkle' && newScore === 0;[\s\S]*?state\.rounds\[ri\]\[pi\] = isFarkleZero\s*\?\s*0/,
+  "editScore's inline cell-tap edit must store a Farkle 0 as a literal 0, not null, or a turn-ordered game reads the played cell as an unfilled seat and locks it to whoever currently holds the turn");
+assert.match(app, /id: `solo-\$\{i\}`,/,
+  'solo players need a stable id, same shape as a multiplayer server-assigned one, for the turn engine to key off of');
+assert.match(app, /state\.players\.forEach\(\(p, i\) => \{ if \(!p\.id\) p\.id = `solo-\$\{i\}`; \}\);/,
+  'a game saved before solo seats carried an id must be backfilled on resume, or the turn engine cannot identify seats');
+
 assert.match(index, /id="turn-toast-backdrop"/,
   'the your-turn toast must dim the screen behind it');
 assert.match(app, /getElementById\('turn-toast-backdrop'\)\.addEventListener\('click', hideTurnToast\)/,
@@ -350,7 +394,7 @@ assert.match(app, /const nothingLeft = targets\.length === 0 \|\| mpTurnEntryRun
   'the Enter Score button must read as locked while the turn sits on another device');
 assert.match(app, /function mpApplyCurrentTurn\(playerId, \{ announce = true, roundStarts \} = \{\}\)[\s\S]*?mpUpdateEnterScoreButtonState\(\)/,
   'a turn change must re-evaluate whether this device may enter a score');
-assert.match(app, /if \(Array\.isArray\(roundStarts\)\) mpRoundStarts = roundStarts;/,
+assert.match(app, /if \(Array\.isArray\(roundStarts\)\) state\.roundStarts = roundStarts;/,
   'a payload from an older Worker must not silently reset the recorded turn order');
 
 assert.match(style, /scrollbar-color: var\(--accent-dim\) transparent/,
@@ -536,8 +580,10 @@ assert.match(style, /\.po-conn\.is-away \{ color: var\(--p2\); \}/,
   'the away dot is amber, distinct from both the green and the red');
 
 // Enter Score, reworked from the Pip mock in v0.26.
-assert.match(app, /turn-modal-title'\)\.textContent = `Round \$\{state\.rounds\.length \+ 1\}`/,
+assert.match(app, /turn-modal-title'\)\.textContent = `Round \$\{openRoundIndex\}`/,
   'the sheet title states the round; who is being scored for belongs to the hint');
+assert.match(app, /const openRoundIndex = \(state\.rounds\.length > 0 && state\.roundSubmitted\.length > 0 && state\.roundSubmitted\.some\(s => !s\)\)\s*\?\s*state\.rounds\.length\s*:\s*state\.rounds\.length \+ 1;/,
+  'a turn-tracked round already open (multiplayer, or solo with soloTurnOrder) must not be titled one ahead of the round actually being filled');
 const saveIndex = index.indexOf('id="btn-save-turn"');
 const cancelTurnIndex = index.indexOf('id="btn-cancel-turn"');
 assert.ok(saveIndex !== -1 && saveIndex < cancelTurnIndex,
