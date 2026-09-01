@@ -8,13 +8,14 @@ A lightweight score-tracking web app for board games and dice games. No install,
 
 ## Features
 
-- **7 built-in games** - Farkle, Yahtzee, Cribbage, Euchre, Gin Rummy, Three Thirteen, and Qwirkle, each with its own scoring rules and win condition
-- **Generic Game** - a freeform score sheet for games like Skyjo: name the game, log a score per round, no fixed rules
+- **8 built-in games** - Farkle, Yahtzee, Cribbage, Euchre, Gin Rummy, Three Thirteen, Qwirkle, and Skyjo, each with its own scoring rules and win condition
+- **Generic Game** - a freeform score sheet for any game not on the list: name the game, log a score per round, no fixed rules
   - **Golf scoring toggle** - highest total wins, or lowest wins (golf)
   - **Negative scores** and an optional **no-limit target** (set to 0 to just track scores). The target only ends the game - the winner is then whichever total is best for the chosen direction, so in golf the player who crossed it is usually not the one who wins
   - **"Track who goes out first"** - opt-in per game; flags the round closer (⚑) next to their score
 - **1–8 players, set with a die** - setup shows a large die with ± buttons, and its pips light up in each player's own colour as the count rises. Seven and eight pips are not faces a real die has; the die is the counter, not a simulation. Each player gets a name field below it, and typed names survive dropping the count and raising it again. A game can be set up with a single player, on one device or as a host opening a room before anyone else has arrived. Tab moves from one name field to the next rather than stopping at the colour dot in between. Columns stay colour-coded on the board; tap your colour dot on setup or mid-game to change it, including in multiplayer
 - **Inline editing** - tap any score cell or player name to edit mid-game
+- **Turn-ordered single-device entry** - Farkle, Cribbage, Qwirkle, Yahtzee and Skyjo enter one seat at a time, in turn order, on a single device too, not just in a multiplayer room: Enter Score offers only the current seat, a blank cell in the open round is only tappable for whoever's turn it actually is, and tapping a player's name gives single-device play its own **Make It Their Turn** control (the same override multiplayer's host has) to correct who is up. Every other game keeps the original all-players-at-once sheet
 - **Score cell marks** - `·` for a turn nobody has entered yet, `F` in Farkle for a turn that banked nothing (a Farkle, or a score that missed the entry threshold - the two are the same at the table), and `✗` in other games with an entry threshold, where being on the board is a state of its own
 - **Enter Scores sheet** - enter one or more players' scores for a round in one step; fields begin empty and blanks are skipped, while explicit zeroes are recorded. The heading names the round, each row leads with the player's name on the same coloured chip the board uses, and the field being typed into is outlined in that player's own colour. A **New Total** column on the right answers "what will my score be", counting to the projected figure as the digits land rather than snapping to it. In Farkle it rounds to the nearest 50 exactly as the save does, so it never promises a total the board will not show. Save Scores leads, Cancel follows it. On a keyboard, Enter moves to the next field and saves the round from the last one
 - **± sign toggle** - wherever negative scores are legal, a ± button sits beside each score field and flips the sign of what is typed. Phone keypads have no minus key and no `inputmode` setting adds one, so this is how a negative is entered on mobile; it works the same in the Enter Scores modal and in the tap-a-cell inline editor
@@ -94,7 +95,8 @@ CHANGELOG.md       - history of changes
 
 Currently implemented:
 - **Farkle** - dice game, first to 10,000 points (configurable), minimum 500 to get on the board (configurable); once someone crosses the target, everyone else gets one more turn to beat it before a winner is declared - whoever played after them finishes the current round, and whoever played before them takes their turn in the next one. Turn order counts from whoever led the round off, not from the leftmost column, so a player who goes first and crosses the target ends the game when that round completes
-- **Generic Game** - freeform round-by-round score sheet (e.g. Skyjo), with high/low (golf) scoring, negative scores (entered with the ± toggle), optional target, and opt-in round-closer tracking
+- **Skyjo** - card game, lowest running total wins, ends at 100 (configurable); once a player flips their last card everyone else gets one final turn before totals are compared, the same "let the round finish first" rule Farkle uses. Negative scores are legal (cards run -2 to 12) and round-closer tracking flags who ended each round
+- **Generic Game** - freeform round-by-round score sheet, with high/low (golf) scoring, negative scores (entered with the ± toggle), optional target, and opt-in round-closer tracking
 
 More games planned (round-by-round and category-based scoring).
 

@@ -2,6 +2,18 @@
 
 Newest entries first. Version scheme: flat decimal starting at 0.01, incrementing by 0.01 per release (0.01, 0.02 … 0.09, 0.10 …). Version 1.0 is not assigned without explicit approval. Minor additions increment by 0.01; significant grouped releases may skip ahead by more at the author's discretion.
 
+## 0.28 - 2026-09-01
+
+Single-device play gets the same one-seat-at-a-time turn order multiplayer already had, a new Skyjo game, and the bug that started it: a Farkle final round that could end before every player actually got their turn.
+
+### Added
+- `Claude:` **Skyjo joins the built-in games.** Lowest running total wins, ends at 100 by default, negative scores legal (cards run -2 to 12), and it uses Farkle's "let the round finish first" rule for the final lap rather than deciding the instant someone crosses the target.
+- `Claude:` **Single-device turn order, for Farkle, Cribbage, Qwirkle, Yahtzee and Skyjo.** Enter Score now offers one seat at a time in turn order on a single device, the same as a multiplayer room - tapping a player's name gets its own **Make It Their Turn** control to correct who's up. Every other game (Euchre, Gin Rummy, Three Thirteen, Generic Game) keeps the original all-players-at-once sheet unchanged.
+
+### Fixed
+- `Claude:` **The reported bug: a Farkle final round could end before everyone took their turn.** In single-device mode, one player crossing 10,000 correctly opened the final round, but submitting only the next player's score (leaving the rest blank) could end the game right there - a partially-filled row looked "complete." Root cause was two different models for "is this round done": multiplayer tracked it seat by seat, solo pushed one whole row at a time. Giving solo the same per-seat turn engine multiplayer already used removes the bug class outright, rather than patching the symptom.
+- `Claude:` **A farkled cell could lock itself out of editing.** Tapping a score cell directly (not the Enter Score sheet) to record a Farkle stored it as a blank instead of a literal zero, because that inline editor was missing the same Farkle-zero special case the Enter Score path already had. Once a later player's turn moved on, the new turn-order guard read that blank as an unclaimed seat belonging to whoever currently held the turn and refused to let the original player correct it.
+
 ## 0.27 - 2026-08-30
 
 Keyboard support on desktop, a one-player floor, and the turn outline that drifted off its own column.
