@@ -10,7 +10,7 @@ const notFound = fs.readFileSync(new URL('../404.html', import.meta.url), 'utf8'
 const wrangler = fs.readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8');
 const sfx = fs.readFileSync(new URL('../sfx.js', import.meta.url), 'utf8');
 
-const rosterHelper = app.match(/function reconcileRosterColumns[\s\S]*?\n}\n/);
+const rosterHelper = app.match(/function reconcileRosterColumns[\s\S]*?\r?\n}\r?\n/);
 assert.ok(rosterHelper, 'roster reconciliation helper must exist');
 const context = {};
 vm.runInNewContext(`${rosterHelper[0]}; this.reconcile = reconcileRosterColumns`, context);
@@ -258,7 +258,7 @@ assert.match(app, /const hostPending = mpEach \|\| solo\s*\?\s*\[\]\s*:\s*state\
 // "complete" just because a row exists, only because every eligible seat in
 // it actually submitted - closing the bug where scoring one seat during
 // Farkle's final round wrongly ended the game before the others played.
-for (const key of ['farkle', 'cribbage', 'qwirkle', 'yahtzee', 'skyjo']) {
+for (const key of ['farkle', 'cribbage', 'qwirkle', 'pipzee', 'skyjo']) {
   const gameBlock = app.slice(app.indexOf(`  ${key}: {`), app.indexOf(`  ${key}: {`) + 1300);
   assert.match(gameBlock, /soloTurnOrder: true/,
     `${key} must enter solo scores one seat at a time, in turn order`);
@@ -644,10 +644,15 @@ assert.match(app, /columnFrameObserver = new ResizeObserver\(repositionColumnFra
 assert.match(app, /columnFrameObserver\.disconnect\(\);/,
   'the observer is rebound on each show; the table is rebuilt, so old cells are detached');
 
-// A two-player floor is a rule about a game, not about the tracker - a lone
-// scorer and a host opening an empty room were both blocked by it.
-assert.match(app, /function minSetupPlayers\(\) \{\s*return 1;\s*\}/,
-  'a game may be set up with a single player, solo or multi-device');
+// Player floors and caps belong to each game's rules. The setup and room flow
+// must read the same metadata, so standard two-player games cannot be opened
+// solo and Qwirkle cannot be overfilled through a multiplayer join.
+assert.match(app, /function setupPlayerLimits\(\) \{[\s\S]*?min: game\?\.minPlayers \?\? 1,[\s\S]*?max: game\?\.maxPlayers \?\? MAX_SETUP_PLAYERS,/,
+  'setup player controls must read per-game player limits');
+assert.match(app, /qwirkle: \{[\s\S]*?minPlayers: 2,[\s\S]*?maxPlayers: 4,[\s\S]*?noWinCondition: true,[\s\S]*?noEntryThreshold: true/,
+  'Qwirkle must use its 2-4 player, no-target, no-threshold rules');
+assert.match(worker, /if \(gameKey === "qwirkle"\) return QWIRKLE_MAX_PLAYERS;/,
+  'the multiplayer Worker must enforce Qwirkle\'s four-player cap');
 
 // Tabbing down a list of names should land on the next name, not on a swatch.
 assert.match(app, /class="player-color-dot" tabindex="-1"/,

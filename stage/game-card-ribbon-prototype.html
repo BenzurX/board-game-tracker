@@ -1,0 +1,128 @@
+<!doctype html>
+<!-- PROTOTYPE: Three game-card ribbon variants, switchable with ?variant=A|B|C. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Card Ribbons — Prototype</title>
+  <style>
+    :root { --ink:#211d2a; --paper:#fffaf0; --line:#dfd5c5; --new:#f16052; --update:#087f8c; --yellow:#f5bd4f; --plum:#835c92; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); background:radial-gradient(circle at 10% 0,#ffe4a7 0,transparent 30rem),var(--paper); font:16px/1.25 system-ui,sans-serif; }
+    main { width:min(920px,calc(100% - 32px)); margin:0 auto; padding:44px 0 110px; }
+    .eyebrow { margin:0 0 8px; color:#766c62; font-weight:800; font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; }
+    h1 { margin:0; font-size:clamp(2rem,5vw,3.5rem); letter-spacing:-.055em; }
+    .intro { max-width:590px; margin:14px 0 34px; color:#5c544e; }
+    .prototype-note { display:inline-block; padding:7px 10px; border:1px dashed #a79b8c; border-radius:8px; color:#6c625a; background:#fffdf8; font-size:.8rem; }
+    .gallery { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; align-items:start; }
+    .card { position:relative; min-height:205px; overflow:hidden; border:2px solid var(--ink); border-radius:18px; background:#fffefa; box-shadow:5px 6px 0 var(--ink); }
+    .card button { width:100%; min-height:205px; padding:23px 20px; border:0; background:transparent; color:inherit; text-align:left; font:inherit; cursor:pointer; }
+    .card button:hover { background:#fff2d9; }
+    .game-icon { display:block; margin-bottom:18px; font-size:2.1rem; }
+    .game-name { display:block; font-size:1.32rem; font-weight:900; letter-spacing:-.035em; }
+    .game-desc { display:block; margin-top:5px; color:#5e554e; font-size:.88rem; }
+    .meta { display:block; margin-top:17px; color:#887e75; font-size:.76rem; font-weight:750; }
+    .section-label { margin:0 0 14px; font-size:.74rem; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+    .variant { display:none; }
+    body[data-variant="A"] .variant-a, body[data-variant="B"] .variant-b, body[data-variant="C"] .variant-c { display:block; }
+
+    /* A: classic folded corner. Fastest read. */
+    .variant-a .ribbon { position:absolute; z-index:2; top:62px; right:12px; width:116px; height:26px; display:grid; place-items:center; border-radius:2px; transform:rotate(45deg); }
+    .variant-a .ribbon span { transform:rotate(-45deg); color:white; font-size:.62rem; font-weight:1000; letter-spacing:.07em; line-height:1; text-align:center; }
+    .variant-a .new .ribbon { background:var(--new); } .variant-a .updated .ribbon { background:var(--update); }
+
+    /* B: a wide, physical paper band. Status becomes card hierarchy. */
+    .variant-b .card { padding-top:38px; }
+    .variant-b .ribbon { position:absolute; z-index:2; inset:0 0 auto; height:37px; display:flex; align-items:center; gap:8px; padding:0 18px; color:white; font-size:.7rem; font-weight:1000; letter-spacing:.1em; }
+    .variant-b .new .ribbon { background:var(--new); } .variant-b .updated .ribbon { background:var(--update); }
+    .variant-b .ribbon b { display:inline-grid; place-items:center; width:17px; height:17px; border:1.5px solid white; border-radius:50%; font-size:.75rem; }
+    .variant-b .card button { min-height:166px; padding-top:16px; }
+
+    /* C: a ticket tab outside the card. Most playful, least intrusive. */
+    .variant-c .card { overflow:visible; box-shadow:4px 5px 0 var(--ink); }
+    .variant-c .ribbon { position:absolute; z-index:3; top:-13px; left:16px; height:29px; display:flex; align-items:center; padding:0 13px 0 11px; border:2px solid var(--ink); border-radius:7px 7px 7px 0; color:var(--ink); font-size:.68rem; font-weight:1000; letter-spacing:.075em; }
+    .variant-c .ribbon::after { content:''; position:absolute; left:-2px; bottom:-9px; border-top:8px solid var(--ink); border-right:8px solid transparent; }
+    .variant-c .ribbon::before { content:''; position:absolute; z-index:1; left:0; bottom:-5px; border-top:5px solid currentColor; border-right:5px solid transparent; }
+    .variant-c .new .ribbon { background:var(--yellow); } .variant-c .updated .ribbon { background:#b9e1d5; }
+    .variant-c .card button { padding-top:29px; }
+    .variant-c .game-name::after { content:' →'; color:#a29a90; }
+
+    .why { max-width:730px; margin:42px 0 0; padding:22px 24px; border-left:5px solid var(--ink); background:#fffdf8; }
+    .why h2 { margin:0 0 5px; font-size:1rem; }
+    .why p { margin:0; color:#5d554e; }
+    .switcher { position:fixed; z-index:10; bottom:20px; left:50%; display:flex; align-items:center; gap:4px; padding:7px; border:2px solid var(--ink); border-radius:999px; background:#fffefa; box-shadow:3px 4px 0 var(--ink); transform:translateX(-50%); }
+    .switcher button { width:38px; height:34px; border:0; border-radius:999px; background:transparent; font:900 1.15rem system-ui; cursor:pointer; }
+    .switcher button:hover { background:#f5e8d3; }
+    .switcher output { min-width:177px; padding:0 8px; font-size:.8rem; font-weight:850; text-align:center; }
+    @media (max-width:700px) { main { padding-top:30px; } .gallery { grid-template-columns:1fr; gap:20px; } .card { min-height:154px; } .card button { min-height:154px; } .variant-b .card button { min-height:117px; } }
+  </style>
+</head>
+<body data-variant="A">
+  <main>
+    <p class="eyebrow">Throwaway UI prototype</p>
+    <h1>New vs. updated.</h1>
+    <p class="intro">Three ways to flag a game card without making the game library feel like a notification tray. “Pipzee” stands in for new. “Skyjo” stands in for updated.</p>
+    <p class="prototype-note">Use ← / →, the bottom controls, or <code>?variant=A</code>, <code>B</code>, <code>C</code>.</p>
+
+    <section class="variant variant-a" aria-label="Variant A: folded corner">
+      <p class="section-label">A — Folded corner</p>
+      <div class="gallery">
+        <article class="card new"><span class="ribbon"><span>NEW</span></span><button><span class="game-icon">🎲</span><span class="game-name">Pipzee</span><span class="game-desc">Dice game · Highest score wins</span><span class="meta">Added this week</span></button></article>
+        <article class="card updated"><span class="ribbon"><span>UPDATED</span></span><button><span class="game-icon">🎴</span><span class="game-name">Skyjo</span><span class="game-desc">Lowest score wins · Ends at 100</span><span class="meta">Rules and multiplayer updated</span></button></article>
+        <article class="card"><button><span class="game-icon">🀄</span><span class="game-name">Qwirkle</span><span class="game-desc">Tile-laying · Highest score wins</span></button></article>
+      </div>
+      <div class="why"><h2>Quiet and familiar.</h2><p>Best if badges should feel optional. The card title stays dominant. Small text gets tight on narrow cards.</p></div>
+    </section>
+
+    <section class="variant variant-b" aria-label="Variant B: full-width band">
+      <p class="section-label">B — Full-width release band</p>
+      <div class="gallery">
+        <article class="card new"><span class="ribbon"><b>+</b> NEW GAME</span><button><span class="game-icon">🎲</span><span class="game-name">Pipzee</span><span class="game-desc">Dice game · Highest score wins</span><span class="meta">Added this week</span></button></article>
+        <article class="card updated"><span class="ribbon"><b>↻</b> UPDATED</span><button><span class="game-icon">🎴</span><span class="game-name">Skyjo</span><span class="game-desc">Lowest score wins · Ends at 100</span><span class="meta">Rules and multiplayer updated</span></button></article>
+        <article class="card"><button><span class="game-icon">🀄</span><span class="game-name">Qwirkle</span><span class="game-desc">Tile-laying · Highest score wins</span></button></article>
+      </div>
+      <div class="why"><h2>Clear status first.</h2><p>Best for a small launch or release period. Very readable. It costs vertical space and feels more editorial.</p></div>
+    </section>
+
+    <section class="variant variant-c" aria-label="Variant C: ticket tab">
+      <p class="section-label">C — Ticket tab</p>
+      <div class="gallery">
+        <article class="card new"><span class="ribbon">NEW</span><button><span class="game-icon">🎲</span><span class="game-name">Pipzee</span><span class="game-desc">Dice game · Highest score wins</span><span class="meta">Added this week</span></button></article>
+        <article class="card updated"><span class="ribbon">UPDATED</span><button><span class="game-icon">🎴</span><span class="game-name">Skyjo</span><span class="game-desc">Lowest score wins · Ends at 100</span><span class="meta">Rules and multiplayer updated</span></button></article>
+        <article class="card"><button><span class="game-icon">🀄</span><span class="game-name">Qwirkle</span><span class="game-desc">Tile-laying · Highest score wins</span></button></article>
+      </div>
+      <div class="why"><h2>Most playful.</h2><p>Best match for the app’s tactile game-card feel. Strong silhouette. The tab needs extra card-grid breathing room.</p></div>
+    </section>
+  </main>
+
+  <nav class="switcher" aria-label="Prototype variant switcher">
+    <button type="button" data-step="-1" aria-label="Previous variant">←</button>
+    <output id="variant-name">A — Folded corner</output>
+    <button type="button" data-step="1" aria-label="Next variant">→</button>
+  </nav>
+  <script>
+    const variants = [
+      ['A', 'Folded corner'],
+      ['B', 'Full-width band'],
+      ['C', 'Ticket tab'],
+    ];
+    let index = Math.max(0, variants.findIndex(([key]) => key === new URLSearchParams(location.search).get('variant')));
+    function render() {
+      const [key, name] = variants[index];
+      document.body.dataset.variant = key;
+      document.getElementById('variant-name').textContent = `${key} — ${name}`;
+      const url = new URL(location);
+      url.searchParams.set('variant', key);
+      history.replaceState(null, '', url);
+    }
+    function step(delta) { index = (index + delta + variants.length) % variants.length; render(); }
+    document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => step(Number(button.dataset.step))));
+    addEventListener('keydown', event => {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName) || document.activeElement.isContentEditable) return;
+      if (event.key === 'ArrowLeft') step(-1);
+      if (event.key === 'ArrowRight') step(1);
+    });
+    render();
+  </script>
+</body>
+</html>

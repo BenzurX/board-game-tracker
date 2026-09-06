@@ -2,6 +2,22 @@
 
 Newest entries first. Version scheme: flat decimal starting at 0.01, incrementing by 0.01 per release (0.01, 0.02 … 0.09, 0.10 …). Version 1.0 is not assigned without explicit approval. Minor additions increment by 0.01; significant grouped releases may skip ahead by more at the author's discretion.
 
+## 0.29 - 2026-09-06
+
+Pipzee replaces Yahtzee, game setup now follows each game's rules, and the home library shows what is new or recently updated.
+
+### Added
+- `Codex:` **Pipzee.** A full per-category dice scorecard replaces Yahtzee, with quick score choices, bonuses, turn order, multiplayer support, and a clear hover state for score cells.
+- `Codex:` **Turn haptics.** The device responsible for the next score gets a short best-effort vibration where the browser supports it.
+- `Codex:` **Game-library release tabs.** Ticket tabs mark Pipzee and Skyjo as New, and Euchre, Gin Rummy, Three Thirteen, and Qwirkle as Updated.
+
+### Changed
+- `Codex:` **Rules-aware setup.** Gin Rummy is exactly 2 players; Euchre supports 2-6 variants; Qwirkle is 2-4; and Three Thirteen has its fixed 11-round lowest-total ending. Setup hides entry thresholds that do not exist, shows fixed endings without editable targets, and the Worker enforces applicable multiplayer caps.
+- `Codex:` **Skyjo and Qwirkle.** Skyjo keeps editable 100-point golf scoring, accepts negative scores, hides the unused threshold, and now offers multi-device rooms. Qwirkle hides its unused target and threshold, shows the bag-empty fixed ending, and keeps non-negative scoring.
+
+### Testing
+- `Codex:` Regression extraction now accepts LF and CRLF source files. The old universal one-player test was superseded by game-specific player-limit coverage; the assertion was rewritten rather than removed.
+
 ## 0.28 - 2026-09-01
 
 Single-device play gets the same one-seat-at-a-time turn order multiplayer already had, a new Skyjo game, and the bug that started it: a Farkle final round that could end before every player actually got their turn.

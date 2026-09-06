@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pipzee Scorecard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --p1: #F2604C; --p1-fg: #21131F; --p1-bd: #B23A28;
+      --p2: #F5B02E; --p2-fg: #21131F; --p2-bd: #8A5709;
+      --p3: #A8C64F; --p3-fg: #21131F; --p3-bd: #4F6B14;
+      --p4: #3FBE9A; --p4-fg: #21131F; --p4-bd: #0F6F58;
+      --p5: #4FC3E8; --p5-fg: #21131F; --p5-bd: #14607F;
+      --p6: #7C93EE; --p6-fg: #21131F; --p6-bd: #3A4EAF;
+      --p7: #C48BF0; --p7-fg: #21131F; --p7-bd: #6B33A8;
+      --p8: #F576A8; --p8-fg: #21131F; --p8-bd: #A82F6A;
+      --success: #3FBE9A; --danger: #F2604C; --danger-bd: #B23A28;
+      --font-display: 'Lilita One', cursive;
+      --font-ui: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --r-action: 999px; --r-card: 20px; --r-sheet: 24px; --r-chip: 12px;
+      --ground: #21131F; --surface: #2C1A29; --surface-2: #3A2436; --border: #4B3145;
+      --text: #F7EFE1; --muted: #C0A7B4; --row-a: #291728; --row-b: #221320;
+      --shadow: 0 5px 0 rgba(0,0,0,.367); --shadow-tile: 0 6px 0 rgba(0,0,0,.367); --shadow-sheet: 0 -8px 0 rgba(0,0,0,.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--ground);
+      color: var(--text);
+      font-family: var(--font-ui);
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      cursor: pointer;
+      border: 3px solid var(--border);
+      border-radius: var(--r-action);
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    }
+
+    button:hover { filter: brightness(1.08); }
+
+    button:active {
+      transform: translateY(5px);
+      box-shadow: none;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      filter: grayscale(1) brightness(.65);
+      opacity: .65;
+    }
+
+    button:disabled:active {
+      transform: none;
+      box-shadow: var(--shadow);
+    }
+
+    .app {
+      width: min(1500px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 26px 0 44px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    h1, h2 {
+      margin: 0;
+      font-family: var(--font-display);
+      letter-spacing: .02em;
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 7vw, 4.5rem);
+      line-height: .9;
+      color: var(--p2);
+      text-shadow: 0 5px 0 var(--p2-bd);
+    }
+
+    .tagline {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px;
+      background: var(--surface);
+      border: 3px solid var(--border);
+      border-radius: var(--r-card);
+      box-shadow: var(--shadow);
+    }
+
+    .seat-control {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: .85rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .seat-control input {
+      width: 58px;
+      padding: 8px;
+      border: 3px solid var(--p2-bd);
+      border-radius: var(--r-chip);
+      outline: none;
+      background: var(--p2);
+      color: var(--p2-fg);
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .new-game {
+      padding: 10px 16px;
+      border-color: var(--p1-bd);
+      background: var(--p1);
+      color: var(--p1-fg);
+    }
+
+    .scorecard {
+      overflow-x: auto;
+      border: 3px solid var(--border);
+      border-radius: var(--r-sheet);
+      background: var(--surface);
+      box-shadow: var(--shadow-sheet);
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    th, td {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr > *:last-child { border-right: 0; }
+    tbody tr:last-child > * { border-bottom: 0; }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      min-width: 145px;
+      padding: 14px 10px 11px;
+      background: var(--surface-2);
+      vertical-align: bottom;
+    }
+
+    .category-heading {
+      min-width: 245px;
+      text-align: left;
+    }
+
+    .player-head {
+      border-top: 8px solid var(--seat);
+      background: color-mix(in srgb, var(--seat) 18%, var(--surface-2));
+    }
+
+    .player-head.current {
+      box-shadow: inset 0 4px 0 var(--seat);
+    }
+
+    .player-name {
+      width: 100%;
+      padding: 7px 8px;
+      border: 3px solid var(--seat-bd);
+      border-radius: var(--r-chip);
+      outline: none;
+      background: var(--seat);
+      color: var(--seat-fg);
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .section-row th {
+      padding: 8px 14px;
+      border-bottom: 3px solid var(--border);
+      background: var(--ground);
+      color: var(--p2);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: .08em;
+      text-align: left;
+    }
+
+    .category-cell {
+      padding: 10px 14px;
+      background: var(--row-a);
+      text-align: left;
+    }
+
+    tbody tr:nth-of-type(even) .category-cell,
+    tbody tr:nth-of-type(even) .score-cell { background: var(--row-b); }
+
+    .category-name {
+      display: block;
+      font-weight: 900;
+      line-height: 1.05;
+    }
+
+    .category-upper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .category-upper-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .category-lower {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .category-lower .dice-cluster {
+      margin-bottom: 6px;
+    }
+
+    .dice-cluster {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .category-help {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: .73rem;
+      font-weight: 700;
+    }
+
+    .score-cell {
+      position: relative;
+      min-width: 145px;
+      padding: 7px;
+      background: var(--row-a);
+      text-align: center;
+    }
+
+    .current-column {
+      background: color-mix(in srgb, var(--seat) 14%, var(--row-a));
+      box-shadow: inset 3px 0 0 var(--seat), inset -3px 0 0 var(--seat);
+    }
+
+    tbody tr:nth-of-type(even) .current-column {
+      background: color-mix(in srgb, var(--seat) 14%, var(--row-b));
+    }
+
+    .grand-total-cell.current-column {
+      box-shadow: inset 3px 0 0 var(--seat), inset -3px 0 0 var(--seat), inset 0 -4px 0 var(--seat);
+    }
+
+    .score-tile {
+      width: 100%;
+      min-height: 42px;
+      padding: 7px 10px;
+      border: 3px solid var(--seat-bd);
+      border-radius: var(--r-chip);
+      background: var(--seat);
+      color: var(--seat-fg);
+      box-shadow: var(--shadow-tile);
+      font-size: 1.05rem;
+    }
+
+    button.score-tile {
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-weight: 900;
+    }
+
+    .score-tile.empty {
+      background: transparent;
+      border-color: var(--border);
+      box-shadow: none;
+      color: var(--muted);
+    }
+
+    .score-tile.locked {
+      cursor: default;
+      opacity: .42;
+    }
+
+    .score-tile.locked:hover { filter: none; }
+    .score-tile.locked:active { transform: none; box-shadow: none; }
+
+    .score-tile.scratched {
+      background: transparent;
+      border-color: var(--border);
+      box-shadow: none;
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .score-value {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .score-dice { gap: 1px; }
+
+    .scratched-die {
+      position: relative;
+      display: inline-flex;
+      text-decoration: none;
+    }
+
+    .scratched-die::after {
+      position: absolute;
+      top: 50%;
+      left: -2px;
+      width: calc(100% + 4px);
+      border-top: 2px solid currentColor;
+      content: "";
+      transform: rotate(-35deg);
+    }
+
+    .total-row .category-cell,
+    .total-row .score-cell {
+      background: var(--surface-2) !important;
+    }
+
+    .total-row .category-name {
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: .85rem;
+      font-weight: 800;
+    }
+
+    .total {
+      color: var(--text);
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+
+    .winner {
+      outline: 4px solid var(--p2);
+      outline-offset: -4px;
+      background: color-mix(in srgb, var(--p2) 25%, var(--surface-2)) !important;
+    }
+
+    .bonus-stepper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bonus-stepper button {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-color: var(--seat-bd);
+      background: var(--seat);
+      color: var(--seat-fg);
+      box-shadow: 0 3px 0 rgba(0,0,0,.367);
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+
+    .bonus-stepper button:active {
+      transform: translateY(3px);
+      box-shadow: none;
+    }
+
+    .bonus-count {
+      min-width: 38px;
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .entry-popover {
+      position: absolute;
+      z-index: 4;
+      top: calc(100% - 2px);
+      left: 50%;
+      width: 230px;
+      padding: 10px;
+      border: 3px solid var(--seat-bd);
+      border-radius: var(--r-card);
+      background: var(--surface-2);
+      box-shadow: var(--shadow);
+      transform: translateX(-50%);
+    }
+
+    .entry-popover p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 800;
+    }
+
+    .quick-picks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .upper-picks {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .quick-picks .upper-pick {
+      display: flex;
+      min-height: 38px;
+      padding: 5px 10px;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      font-size: .78rem;
+    }
+
+    .quick-picks button,
+    .entry-actions button {
+      padding: 7px 10px;
+      border-color: var(--seat-bd);
+      background: var(--seat);
+      color: var(--seat-fg);
+      box-shadow: 0 3px 0 rgba(0,0,0,.367);
+    }
+
+    .entry-number {
+      display: flex;
+      gap: 6px;
+    }
+
+    .entry-number input {
+      min-width: 0;
+      width: 80px;
+      padding: 7px;
+      border: 3px solid var(--border);
+      border-radius: var(--r-chip);
+      background: var(--ground);
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .entry-actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .entry-actions button { flex: 1; }
+
+    .entry-actions .scratch {
+      border-color: var(--danger-bd);
+      background: var(--danger);
+      color: var(--p1-fg);
+    }
+
+    .close-entry {
+      margin-top: 8px;
+      padding: 5px 10px;
+      border-color: var(--border);
+      background: transparent;
+      color: var(--muted);
+      box-shadow: none;
+      font-size: .75rem;
+    }
+
+    .rules-note {
+      margin: 17px 4px 0;
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 620px) {
+      .app { width: min(100% - 18px, 1500px); padding-top: 18px; }
+      .topbar { align-items: flex-start; }
+      .controls { width: 100%; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>Pipzee</h1>
+        <p class="tagline">A chunky little scorecard for big dice energy.</p>
+      </div>
+
+      <div class="controls">
+        <label class="seat-control">
+          Seats
+          <input id="seat-count" type="number" min="1" max="8" value="4" aria-label="Number of players">
+        </label>
+        <button class="new-game" type="button" id="new-game">New Game</button>
+      </div>
+    </header>
+
+    <section class="scorecard" id="scorecard"></section>
+    <p class="rules-note">Choose one empty category on your turn. A crossed-out 0 means scratched. Scores live only until this page reloads.</p>
+  </main>
+
+  <script>
+    const categories = [
+      { key: "ones", label: "Ones", help: "sum of all 1s", type: "upper", face: 1 },
+      { key: "twos", label: "Twos", help: "sum of all 2s", type: "upper", face: 2 },
+      { key: "threes", label: "Threes", help: "sum of all 3s", type: "upper", face: 3 },
+      { key: "fours", label: "Fours", help: "sum of all 4s", type: "upper", face: 4 },
+      { key: "fives", label: "Fives", help: "sum of all 5s", type: "upper", face: 5 },
+      { key: "sixes", label: "Sixes", help: "sum of all 6s", type: "upper", face: 6 },
+      // Decorative dice describe each lower-category pattern.
+      { key: "threeKind", label: "Three of a Kind", help: "sum all 5 dice", type: "number" },
+      { key: "fourKind", label: "Four of a Kind", help: "sum all 5 dice", type: "number" },
+      { key: "fullHouse", label: "Full House", help: "score 25", type: "fixed", value: 25 },
+      { key: "smallStraight", label: "Small Straight", help: "score 30", type: "fixed", value: 30 },
+      { key: "largeStraight", label: "Large Straight", help: "score 40", type: "fixed", value: 40 },
+      { key: "chance", label: "Chance", help: "sum all 5 dice", type: "number" },
+      { key: "pipzee", label: "PIPZEE", help: "score 50, 5 of a kind", type: "fixed", value: 50 }
+    ];
+
+    let state = {};
+    let activeEntry = null;
+
+    function diceFaceSVG(face, sizePx) {
+      const pips = {
+        1: [[12, 12]],
+        2: [[7, 7], [17, 17]],
+        3: [[7, 7], [12, 12], [17, 17]],
+        4: [[7, 7], [17, 7], [7, 17], [17, 17]],
+        5: [[7, 7], [17, 7], [12, 12], [7, 17], [17, 17]],
+        6: [[7, 6.5], [17, 6.5], [7, 12], [17, 12], [7, 17.5], [17, 17.5]]
+      };
+      const dots = pips[face].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="currentColor"/>`).join("");
+
+      return `<svg width="${sizePx}" height="${sizePx}" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="21" height="21" rx="4" stroke="currentColor" stroke-width="2"/>${dots}</svg>`;
+    }
+
+    function diceClusterMarkup(faces, sizePx, className = "") {
+      return `<span class="dice-cluster ${className}" aria-hidden="true">${faces.map(face => diceFaceSVG(face, sizePx)).join("")}</span>`;
+    }
+
+    function createPlayer(index) {
+      return {
+        name: `Player ${index + 1}`,
+        color: `p${index + 1}`,
+        scores: Object.fromEntries(categories.map(category => [category.key, null])),
+        pipzeeBonusCount: 0
+      };
+    }
+
+    function initState(seatCount = 4) {
+      state = {
+        players: Array.from({ length: seatCount }, (_, index) => createPlayer(index)),
+        turn: { playerIndex: 0, categoryRound: 0 }
+      };
+      activeEntry = null;
+    }
+
+    function seatVars(index) {
+      const number = index + 1;
+      return `--seat: var(--p${number}); --seat-bd: var(--p${number}-bd); --seat-fg: var(--p${number}-fg);`;
+    }
+
+    function getTotals(player) {
+      const upperKeys = categories.filter(category => category.type === "upper").map(category => category.key);
+      const lowerKeys = categories.filter(category => category.type !== "upper").map(category => category.key);
+
+      const upperSubtotal = upperKeys.reduce((sum, key) => sum + (player.scores[key] ?? 0), 0);
+      // The upper bonus is awarded only when the matching-dice subtotal reaches 63.
+      const bonus = upperSubtotal >= 63 ? 35 : 0;
+      const lowerScores = lowerKeys.reduce((sum, key) => sum + (player.scores[key] ?? 0), 0);
+      const pipzeeBonus = player.pipzeeBonusCount * 100;
+      const lowerTotal = lowerScores + pipzeeBonus;
+
+      return {
+        upperSubtotal,
+        bonus,
+        upperTotal: upperSubtotal + bonus,
+        lowerTotal,
+        grandTotal: upperSubtotal + bonus + lowerTotal
+      };
+    }
+
+    function isPlayerComplete(player) {
+      return categories.every(category => player.scores[category.key] !== null);
+    }
+
+    function isGameOver() {
+      return state.players.every(isPlayerComplete);
+    }
+
+    function categoryDiceFaces(category) {
+      if (category.type === "upper") return [category.face];
+
+      return {
+        threeKind: [3, 3, 3],
+        fourKind: [5, 5, 5, 5],
+        fullHouse: [3, 3, 3, 5, 5],
+        smallStraight: [1, 2, 3, 4],
+        largeStraight: [1, 2, 3, 4, 5],
+        chance: [2, 4, 1, 6, 3],
+        pipzee: [6, 6, 6, 6, 6]
+      }[category.key];
+    }
+
+    function upperCategoryMarkup(category) {
+      return `
+        <th scope="row" class="category-cell">
+          <span class="category-upper">
+            ${diceClusterMarkup(categoryDiceFaces(category), 36)}
+            <span class="category-upper-text">
+              <span class="category-name">${category.label}</span>
+              <span class="category-help">${category.help}</span>
+            </span>
+          </span>
+        </th>
+      `;
+    }
+
+    function lowerCategoryMarkup(category) {
+      return `
+        <th scope="row" class="category-cell">
+          <span class="category-lower">
+            ${diceClusterMarkup(categoryDiceFaces(category), 20)}
+            <span class="category-name">${category.label}</span>
+            <span class="category-help">${category.help}</span>
+          </span>
+        </th>
+      `;
+    }
+
+    function scoreButtonMarkup(playerIndex, category) {
+      const player = state.players[playerIndex];
+      const value = player.scores[category.key];
+      const current = !isGameOver() && state.turn.playerIndex === playerIndex;
+      const style = seatVars(playerIndex);
+
+      if (value === null) {
+        return `
+          <td class="score-cell ${current ? "current-column" : ""}" style="${style}">
+            <button class="score-tile empty ${current ? "" : "locked"}"
+              type="button"
+              data-player="${playerIndex}"
+              data-category="${category.key}"
+              ${current ? "" : "aria-disabled='true'"}>
+              &mdash;
+            </button>
+            ${activeEntry && activeEntry.playerIndex === playerIndex && activeEntry.categoryKey === category.key
+              ? entryPopoverMarkup(category, playerIndex)
+              : ""}
+          </td>
+        `;
+      }
+
+      const scoreContents = category.type === "upper"
+        ? value === 0
+          ? `<span class="score-value"><span class="scratched-die">${diceFaceSVG(category.face, 17)}</span><span>0</span></span>`
+          : `<span class="score-value">${diceClusterMarkup(Array.from({ length: value / category.face }, () => category.face), 15, "score-dice")}<span>${value}</span></span>`
+        : value;
+
+      return `
+        <td class="score-cell ${current ? "current-column" : ""}" style="${style}">
+          <button class="score-tile ${value === 0 ? "scratched" : ""}"
+            type="button"
+            data-player="${playerIndex}"
+            data-category="${category.key}"
+            aria-label="${value === 0 ? "Edit scratched score, zero" : `Edit score ${value}`}">
+            ${scoreContents}
+          </button>
+          ${activeEntry && activeEntry.playerIndex === playerIndex && activeEntry.categoryKey === category.key
+            ? entryPopoverMarkup(category, playerIndex)
+            : ""}
+        </td>
+      `;
+    }
+
+    function entryPopoverMarkup(category, playerIndex) {
+      const style = seatVars(playerIndex);
+
+      if (category.type === "upper") {
+        const picks = Array.from({ length: 6 }, (_, count) => {
+          const value = count * category.face;
+          return `<button type="button" class="upper-pick" data-confirm="${value}" aria-label="${count} ${category.label.toLowerCase()}, ${value} points">
+            <span>${value}</span>
+            ${diceClusterMarkup(Array.from({ length: count }, () => category.face), 12)}
+          </button>`;
+        })
+          .join("");
+
+        return `
+          <div class="entry-popover" style="${style}">
+            <p>Record ${category.label.toLowerCase()}</p>
+            <div class="quick-picks upper-picks">${picks}</div>
+            <button type="button" class="close-entry" data-close-entry>Cancel</button>
+          </div>
+        `;
+      }
+
+      if (category.type === "number") {
+        const existingValue = activeEntry && activeEntry.isEdit ? state.players[playerIndex].scores[category.key] : 0;
+        return `
+          <div class="entry-popover" style="${style}">
+            <p>Enter 0&ndash;30, or scratch it.</p>
+            <div class="entry-number">
+              <input type="number" min="0" max="30" value="${existingValue}" data-score-input aria-label="${category.label} score">
+              <button type="button" data-submit-number>Save</button>
+            </div>
+            <div class="entry-actions" style="margin-top:8px">
+              <button type="button" class="scratch" data-confirm="0">Scratch (0)</button>
+            </div>
+            <button type="button" class="close-entry" data-close-entry>Cancel</button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="entry-popover" style="${style}">
+          <p>${category.label}: choose a result.</p>
+          <div class="entry-actions">
+            <button type="button" data-confirm="${category.value}">Score ${category.value}</button>
+            <button type="button" class="scratch" data-confirm="0">Scratch (0)</button>
+          </div>
+          <button type="button" class="close-entry" data-close-entry>Cancel</button>
+        </div>
+      `;
+    }
+
+    function totalCell(value, playerIndex, extraClass = "") {
+      const current = !isGameOver() && state.turn.playerIndex === playerIndex;
+      return `
+        <td class="score-cell ${current ? "current-column" : ""} ${extraClass}" style="${seatVars(playerIndex)}">
+          <span class="total">${value}</span>
+        </td>
+      `;
+    }
+
+    function totalRow(label, help, getter, className = "") {
+      return `
+        <tr class="total-row ${className}">
+          <th scope="row" class="category-cell">
+            <span class="category-name">${label}</span>
+            ${help ? `<span class="category-help">${help}</span>` : ""}
+          </th>
+          ${state.players.map((player, index) => totalCell(getter(getTotals(player)), index)).join("")}
+        </tr>
+      `;
+    }
+
+    function pipzeeBonusCell(playerIndex) {
+      const player = state.players[playerIndex];
+      const enabled = player.scores.pipzee === 50;
+      const title = enabled
+        ? "Each bonus is worth 100 points."
+        : "Score exactly 50 in PIPZEE before adding a PIPZEE BONUS.";
+
+      return `
+        <td class="score-cell ${!isGameOver() && state.turn.playerIndex === playerIndex ? "current-column" : ""}" style="${seatVars(playerIndex)}">
+          <div class="bonus-stepper" title="${title}">
+            <button type="button" data-bonus="-1" data-player="${playerIndex}" ${enabled && player.pipzeeBonusCount > 0 ? "" : "disabled"} aria-label="Remove Pipzee bonus">&minus;</button>
+            <span class="bonus-count">${player.pipzeeBonusCount} &times; 100</span>
+            <button type="button" data-bonus="1" data-player="${playerIndex}" ${enabled ? "" : "disabled"} aria-label="Add Pipzee bonus">+</button>
+          </div>
+        </td>
+      `;
+    }
+
+    function renderGrid() {
+      const currentIndex = state.turn.playerIndex;
+      const winnerScore = isGameOver()
+        ? Math.max(...state.players.map(player => getTotals(player).grandTotal))
+        : null;
+
+      const playerHeaders = state.players.map((player, index) => `
+        <th scope="col" class="player-head ${index === currentIndex && !isGameOver() ? "current" : ""}" style="${seatVars(index)}">
+          <input class="player-name" data-name-input="${index}" value="${escapeHtml(player.name)}" aria-label="Player ${index + 1} name">
+        </th>
+      `).join("");
+
+      const upperRows = categories
+        .filter(category => category.type === "upper")
+        .map(category => `<tr>${upperCategoryMarkup(category)}${state.players.map((_, index) => scoreButtonMarkup(index, category)).join("")}</tr>`)
+        .join("");
+
+      const lowerRows = categories
+        .filter(category => category.type !== "upper")
+        .map(category => `<tr>${lowerCategoryMarkup(category)}${state.players.map((_, index) => scoreButtonMarkup(index, category)).join("")}</tr>`)
+        .join("");
+
+      const grandCells = state.players.map((player, index) => {
+        const isWinner = winnerScore !== null && getTotals(player).grandTotal === winnerScore;
+        return totalCell(getTotals(player).grandTotal, index, `grand-total-cell ${isWinner ? "winner" : ""}`);
+      }).join("");
+
+      document.getElementById("scorecard").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th class="category-heading" scope="col">Category</th>
+              ${playerHeaders}
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="section-row"><th colspan="${state.players.length + 1}">UPPER SECTION</th></tr>
+            ${upperRows}
+            ${totalRow("UPPER SUBTOTAL", "sum of Ones through Sixes", totals => totals.upperSubtotal)}
+            ${totalRow("BONUS (needs 63+)", "35 points at 63 or more", totals => totals.bonus)}
+            ${totalRow("UPPER TOTAL", "subtotal plus bonus", totals => totals.upperTotal)}
+            <tr class="section-row"><th colspan="${state.players.length + 1}">LOWER SECTION</th></tr>
+            ${lowerRows}
+            <tr>
+              <th scope="row" class="category-cell">
+                <span class="category-name">PIPZEE BONUS</span>
+                <span class="category-help">+100 per extra Pipzee</span>
+              </th>
+              ${state.players.map((_, index) => pipzeeBonusCell(index)).join("")}
+            </tr>
+            ${totalRow("LOWER TOTAL", "includes PIPZEE BONUS", totals => totals.lowerTotal)}
+            <tr class="total-row">
+              <th scope="row" class="category-cell">
+                <span class="category-name">GRAND TOTAL</span>
+                <span class="category-help">upper total plus lower total</span>
+              </th>
+              ${grandCells}
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      bindGridHandlers();
+    }
+
+    function render() {
+      document.getElementById("seat-count").value = state.players.length;
+      renderGrid();
+    }
+
+    function bindGridHandlers() {
+      document.querySelectorAll("[data-name-input]").forEach(input => {
+        input.addEventListener("input", event => {
+          state.players[Number(event.target.dataset.nameInput)].name = event.target.value;
+        });
+      });
+
+      document.querySelectorAll(".score-tile[data-player]").forEach(button => {
+        button.addEventListener("click", () => {
+          handleCellClick(Number(button.dataset.player), button.dataset.category);
+        });
+      });
+
+      document.querySelectorAll("[data-confirm]").forEach(button => {
+        button.addEventListener("click", () => {
+          handleCategoryConfirm(Number(button.dataset.confirm));
+        });
+      });
+
+      document.querySelectorAll("[data-submit-number]").forEach(button => {
+        button.addEventListener("click", () => {
+          const input = button.parentElement.querySelector("[data-score-input]");
+          const value = Math.max(0, Math.min(30, Number(input.value)));
+          handleCategoryConfirm(Number.isFinite(value) ? value : 0);
+        });
+      });
+
+      document.querySelectorAll("[data-close-entry]").forEach(button => {
+        button.addEventListener("click", () => {
+          activeEntry = null;
+          render();
+        });
+      });
+
+      document.querySelectorAll("[data-bonus]").forEach(button => {
+        button.addEventListener("click", () => {
+          handlePipzeeBonusIncrement(Number(button.dataset.player), Number(button.dataset.bonus));
+        });
+      });
+    }
+
+    function handleCellClick(playerIndex, categoryKey) {
+      const isEdit = state.players[playerIndex].scores[categoryKey] !== null;
+      if (!isEdit && (isGameOver() || playerIndex !== state.turn.playerIndex)) return;
+
+      activeEntry = { playerIndex, categoryKey, isEdit };
+      render();
+    }
+
+    function handleCategoryConfirm(value) {
+      if (!activeEntry) return;
+
+      const { playerIndex, categoryKey, isEdit } = activeEntry;
+      const player = state.players[playerIndex];
+
+      if (isEdit) {
+        player.scores[categoryKey] = value;
+        activeEntry = null;
+        render();
+        return;
+      }
+
+      if (playerIndex !== state.turn.playerIndex || player.scores[categoryKey] !== null) return;
+
+      player.scores[categoryKey] = value;
+      activeEntry = null;
+      advanceTurn();
+    }
+
+    function advanceTurn() {
+      if (!isGameOver()) {
+        // Every confirmed category moves the shared turn pointer one seat forward.
+        state.turn.playerIndex = (state.turn.playerIndex + 1) % state.players.length;
+        state.turn.categoryRound += 1;
+      }
+      render();
+    }
+
+    function handlePipzeeBonusIncrement(playerIndex, direction) {
+      const player = state.players[playerIndex];
+      if (player.scores.pipzee !== 50) return;
+
+      player.pipzeeBonusCount = Math.max(0, player.pipzeeBonusCount + direction);
+      render();
+    }
+
+    function handleNewGame() {
+      initState(state.players.length);
+      render();
+    }
+
+    function handleSeatCountChange(event) {
+      const nextCount = Math.max(1, Math.min(8, Number(event.target.value) || 1));
+      const previousPlayers = state.players;
+      const resizedPlayers = Array.from({ length: nextCount }, (_, index) => {
+        // Keep same-index seats; newly added seats begin as fresh players.
+        return previousPlayers[index] || createPlayer(index);
+      });
+
+      state.players = resizedPlayers;
+      state.turn.playerIndex = Math.min(state.turn.playerIndex, nextCount - 1);
+      state.turn.categoryRound = 0;
+      activeEntry = null;
+      render();
+    }
+
+    function escapeHtml(value) {
+      const element = document.createElement("div");
+      element.textContent = value;
+      return element.innerHTML;
+    }
+
+    document.getElementById("new-game").addEventListener("click", handleNewGame);
+    document.getElementById("seat-count").addEventListener("change", handleSeatCountChange);
+
+    initState();
+    render();
+  </script>
+</body>
+</html>

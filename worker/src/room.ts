@@ -35,6 +35,33 @@ interface Player {
   present: boolean;
 }
 
+// Pipzee (Yahtzee-rules) uses a per-category scorecard instead of the
+// round-list model every other game uses, so it gets its own parallel state
+// slice rather than trying to fit `rounds`. Parallel to `players` by index,
+// same as `rounds`/`roundSubmitted`/`onBoard` - kept in lockstep wherever
+// those are (join, removePlayers, reset).
+const PIPZEE_CATEGORIES = [
+  "ones", "twos", "threes", "fours", "fives", "sixes",
+  "threeKind", "fourKind", "fullHouse", "smallStraight", "largeStraight",
+  "chance", "pipzee",
+] as const;
+
+interface PipzeePlayerState {
+  scores: Record<string, number | null>;
+  bonusCount: number;
+}
+
+interface PipzeeState {
+  players: PipzeePlayerState[];
+}
+
+function blankPipzeePlayer(): PipzeePlayerState {
+  return {
+    scores: Object.fromEntries(PIPZEE_CATEGORIES.map((key) => [key, null])),
+    bonusCount: 0,
+  };
+}
+
 interface RoomData {
   roomCode: string;
   scoringMode: ScoringMode;
@@ -55,6 +82,8 @@ interface RoomData {
   ruleOverrides: Record<string, unknown>; // host's edited baseline rule text, opaque to the server
   customRules: string[]; // host's house-rules list, shown read-only to guests
   currentTurnPlayerId: string | null;
+  // null for every non-Pipzee room.
+  pipzee: PipzeeState | null;
 }
 
 interface SocketAttachment {
@@ -186,6 +215,34 @@ interface UpdateRulesMessage {
   customRules: string[];
 }
 
+// Fills one still-empty category cell. Turn-gated the same way submit-score
+// is: canScoreFor decides who may act for the target seat, but there is no
+// round to open/close - filling any category just hands the turn to the next
+// connected seat.
+interface PipzeeScoreMessage {
+  type: "pipzee-score";
+  category: string;
+  value: number;
+  playerId?: string;
+}
+
+// Corrects an already-filled category cell. Never touches turn order, mirrors
+// edit-score's "correction only" semantics.
+interface PipzeeEditMessage {
+  type: "pipzee-edit";
+  category: string;
+  value: number;
+  playerId?: string;
+}
+
+// +/- on the PIPZEE BONUS stepper. Only legal once that seat's "pipzee"
+// category reads exactly 50.
+interface PipzeeBonusMessage {
+  type: "pipzee-bonus";
+  delta: number;
+  playerId?: string;
+}
+
 type ClientMessage =
   | JoinMessage
   | SubmitScoreMessage
@@ -204,13 +261,25 @@ type ClientMessage =
   | PingMessage
   | PresenceMessage
   | ResetGameMessage
-  | UpdateRulesMessage;
+  | UpdateRulesMessage
+  | PipzeeScoreMessage
+  | PipzeeEditMessage
+  | PipzeeBonusMessage;
 
 interface StoredRoomRow {
   data: string;
 }
 
 const MAX_PLAYERS = 8;
+const EUCHRE_MAX_PLAYERS = 6;
+const GIN_RUMMY_MAX_PLAYERS = 2;
+const QWIRKLE_MAX_PLAYERS = 4;
+const THREE_THIRTEEN_ROUNDS = 11;
+function maxPlayersForGame(gameKey: string | undefined): number {
+  if (gameKey === "ginrummy") return GIN_RUMMY_MAX_PLAYERS;
+  if (gameKey === "qwirkle") return QWIRKLE_MAX_PLAYERS;
+  return gameKey === "euchre" ? EUCHRE_MAX_PLAYERS : MAX_PLAYERS;
+}
 // One device may represent every seat in a room: its holder plus 7 others.
 const MAX_GROUP_SIZE = 8;
 const ABANDONED_ROOM_TIMEOUT_MS = 30 * 60 * 1000;
@@ -268,6 +337,12 @@ export class Room extends DurableObject<Env> {
         while (this.room.roundStarts.length < this.room.rounds.length) {
           this.room.roundStarts.push(this.room.players[0]?.id ?? "");
         }
+        // Rooms persisted before Pipzee existed (or any non-Pipzee room) have
+        // no pipzee slice at all.
+        this.room.pipzee = this.room.pipzee ??
+          (this.room.gameKey === "pipzee"
+            ? { players: this.room.players.map(() => blankPipzeePlayer()) }
+            : null);
         // Presence describes right now, so a persisted value is always stale by
         // the time it is read back. Rebuild it from the sockets that survived
         // hibernation; anyone without one reports away until their client says
@@ -304,7 +379,7 @@ export class Room extends DurableObject<Env> {
         // Lets the join form cap its "how many of you?" dropdown before the
         // socket join. Re-checked on join, since it can go stale.
         seatsLeft: this.room
-          ? Math.max(0, MAX_PLAYERS - this.room.players.length)
+          ? Math.max(0, maxPlayersForGame(this.room.gameKey) - this.room.players.length)
           : MAX_PLAYERS,
         // Enough of the roster for a joining player to pick who scores for
         // them before the socket join - names only, no connection state.
@@ -441,6 +516,32 @@ export class Room extends DurableObject<Env> {
           attachment,
           parsed.values,
           parsed.roundIndex,
+        );
+        break;
+
+      case "pipzee-score":
+        await this.handlePipzeeScore(
+          attachment,
+          parsed.category,
+          parsed.value,
+          parsed.playerId,
+        );
+        break;
+
+      case "pipzee-edit":
+        await this.handlePipzeeEdit(
+          attachment,
+          parsed.category,
+          parsed.value,
+          parsed.playerId,
+        );
+        break;
+
+      case "pipzee-bonus":
+        await this.handlePipzeeBonus(
+          attachment,
+          parsed.delta,
+          parsed.playerId,
         );
         break;
 
@@ -715,18 +816,21 @@ export class Room extends DurableObject<Env> {
       seenNames.add(normalized);
     }
 
+    const seatsLeft = Math.max(
+      0,
+      maxPlayersForGame(this.room?.gameKey ?? message.gameKey) -
+        (this.room?.players.length ?? 0),
+    );
+    if (joiningNames.length > seatsLeft) {
+      this.send(ws, {
+        type: "error",
+        code: "room-full",
+        seatsLeft,
+      });
+      return;
+    }
+
     if (this.room) {
-      const seatsLeft = Math.max(0, MAX_PLAYERS - this.room.players.length);
-
-      if (joiningNames.length > seatsLeft) {
-        this.send(ws, {
-          type: "error",
-          code: "room-full",
-          seatsLeft,
-        });
-        return;
-      }
-
       const taken = joiningNames.find((candidate) =>
         this.room!.players.some(
           (player) =>
@@ -796,6 +900,7 @@ export class Room extends DurableObject<Env> {
         ruleOverrides,
         customRules,
         currentTurnPlayerId: null,
+        pipzee: message.gameKey === "pipzee" ? { players: [] } : null,
       };
     }
 
@@ -850,6 +955,7 @@ export class Room extends DurableObject<Env> {
 
       this.room.roundSubmitted.push(false);
       this.room.onBoard.push(this.room.minScore === 0);
+      if (this.room.pipzee) this.room.pipzee.players.push(blankPipzeePlayer());
     }
 
     // A scorer nominated during the join flow can have left (or taken on a
@@ -953,6 +1059,99 @@ export class Room extends DurableObject<Env> {
     });
 
     await this.advanceRoundIfComplete();
+  }
+
+  // Fills one still-empty category cell. Reuses canScoreFor for proxy/group
+  // permission, same as submit-score - there is just no round to open, so a
+  // fill only ever needs to check the one cell it targets.
+  private async handlePipzeeScore(
+    attachment: SocketAttachment,
+    category: string,
+    value: number,
+    playerId?: string,
+  ): Promise<void> {
+    const room = this.room;
+    if (!room || !room.pipzee || room.gameOver || !Number.isFinite(value)) return;
+    if (!(PIPZEE_CATEGORIES as readonly string[]).includes(category)) return;
+
+    const targetId = playerId ?? attachment.playerId;
+    const index = room.players.findIndex((player) => player.id === targetId);
+    if (index === -1 || !this.canScoreFor(attachment.playerId, index)) return;
+
+    const playerState = room.pipzee.players[index];
+    if (!playerState || playerState.scores[category] !== null) return; // filled cells go through pipzee-edit
+
+    playerState.scores[category] = value;
+    this.advancePipzeeTurn(room.players[index].id);
+
+    await this.persist();
+    this.broadcast({
+      type: "pipzee-update",
+      pipzee: room.pipzee,
+      currentTurnPlayerId: room.currentTurnPlayerId,
+    });
+  }
+
+  // Corrects an already-filled cell. Never advances the turn - mirrors
+  // edit-score's "correction only" contract.
+  private async handlePipzeeEdit(
+    attachment: SocketAttachment,
+    category: string,
+    value: number,
+    playerId?: string,
+  ): Promise<void> {
+    const room = this.room;
+    if (!room || !room.pipzee || !Number.isFinite(value)) return;
+    if (!(PIPZEE_CATEGORIES as readonly string[]).includes(category)) return;
+
+    const targetId = playerId ?? attachment.playerId;
+    const index = room.players.findIndex((player) => player.id === targetId);
+    if (index === -1 || !this.canScoreFor(attachment.playerId, index)) return;
+
+    const playerState = room.pipzee.players[index];
+    if (!playerState || playerState.scores[category] === null) return; // nothing to correct yet
+
+    playerState.scores[category] = value;
+    await this.persist();
+    this.broadcast({ type: "pipzee-update", pipzee: room.pipzee });
+  }
+
+  // +/- on the PIPZEE BONUS stepper. Only legal once that seat's "pipzee"
+  // category reads exactly 50 (the standard five-of-a-kind score).
+  private async handlePipzeeBonus(
+    attachment: SocketAttachment,
+    delta: number,
+    playerId?: string,
+  ): Promise<void> {
+    const room = this.room;
+    if (!room || !room.pipzee || (delta !== 1 && delta !== -1)) return;
+
+    const targetId = playerId ?? attachment.playerId;
+    const index = room.players.findIndex((player) => player.id === targetId);
+    if (index === -1 || !this.canScoreFor(attachment.playerId, index)) return;
+
+    const playerState = room.pipzee.players[index];
+    if (!playerState || playerState.scores.pipzee !== 50) return;
+
+    playerState.bonusCount = Math.max(0, playerState.bonusCount + delta);
+    await this.persist();
+    this.broadcast({ type: "pipzee-update", pipzee: room.pipzee });
+  }
+
+  // Pipzee has no round concept, so a fill just hands the turn to the next
+  // connected seat, unconditionally - unlike advanceCurrentTurnIfScored there
+  // is no roundSubmitted to check for "already went this round."
+  private advancePipzeeTurn(justScoredId: string): void {
+    const room = this.room!;
+    if (room.currentTurnPlayerId !== justScoredId || room.players.length === 0) return;
+    const currentIndex = room.players.findIndex((player) => player.id === justScoredId);
+    for (let offset = 1; offset <= room.players.length; offset += 1) {
+      const candidate = room.players[(currentIndex + offset) % room.players.length];
+      if (candidate.connected) {
+        room.currentTurnPlayerId = candidate.id;
+        return;
+      }
+    }
   }
 
   // A player may write their own column, the column of any seat their device
@@ -1169,6 +1368,9 @@ export class Room extends DurableObject<Env> {
       (_, index) => keep[index],
     );
     room.onBoard = room.onBoard.filter((_, index) => keep[index]);
+    if (room.pipzee) {
+      room.pipzee.players = room.pipzee.players.filter((_, index) => keep[index]);
+    }
 
     if (room.currentTurnPlayerId && doomed.has(room.currentTurnPlayerId)) {
       room.currentTurnPlayerId = room.players.length > 0
@@ -1622,6 +1824,9 @@ export class Room extends DurableObject<Env> {
       this.room.players.find((player) => player.isHost)?.id ??
       this.room.players[0]?.id ??
       null;
+    if (this.room.pipzee) {
+      this.room.pipzee = { players: this.room.players.map(() => blankPipzeePlayer()) };
+    }
 
     await this.persist();
 
@@ -1631,6 +1836,7 @@ export class Room extends DurableObject<Env> {
       roundSubmitted: this.room.roundSubmitted,
       roundStarts: this.room.roundStarts,
       currentTurnPlayerId: this.room.currentTurnPlayerId,
+      pipzee: this.room.pipzee,
     });
   }
 
@@ -1781,6 +1987,16 @@ export class Room extends DurableObject<Env> {
       return;
     }
 
+    // Three Thirteen ends after its eleventh completed hand. The client
+    // calculates the lowest total and declares the winner from the completed
+    // round-update; do not open a twelfth blank hand in the meantime.
+    if (
+      this.room.gameKey === "threethirteen" &&
+      this.room.rounds.length >= THREE_THIRTEEN_ROUNDS
+    ) {
+      return;
+    }
+
     this.openRound();
 
     await this.persist();
@@ -1884,6 +2100,7 @@ export class Room extends DurableObject<Env> {
       ruleOverrides: this.room.ruleOverrides,
       customRules: this.room.customRules,
       currentTurnPlayerId: this.room.currentTurnPlayerId,
+      pipzee: this.room.pipzee,
     });
   }
 
@@ -2143,6 +2360,29 @@ export class Room extends DurableObject<Env> {
           "customRules" in value &&
           Array.isArray(value.customRules) &&
           value.customRules.every((rule) => typeof rule === "string")
+        );
+
+      case "pipzee-score":
+      case "pipzee-edit":
+        return (
+          "category" in value &&
+          typeof value.category === "string" &&
+          "value" in value &&
+          typeof value.value === "number" &&
+          Number.isFinite(value.value) &&
+          (!("playerId" in value) ||
+            value.playerId === undefined ||
+            typeof value.playerId === "string")
+        );
+
+      case "pipzee-bonus":
+        return (
+          "delta" in value &&
+          typeof value.delta === "number" &&
+          (value.delta === 1 || value.delta === -1) &&
+          (!("playerId" in value) ||
+            value.playerId === undefined ||
+            typeof value.playerId === "string")
         );
 
       default:
