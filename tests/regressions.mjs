@@ -240,6 +240,8 @@ assert.match(app, /const crosser = mpTurnOrder\(r\)\.find\(pi => running\[pi\] >
   'the crosser is the first seat in turn order over the target, not the leftmost column - two seats can cross in one rotated round');
 assert.match(app, /function finalLapSettled\(trigger\)[\s\S]*?const order = mpTurnOrder\(trigger\.round\)[\s\S]*?for \(let i = 0; i < crosserPos; i\+\+\)/,
   'the Farkle final round must end once the seats that played before the crosser have played again, measured in turn order, not after a whole extra row');
+assert.match(app, /skyjo: \{[\s\S]*?finishRoundOnWin: true,[\s\S]*?function finalLapSettled\(trigger\)[\s\S]*?finishRoundOnWin[\s\S]*?roundIsComplete\(trigger\.round\)/,
+  'Skyjo must end after the threshold-crossing score row closes, with no extra final round');
 assert.match(app, /if \(crosserPos === 0\) return roundIsComplete\(trigger\.round\)/,
   'a crosser who led the round off ends the game with that round - everyone already answered inside it. Applies uniformly to multiplayer and turn-ordered solo games (GAMES[...].soloTurnOrder), which track per-seat submission the same way');
 assert.match(app, /const isBlank = !state\.rounds\[ri\] \|\| state\.rounds\[ri\]\[pi\] === null;\s*if \(isOpenRound && isBlank && finalLapClosedSeats\(\)\.has\(pi\)\) return;/,
@@ -509,8 +511,16 @@ assert.match(app, /document\.querySelector\('#scoring-section \.dir-btn\.active\
   "the custom game's direction must be read from #scoring-section's active [data-dir] button, not the first .dir-btn.active in the document");
 // Crossing the target ends the game; it does not decide who won. In golf the
 // crosser is usually the loser, so the winner is always the best total.
-assert.match(app, /const best = state\.scoreDirection === 'low' \? Math\.min\(\.\.\.totals\) : Math\.max\(\.\.\.totals\);\s*const winIdx = totals\.indexOf\(best\);/,
-  'the winner is the best total by scoring direction, never whoever crossed the target');
+assert.match(app, /function winningIndices\(totals\) \{[\s\S]*?state\.scoreDirection === 'low' \? Math\.min\(\.\.\.totals\) : Math\.max\(\.\.\.totals\)[\s\S]*?total === best/,
+  'winners must be every player tied for the best total in the scoring direction');
+assert.match(index, /data-haptics="off"[\s\S]*?data-haptics="short"[\s\S]*?data-haptics="normal"[\s\S]*?data-haptics="strong"/,
+  'Settings must offer all four turn-haptic strengths');
+assert.match(app, /const TURN_HAPTIC_PATTERNS = Object\.freeze\([\s\S]*?normal: \[110, 70, 240\],[\s\S]*?strong: \[220, 90, 420\][\s\S]*?navigator\.vibrate\(pattern\)/,
+  'turn haptics must persist the selected pattern and send it to the vibration API');
+assert.match(index, /id="victory-crown"[\s\S]*?id="victory-winner-label"/,
+  'the victory card must expose dynamic crown and label fields for a tie');
+assert.match(app, /function victoryBannerText\(totals, winnerIndices\)[\s\S]*?tie with[\s\S]*?renderVictoryScreen\(winIdx, totals\)[\s\S]*?Tie · \$\{winnerIndices\.length\} Winners[\s\S]*?winnerIndices\.includes\(entry\.index\)/,
+  'ties must name all winners, label the victory card, and mark every tied standing');
 
 // Mobile keypads have no minus key, so score fields carry a ± button and are
 // text inputs (a number input cannot hold the bare "-" mid-typing).
@@ -644,15 +654,37 @@ assert.match(app, /columnFrameObserver = new ResizeObserver\(repositionColumnFra
 assert.match(app, /columnFrameObserver\.disconnect\(\);/,
   'the observer is rebound on each show; the table is rebuilt, so old cells are detached');
 
-// Player floors and caps belong to each game's rules. The setup and room flow
-// must read the same metadata, so standard two-player games cannot be opened
-// solo and Qwirkle cannot be overfilled through a multiplayer join.
+// Player floors and caps belong to each game's setup policy. The setup and room
+// flow must read the same metadata, so permitted one-seat scoreboards can open
+// and Qwirkle cannot be overfilled through a multiplayer join.
 assert.match(app, /function setupPlayerLimits\(\) \{[\s\S]*?min: game\?\.minPlayers \?\? 1,[\s\S]*?max: game\?\.maxPlayers \?\? MAX_SETUP_PLAYERS,/,
   'setup player controls must read per-game player limits');
 assert.match(app, /qwirkle: \{[\s\S]*?minPlayers: 2,[\s\S]*?maxPlayers: 4,[\s\S]*?noWinCondition: true,[\s\S]*?noEntryThreshold: true/,
   'Qwirkle must use its 2-4 player, no-target, no-threshold rules');
+assert.match(app, /euchre: \{[\s\S]*?defaultPlayers: 2,[\s\S]*?minPlayers: 1,[\s\S]*?maxPlayers: 3,[\s\S]*?ginrummy: \{[\s\S]*?minPlayers: 1,[\s\S]*?threethirteen: \{[\s\S]*?minPlayers: 1/,
+  'Euchre must allow one to three teams, while Gin Rummy and Three Thirteen permit one-seat scoreboards');
+assert.match(app, /function setupUsesTeams\(count = setupPlayerCount\(\)\) \{[\s\S]*?state\.gameKey === 'euchre' && count <= 3[\s\S]*?return setupUsesTeams\(count\) \? `Team \$\{index \+ 1\}` : `Player \$\{index \+ 1\}`/,
+  'one- through three-team Euchre setup must name its score sides Team 1 through Team 3');
 assert.match(worker, /if \(gameKey === "qwirkle"\) return QWIRKLE_MAX_PLAYERS;/,
   'the multiplayer Worker must enforce Qwirkle\'s four-player cap');
+assert.match(app, /const GAME_CARD_TAGS = Object\.freeze\(\{[\s\S]*?pipzee: 'new',[\s\S]*?threethirteen: 'updated',/,
+  'home-card release tags must have one manual source of truth');
+assert.match(app, /function renderGameCardTags\(\)[\s\S]*?card\.prepend\(ribbon\);/,
+  'home-card ribbons must render from the manual release-tag map');
+assert.match(worker, /function isValidPipzeeScore\(category: string, value: number\): boolean[\s\S]*?category === "fullHouse"[\s\S]*?value === 25[\s\S]*?category === "pipzee" && \(value === 0 \|\| value === 50\)/,
+  'the multiplayer Worker must reject invalid Pipzee category values');
+assert.match(worker, /handlePipzeeScore[\s\S]*?isValidPipzeeScore\(category, value\)[\s\S]*?room\.players\[index\]\.id !== room\.currentTurnPlayerId[\s\S]*?const gameOver = [\s\S]*?room\.gameOver = true[\s\S]*?type: "game-over"/,
+  'the multiplayer Worker must validate Pipzee scores, enforce turns, and declare the completed scorecard');
+assert.match(app, /function pipzeeCellAction[\s\S]*?if \(state\.gameOver\) return null;[\s\S]*?const filled/,
+  'a completed Pipzee scorecard must be read-only in the client');
+assert.match(app, /function localSubmitPipzeeScore[\s\S]*?player\.id !== state\.currentTurnPlayerId[\s\S]*?function localPipzeeBonus[\s\S]*?if \(state\.gameOver \|\| !playerState/,
+  'Pipzee local helpers must reject off-turn scores and all post-game changes');
+assert.doesNotMatch(index, /game-card-ribbon/,
+  'home-card markup must not duplicate the release-tag source of truth');
+assert.doesNotMatch(index, /data-game="qwirkle"/,
+  'Qwirkle must stay hidden from the home game library until it has a finish trigger');
+assert.doesNotMatch(index, /<span>Tile Games<\/span>/,
+  'the home screen must not show an empty Tile Games category');
 
 // Tabbing down a list of names should land on the next name, not on a swatch.
 assert.match(app, /class="player-color-dot" tabindex="-1"/,

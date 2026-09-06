@@ -46,6 +46,25 @@ const PIPZEE_CATEGORIES = [
   "chance", "pipzee",
 ] as const;
 
+const PIPZEE_UPPER_FACES: Record<string, number> = {
+  ones: 1, twos: 2, threes: 3, fours: 4, fives: 5, sixes: 6,
+};
+
+// The client offers only legal Pipzee values, but multiplayer messages are
+// untrusted. Keep the scorecard truthful even if a client is stale or altered.
+function isValidPipzeeScore(category: string, value: number): boolean {
+  if (!Number.isInteger(value)) return false;
+  const face = PIPZEE_UPPER_FACES[category];
+  if (face) return value >= 0 && value <= face * 5 && value % face === 0;
+  if (category === "threeKind" || category === "fourKind" || category === "chance") {
+    return value >= 0 && value <= 30;
+  }
+  if (category === "fullHouse") return value === 0 || value === 25;
+  if (category === "smallStraight") return value === 0 || value === 30;
+  if (category === "largeStraight") return value === 0 || value === 40;
+  return category === "pipzee" && (value === 0 || value === 50);
+}
+
 interface PipzeePlayerState {
   scores: Record<string, number | null>;
   bonusCount: number;
@@ -1061,9 +1080,8 @@ export class Room extends DurableObject<Env> {
     await this.advanceRoundIfComplete();
   }
 
-  // Fills one still-empty category cell. Reuses canScoreFor for proxy/group
-  // permission, same as submit-score - there is just no round to open, so a
-  // fill only ever needs to check the one cell it targets.
+  // Fills one still-empty category cell. The scorer may be a proxy or group
+  // leader, but the target must be the seat whose turn it is.
   private async handlePipzeeScore(
     attachment: SocketAttachment,
     category: string,
@@ -1072,17 +1090,25 @@ export class Room extends DurableObject<Env> {
   ): Promise<void> {
     const room = this.room;
     if (!room || !room.pipzee || room.gameOver || !Number.isFinite(value)) return;
-    if (!(PIPZEE_CATEGORIES as readonly string[]).includes(category)) return;
+    if (!(PIPZEE_CATEGORIES as readonly string[]).includes(category) || !isValidPipzeeScore(category, value)) return;
 
     const targetId = playerId ?? attachment.playerId;
     const index = room.players.findIndex((player) => player.id === targetId);
-    if (index === -1 || !this.canScoreFor(attachment.playerId, index)) return;
+    if (
+      index === -1 ||
+      room.players[index].id !== room.currentTurnPlayerId ||
+      !this.canScoreFor(attachment.playerId, index)
+    ) return;
 
     const playerState = room.pipzee.players[index];
     if (!playerState || playerState.scores[category] !== null) return; // filled cells go through pipzee-edit
 
     playerState.scores[category] = value;
     this.advancePipzeeTurn(room.players[index].id);
+    const gameOver = room.pipzee.players.length > 0 && room.pipzee.players.every((player) =>
+      PIPZEE_CATEGORIES.every((key) => player.scores[key] !== null),
+    );
+    if (gameOver) room.gameOver = true;
 
     await this.persist();
     this.broadcast({
@@ -1090,6 +1116,7 @@ export class Room extends DurableObject<Env> {
       pipzee: room.pipzee,
       currentTurnPlayerId: room.currentTurnPlayerId,
     });
+    if (gameOver) this.broadcast({ type: "game-over" });
   }
 
   // Corrects an already-filled cell. Never advances the turn - mirrors
@@ -1101,8 +1128,8 @@ export class Room extends DurableObject<Env> {
     playerId?: string,
   ): Promise<void> {
     const room = this.room;
-    if (!room || !room.pipzee || !Number.isFinite(value)) return;
-    if (!(PIPZEE_CATEGORIES as readonly string[]).includes(category)) return;
+    if (!room || !room.pipzee || room.gameOver || !Number.isFinite(value)) return;
+    if (!(PIPZEE_CATEGORIES as readonly string[]).includes(category) || !isValidPipzeeScore(category, value)) return;
 
     const targetId = playerId ?? attachment.playerId;
     const index = room.players.findIndex((player) => player.id === targetId);
@@ -1124,7 +1151,7 @@ export class Room extends DurableObject<Env> {
     playerId?: string,
   ): Promise<void> {
     const room = this.room;
-    if (!room || !room.pipzee || (delta !== 1 && delta !== -1)) return;
+    if (!room || !room.pipzee || room.gameOver || (delta !== 1 && delta !== -1)) return;
 
     const targetId = playerId ?? attachment.playerId;
     const index = room.players.findIndex((player) => player.id === targetId);
@@ -1520,6 +1547,7 @@ export class Room extends DurableObject<Env> {
   ): Promise<void> {
     if (
       !this.room ||
+      this.room.gameOver ||
       !attachment.isHost ||
       !this.isCurrentHost(attachment.playerId)
     ) {
@@ -1660,6 +1688,7 @@ export class Room extends DurableObject<Env> {
   ): Promise<void> {
     if (
       !this.room ||
+      this.room.gameOver ||
       !attachment.isHost ||
       !this.isCurrentHost(attachment.playerId)
     ) {

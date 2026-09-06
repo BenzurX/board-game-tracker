@@ -2,6 +2,23 @@
 
 Newest entries first. Version scheme: flat decimal starting at 0.01, incrementing by 0.01 per release (0.01, 0.02 … 0.09, 0.10 …). Version 1.0 is not assigned without explicit approval. Minor additions increment by 0.01; significant grouped releases may skip ahead by more at the author's discretion.
 
+## 0.30 - 2026-09-06
+
+Rules pass for the new games, more reliable Pipzee multiplayer scoring, tied victories, and configurable turn haptics.
+
+### Added
+- `Codex:` **Tie victories.** Every game now presents shared winners clearly, with shared placing in the standings instead of treating the first tied seat as the sole winner.
+- `Codex:` **Turn-haptic choices.** Settings now offers Off, Short, Normal, and Strong vibration cues, with a live preview on compatible devices.
+
+### Changed
+- `Codex:` **Game setup follows playable variants.** Euchre uses one to three teams with team names, and Gin Rummy and Three Thirteen allow one or two trackers. Their fixed rules are shown without editable entry thresholds; Three Thirteen ends after 11 completed rounds.
+- `Codex:` **Skyjo ending.** Negative scores and editable 100-point golf scoring remain, but the game now ends when the score row that crosses the target is complete rather than granting an extra round.
+- `Codex:` **Qwirkle hidden for now.** Its unfinished bag-empty ending logic is no longer exposed from the home library or its tile category.
+- `Codex:` **Pipzee scoring integrity.** The client and multiplayer Worker reject off-turn, invalid, and post-game scorecard writes. A category scorecard completion ends the game server-side too.
+
+### Testing
+- `Codex:` Added regression coverage plus 30 complete, varied Pipzee simulations. Checked local high/low, two-way, and three-way tie outcomes.
+
 ## 0.29 - 2026-09-06
 
 Pipzee replaces Yahtzee, game setup now follows each game's rules, and the home library shows what is new or recently updated.
