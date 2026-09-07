@@ -679,6 +679,10 @@ assert.match(app, /function pipzeeCellAction[\s\S]*?if \(state\.gameOver\) retur
   'a completed Pipzee scorecard must be read-only in the client');
 assert.match(app, /function localSubmitPipzeeScore[\s\S]*?player\.id !== state\.currentTurnPlayerId[\s\S]*?function localPipzeeBonus[\s\S]*?if \(state\.gameOver \|\| !playerState/,
   'Pipzee local helpers must reject off-turn scores and all post-game changes');
+assert.match(style, /#pipzee-grid \.pipzee-scorecard \{\s*\/\*[\s\S]*?\*\/\s*width: max\(100%, max-content\);\s*min-width: 0;/,
+  'Pipzee must size its board from the active player columns, not force every game to 760px');
+assert.match(style, /#pipzee-grid thead th \{[\s\S]*?min-width: 112px;[\s\S]*?#pipzee-grid \.pipzee-category-heading \{\s*min-width: 180px;[\s\S]*?@media \(min-width: 640px\) \{\s*#pipzee-grid thead th,[\s\S]*?min-width: 145px;[\s\S]*?min-width: 245px;/,
+  'Pipzee must use compact phone columns and restore roomy columns only on larger screens');
 assert.doesNotMatch(index, /game-card-ribbon/,
   'home-card markup must not duplicate the release-tag source of truth');
 assert.doesNotMatch(index, /data-game="qwirkle"/,

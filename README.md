@@ -9,7 +9,7 @@ A lightweight score-tracking web app for board games and dice games. No install,
 ## Features
 
 - **7 available built-in games** - Farkle, Pipzee, Cribbage, Euchre, Gin Rummy, Three Thirteen, and Skyjo, each with its own scoring rules and win condition
-- **Pipzee scorecard** - a per-category dice scorecard with quick score choices, bonuses, turn order, multiplayer support, and a winner once every category is filled
+- **Pipzee scorecard** - a per-category dice scorecard with quick score choices, bonuses, turn order, multiplayer support, and a winner once every category is filled. Its board fits a one-player phone game and grows only for additional score columns
 - **Game-rule setup** - game-specific player limits and fixed endings replace generic controls where needed: Euchre is one to three teams, Gin Rummy and Three Thirteen support one or two scorekeepers, and Three Thirteen ends after 11 completed rounds. Entry Threshold appears only for games that use it
 - **Generic Game** - a freeform score sheet for any game not on the list: name the game, log a score per round, no fixed rules
   - **Golf scoring toggle** - highest total wins, or lowest wins (golf)

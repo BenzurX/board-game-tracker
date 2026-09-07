@@ -61,7 +61,7 @@ Pipzee replaces Yahtzee with a true category scorecard, now protected by client 
 
 ## Short URL and Desktop Ambient Fix (built and shipped 2026-09-06 in v0.31)
 `deployment` `ui` `codex` `shipped`
-The static app now has the compact `pip.benzur.workers.dev` address; the former long Workers URL remains live for existing users. On desktop, the ambient background uses only inset soft radial color fields. The full-viewport masked dot fields that WebKit rendered as visibly cropped rectangles are deliberately hidden above the mobile breakpoint; the normal global grain remains.
+The static app now has the compact `pip.benzur.workers.dev` address; the former long Workers URL remains live for existing users. On desktop, the ambient background uses only inset soft radial color fields. The full-viewport masked dot fields that WebKit rendered as visibly cropped rectangles are deliberately hidden above the mobile breakpoint; the normal global grain remains. Pipzee no longer forces every mobile scorecard to 760px: it fits one player and grows only when more score columns exist.
 
 ## Next Session
 

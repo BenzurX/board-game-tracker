@@ -3143,8 +3143,11 @@ html[data-mode="light"] .lead-banner-text.is-tied { color: var(--text); }
 }
 
 #pipzee-grid .pipzee-scorecard {
-  width: 100%;
-  min-width: 760px;
+  /* A scorecard grows only for the seats it actually has. `max()` fills the
+     board for one player, while two or more seats make just the required
+     horizontal overflow inside .table-scroll-wrap. */
+  width: max(100%, max-content);
+  min-width: 0;
   border-collapse: collapse;
   font-size: 0.92rem;
 }
@@ -3167,7 +3170,7 @@ html[data-mode="light"] .lead-banner-text.is-tied { color: var(--text); }
   position: sticky;
   top: 0;
   z-index: 2;
-  min-width: 145px;
+  min-width: 112px;
   padding: 14px 10px 11px;
   border-bottom: var(--accent-border) solid var(--surface-2);
   background: color-mix(in srgb, var(--ground) 80%, transparent);
@@ -3177,7 +3180,7 @@ html[data-mode="light"] .lead-banner-text.is-tied { color: var(--text); }
 }
 
 #pipzee-grid .pipzee-category-heading {
-  min-width: 245px;
+  min-width: 180px;
   color: var(--muted);
   font-family: var(--font-ui);
   font-size: 0.8rem;
@@ -3202,7 +3205,7 @@ html[data-mode="light"] .lead-banner-text.is-tied { color: var(--text); }
 }
 
 #pipzee-grid .pipzee-category-cell {
-  min-width: 245px;
+  min-width: 180px;
   padding: 10px 14px;
   background: var(--row-a);
   color: var(--text);
@@ -3266,7 +3269,7 @@ html[data-mode="light"] .lead-banner-text.is-tied { color: var(--text); }
 
 #pipzee-grid .pipzee-score-cell {
   position: relative;
-  min-width: 145px;
+  min-width: 112px;
   padding: 7px;
   background: var(--row-a);
   color: var(--text);
@@ -3274,6 +3277,15 @@ html[data-mode="light"] .lead-banner-text.is-tied { color: var(--text); }
   font-weight: 900;
   text-align: center;
   vertical-align: middle;
+}
+
+/* Larger screens have room for the fuller category descriptions and wider
+   score targets. The table still derives its overall width from player count. */
+@media (min-width: 640px) {
+  #pipzee-grid thead th,
+  #pipzee-grid .pipzee-score-cell { min-width: 145px; }
+  #pipzee-grid .pipzee-category-heading,
+  #pipzee-grid .pipzee-category-cell { min-width: 245px; }
 }
 
 #pipzee-grid .current-column {
