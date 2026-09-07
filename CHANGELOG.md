@@ -11,6 +11,7 @@ PiP gets a short shareable Workers URL, and desktop ambient color fields no long
 - `Codex:` **Desktop ambient background.** Large-screen color orbs now use smooth inset radial fields. The WebKit-clipped dot-mask overlay is removed on desktop, while the normal grain remains.
 - `Codex:` **Pipzee mobile board.** The scorecard now sizes from its actual player columns instead of forcing every game to 760px. One player fills the phone; extra seats add only the needed horizontal scroll.
 - `Codex:` **Manual tracker controls.** Scrolling no longer repeatedly reveals collapsed bars. A Pip-styled bottom-right edge tab restores the header and footer when wanted.
+- `Codex:` **Tracker tab icon.** The reveal tab now uses the familiar `☰` menu mark.
 
 ### Testing
 - `Codex:` Added a regression guard preventing the desktop dot-mask layer from returning. Full regression checks pass.

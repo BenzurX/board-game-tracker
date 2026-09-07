@@ -730,7 +730,7 @@ assert.match(app, /const TOAST_DURATION_MS = 6000;/,
   'standard toast notifications must remain visible for six seconds');
 assert.match(style, /\.toast\.titled \{/,
   'a headed toast stacks its heading above the sentence');
-assert.match(index, /id="btn-reveal-tracker-chrome"[\s\S]*?aria-label="Show tracker controls"/,
+assert.match(index, /id="btn-reveal-tracker-chrome"[\s\S]*?aria-label="Show tracker controls"[\s\S]*?<span aria-hidden="true">☰<\/span>/,
   'collapsed tracker chrome needs an explicit, accessible reveal tab');
 assert.match(app, /const revealTab = document\.getElementById\('btn-reveal-tracker-chrome'\);\s*if \(revealTab\) revealTab\.addEventListener\('click', revealTrackerChrome\);/,
   'the reveal tab must restore tracker chrome through its one shared path');

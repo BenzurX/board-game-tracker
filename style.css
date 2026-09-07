@@ -1706,6 +1706,11 @@ html, body {
   outline: 3px solid var(--text);
   outline-offset: -6px;
 }
+.btn-reveal-tracker-chrome span {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  line-height: 1;
+}
 
 @media (prefers-reduced-motion: reduce) {
   #screen-tracker .screen-header,
