@@ -471,16 +471,12 @@ assert.match(app, /\} else if \(score === null && state\.gameKey === 'farkle'\) 
 assert.match(app, /\} else if \(score === null\) \{\s*td\.className = 'score-cell not-on-board';/,
   'games with an entry threshold but no Farkle must keep the ✗');
 
-// The bars now hide on an idle timer rather than on scroll position, so the old
-// oscillation guards (a band measured from scrollTop to the end of the content)
-// no longer exist to protect - the collapse is no longer read from any
-// measurement the collapse itself moves. What has to hold instead:
-assert.match(app, /wrap\.addEventListener\('touchstart', manualScroll, \{ passive: true \}\)/,
-  'the reveal must hang off real input events - a scroll listener cannot tell an auto-scroll from a finger');
-assert.match(app, /wrap\.addEventListener\('scroll', \(\) => \{\s*if \(chromeManualScrolling\) manualScroll\(\);/,
-  'scroll events may only count as activity while a manual gesture is live, or every auto-scroll would reveal the bars');
-assert.match(app, /chromeMomentumTimer = setTimeout\(\(\) => \{ chromeManualScrolling = false; \}, CHROME_MOMENTUM_MS\)/,
-  'touch momentum outlives touchend - without the grace period the bars vanish mid-glide');
+// The bars hide on an idle timer rather than scroll position. Scrolling must
+// stay quiet after collapse; the explicit edge tab is the one way back.
+assert.doesNotMatch(app, /manualScroll|chromeManualScrolling|CHROME_MOMENTUM_MS/,
+  'ordinary board input must not carry a second, automatic chrome-reveal path');
+assert.match(app, /function revealTrackerChrome\(\) \{\s*setTrackerChromeCollapsed\(false\);\s*scheduleTrackerChromeHide\(\);/,
+  'the one deliberate reveal path must restore controls and restart their idle timer');
 assert.match(app, /const shift = collapsed \? -chromeTopBarsHeight : chromeTopBarsHeight;\s*wrap\.scrollTop = Math\.max\(0, wrap\.scrollTop \+ shift\)/,
   'collapsing the top bars grows the scrollport upwards - without the scrollTop correction the board slides under the finger');
 assert.match(app, /chromeTopBarsHeight = Math\.max\(chromeTopBarsHeight, visible\(header\) \+ visible\(roomBar\)\)/,
@@ -734,6 +730,14 @@ assert.match(app, /const TOAST_DURATION_MS = 6000;/,
   'standard toast notifications must remain visible for six seconds');
 assert.match(style, /\.toast\.titled \{/,
   'a headed toast stacks its heading above the sentence');
+assert.match(index, /id="btn-reveal-tracker-chrome"[\s\S]*?aria-label="Show tracker controls"/,
+  'collapsed tracker chrome needs an explicit, accessible reveal tab');
+assert.match(app, /const revealTab = document\.getElementById\('btn-reveal-tracker-chrome'\);\s*if \(revealTab\) revealTab\.addEventListener\('click', revealTrackerChrome\);/,
+  'the reveal tab must restore tracker chrome through its one shared path');
+assert.doesNotMatch(app, /addEventListener\('wheel', manualScroll|addEventListener\('touchstart', manualScroll|addEventListener\('touchmove', manualScroll/,
+  'ordinary board scrolling must not automatically reveal tracker chrome');
+assert.match(style, /#screen-tracker\.chrome-top-hidden \.btn-reveal-tracker-chrome \{\s*opacity: 0\.92;[\s\S]*?pointer-events: auto;/,
+  'the reveal tab must appear only while tracker chrome is collapsed');
 
 // Past iOS's canvas cap the resize fails silently and nothing is ever drawn.
 assert.match(app, /const dpr = Math\.min\(window\.devicePixelRatio \|\| 1, 2\);/,

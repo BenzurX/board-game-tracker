@@ -2118,23 +2118,12 @@ function scrollTableToCurrentTurn({ smooth = true } = {}) {
 }
 
 // ── Tracker chrome auto-hide ─────────────────────────────
-// The title bar, the room bar and the action bar collapse together after a few
-// seconds of the player not scrolling by hand, so a long game settles into being
-// all board. Touching the board - a finger drag, a wheel, an arrow key - brings
-// all three straight back and restarts the countdown.
-//
-// Deliberately driven by input rather than by scroll position: the app scrolls
-// the board itself whenever a round lands or the turn moves, and those scrolls
-// must not flash the bars back at a player who never asked for them. A `scroll`
-// listener cannot tell the two apart, so the reveal hangs off the input events
-// only a person can produce.
+// The title bar, room bar and action bar collapse together after a few quiet
+// seconds, so a long game settles into being all board. Scrolling stays quiet;
+// the small bottom-right edge tab deliberately restores all three controls.
 
 // Quiet time before the bars collapse again.
 const CHROME_IDLE_MS = 3000;
-// How long after the last scroll event a manual gesture is still considered to
-// be running. Covers touch momentum, which keeps scrolling long after touchend
-// with no further input event to hang the countdown on.
-const CHROME_MOMENTUM_MS = 150;
 // Below this much scrollable overflow, collapsing buys nothing - and worse, with
 // nothing to scroll there is no gesture left that could bring the bars back, so
 // they would be gone for the rest of the game. Leave them pinned.
@@ -2151,10 +2140,6 @@ let chromeExpandedViewport = 0;
 // Reset when the layout changes underneath it.
 let chromeTopBarsHeight = 0;
 let chromeHideTimer = 0;
-let chromeMomentumTimer = 0;
-// True from the first input event of a gesture until the scrolling it caused has
-// stopped. While it is set, scroll events count as continued manual scrolling.
-let chromeManualScrolling = false;
 
 function resetChromeMetrics() {
   chromeExpandedViewport = 0;
@@ -2218,9 +2203,9 @@ function trackerChromeMayCollapse() {
   return overflow > CHROME_MIN_OVERFLOW;
 }
 
-// The one entry point for "a person just did something": brings the bars back
-// and restarts the countdown. Also called when a bar itself is touched, so the
-// chrome never slides out from under a finger reaching for Enter Score.
+// The edge tab is the deliberate way to bring controls back after collapse.
+// Touching an already-visible control only restarts its timer, so scrolling the
+// board never makes the header and footer pop back into view.
 function revealTrackerChrome() {
   setTrackerChromeCollapsed(false);
   scheduleTrackerChromeHide();
@@ -2282,31 +2267,8 @@ function syncScoreFabState() {
   const wrap = document.querySelector('.table-scroll-wrap');
   if (!wrap) return;
 
-  // The events a person makes and the app cannot: a wheel, a finger on the
-  // board, a key that scrolls. Programmatic scrollTo produces none of them,
-  // which is exactly why the reveal hangs off these and not off `scroll`.
-  const SCROLL_KEYS = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown',
-    'Home', 'End', ' ', 'Spacebar']);
-  function manualScroll() {
-    chromeManualScrolling = true;
-    clearTimeout(chromeMomentumTimer);
-    chromeMomentumTimer = setTimeout(() => { chromeManualScrolling = false; }, CHROME_MOMENTUM_MS);
-    revealTrackerChrome();
-  }
-  wrap.addEventListener('wheel', manualScroll, { passive: true });
-  wrap.addEventListener('touchstart', manualScroll, { passive: true });
-  wrap.addEventListener('touchmove', manualScroll, { passive: true });
-  wrap.addEventListener('keydown', e => { if (SCROLL_KEYS.has(e.key)) manualScroll(); });
-
-  // Momentum after the finger leaves keeps the gesture alive: each scroll event
-  // it produces pushes the countdown out, so the bars are still there when the
-  // board finally comes to rest rather than vanishing mid-glide.
-  wrap.addEventListener('scroll', () => {
-    if (chromeManualScrolling) manualScroll();
-  }, { passive: true });
-
-  // Reaching for a button on a bar counts as activity too, or the bar collapses
-  // out from under the finger already travelling towards it.
+  // Interacting with a visible bar restarts its timer, so it cannot collapse
+  // while a finger is already travelling toward one of its controls.
   const screen = document.getElementById('screen-tracker');
   if (screen) {
     ['.screen-header', '#mp-room-bar', '.tracker-actions'].forEach(sel => {
@@ -2337,6 +2299,8 @@ function syncScoreFabState() {
   // out, and that toast is the whole point of it staying clickable while locked.
   const fab = document.getElementById('btn-fab-score');
   if (fab) fab.addEventListener('click', () => document.getElementById('btn-add-turn').click());
+  const revealTab = document.getElementById('btn-reveal-tracker-chrome');
+  if (revealTab) revealTab.addEventListener('click', revealTrackerChrome);
 })();
 
 function hideWinnerColumnFrame() {

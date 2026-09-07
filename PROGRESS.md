@@ -61,11 +61,12 @@ Pipzee replaces Yahtzee with a true category scorecard, now protected by client 
 
 ## Short URL and Desktop Ambient Fix (built and shipped 2026-09-06 in v0.31)
 `deployment` `ui` `codex` `shipped`
-The static app now has the compact `pip.benzur.workers.dev` address; the former long Workers URL remains live for existing users. On desktop, the ambient background uses only inset soft radial color fields. The full-viewport masked dot fields that WebKit rendered as visibly cropped rectangles are deliberately hidden above the mobile breakpoint; the normal global grain remains. Pipzee no longer forces every mobile scorecard to 760px: it fits one player and grows only when more score columns exist.
+The static app now has the compact `pip.benzur.workers.dev` address; the former long Workers URL remains live for existing users. On desktop, the ambient background uses only inset soft radial color fields. The full-viewport masked dot fields that WebKit rendered as visibly cropped rectangles are deliberately hidden above the mobile breakpoint; the normal global grain remains. Pipzee no longer forces every mobile scorecard to 760px: it fits one player and grows only when more score columns exist. Tracker scrolling no longer keeps reopening its bars; a small bottom-right Pip tab restores them on demand.
 
 ## Next Session
 
 1. Test the short v0.31 URL on desktop and mobile: `https://pip.benzur.workers.dev`. Create and join a multi-device room from the short address and verify invite links retain it. Check that the former long address still opens.
+1. Test tracker chrome on a phone and desktop. Let the bars collapse, then scroll: they must stay hidden. Tap the bottom-right edge tab: header and footer should return, stay long enough to use, then idle-collapse again.
 1. Inspect the desktop ambient background in Chromium, Safari, and Firefox. The color fields should be smooth with no rectangular dotted top or bottom edge.
 1. Test v0.30 game behavior on real devices. Play Pipzee through a completed scorecard in a multi-device room; attempt an off-turn, invalid, and post-game write to ensure the Worker rejects each. Test all four haptic choices on Android and iPhone.
 1. Test tied endings in a high-score game, a golf game, and Pipzee. All tied players should share the winner card and the same placement, with the next placing skipped correctly.

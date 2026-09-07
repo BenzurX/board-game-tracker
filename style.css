@@ -1663,6 +1663,50 @@ html, body {
   pointer-events: none;
 }
 
+/* A small tab on the screen edge is the deliberate control to bring tracker
+   chrome back. It is separate from the score FAB: one opens scoring, the other
+   restores the header and footer without making ordinary scrolling noisy. */
+.btn-reveal-tracker-chrome {
+  position: absolute;
+  right: -2px;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 7;
+  display: flex;
+  width: 50px;
+  height: 48px;
+  padding: 0 8px 0 10px;
+  align-items: center;
+  justify-content: center;
+  border: var(--accent-border) solid var(--p2-bd);
+  border-right: 0;
+  border-radius: 14px 0 0 14px;
+  background: var(--p2);
+  box-shadow: var(--shadow-tile);
+  color: var(--p2-fg);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(110%);
+  transition: opacity 160ms ease, transform 220ms var(--ease), filter var(--dur-hover) var(--ease), box-shadow var(--dur-press) var(--ease);
+}
+#screen-tracker.chrome-top-hidden .btn-reveal-tracker-chrome {
+  opacity: 0.92;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+@media (hover: hover) {
+  #screen-tracker.chrome-top-hidden .btn-reveal-tracker-chrome:hover { filter: var(--hover); }
+}
+#screen-tracker.chrome-top-hidden .btn-reveal-tracker-chrome:active {
+  transform: translateY(5px);
+  box-shadow: var(--shadow-none);
+}
+.btn-reveal-tracker-chrome:focus-visible {
+  opacity: 1;
+  outline: 3px solid var(--text);
+  outline-offset: -6px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   #screen-tracker .screen-header,
   #screen-tracker .mp-room-bar,
@@ -1671,6 +1715,7 @@ html, body {
   .btn-fab-score {
     transition: none;
   }
+  .btn-reveal-tracker-chrome { transition: none; }
 }
 
 /* ── Board animations ──────────────────────────────────── */
