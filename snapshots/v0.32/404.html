@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="pip" data-mode="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>404 - PiP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="/icons/pip-mark-flat.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="/icons/icon-192.png">
+  <meta name="theme-color" content="#21131F">
+  <meta name="robots" content="noindex">
+  <script>(function(){var m=localStorage.getItem('mode');if(['dark','light','system'].indexOf(m)<0)m='system';var applied=m;if(m==='system')applied=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.dataset.theme='pip';document.documentElement.dataset.mode=applied;})()</script>
+</head>
+<body>
+
+  <!-- The same ambient host every screen in the app sits on. -->
+  <div class="ambient" aria-hidden="true"><i></i><i></i><i></i><u></u></div>
+
+  <div class="err404">
+    <!-- Reads four - centre pip - four: the die's centre pip does the zero's
+         job, so the numerals only need the two 4s tucked over the plate. The
+         die keeps the splash's square viewBox so the tipped plate never clips. -->
+    <div class="err404-num" role="img" aria-label="404">
+      <span class="err404-four" aria-hidden="true">4</span>
+      <div class="err404-mark-slot">
+        <svg class="err404-mark" viewBox="7 -10 118 118" aria-hidden="true">
+          <g class="err404-die">
+            <rect class="logo-plate" x="21.1" y="18.8" width="77" height="77" rx="16.5" transform="rotate(-11 21.1 18.8)" stroke-width="7"/>
+            <circle class="logo-ghost" cx="41" cy="32.5" r="8"/>
+            <circle class="logo-ghost" cx="49" cy="74.5" r="8"/>
+            <circle class="logo-ghost" cx="83" cy="25" r="8"/>
+            <circle class="logo-ghost" cx="91" cy="66" r="8"/>
+          </g>
+          <circle class="logo-pip" cx="66" cy="49" r="8"/>
+        </svg>
+      </div>
+      <span class="err404-four" aria-hidden="true">4</span>
+    </div>
+    <p class="err404-kicker">Page not found</p>
+    <h1 class="err404-title">This page rolled off the table</h1>
+    <p class="err404-body">The link is broken or has moved. Nothing you have scored was lost.</p>
+    <div class="err404-actions">
+      <a class="btn-primary" href="/">Back to Home</a>
+    </div>
+  </div>
+
+</body>
+</html>

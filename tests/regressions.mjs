@@ -26,6 +26,28 @@ assert.deepEqual(JSON.parse(JSON.stringify(result)), {
   roundSubmitted: [true, true, false],
 }, 'leaving players must take their score columns with them');
 
+const mpScoreHelpers = app.match(/function mpEntersScoresFor\(player\)[\s\S]*?function mpOpenEntryTargets\(\)[\s\S]*?\r?\n}\r?\n/);
+assert.ok(mpScoreHelpers, 'multiplayer score-target helpers must exist');
+const mpScoreContext = {
+  state: {
+    mpPlayerId: 'leader',
+    players: [
+      { id: 'leader' },
+      { id: 'seat-2', groupLeaderId: 'leader' },
+      { id: 'seat-3', groupLeaderId: 'leader' },
+      { id: 'other' },
+    ],
+    roundSubmitted: [false, false, true, false],
+  },
+  finalLapClosedSeats: () => new Set(),
+};
+vm.runInNewContext(`${mpScoreHelpers[0]}; this.openTargets = mpOpenEntryTargets`, mpScoreContext);
+assert.deepEqual(
+  JSON.parse(JSON.stringify(mpScoreContext.openTargets().map(player => player.id))),
+  ['leader', 'seat-2'],
+  'one device must receive every open seat it owns in the same score sheet',
+);
+
 assert.doesNotMatch(app, /if \(state\.multiplayer\) return; \/\/ color is assigned/,
   'multiplayer color editing must not be disabled');
 assert.match(app, /type: 'update-color'/, 'color changes must be sent to the room');
@@ -51,6 +73,12 @@ assert.match(app, /class="turn-score-input" value=""/,
   'score inputs must start blank');
 assert.match(app, /filter\(entry => entry\.value !== null\)/,
   'blank proxy-scoring entries must not be submitted');
+assert.match(app, /function mpOpenEntryTargets\(\)[\s\S]*?!state\.roundSubmitted\[pi\][\s\S]*?!closed\.has\(pi\)/,
+  'each-mode score entry must offer every still-open column this device scores for in one round sheet');
+assert.match(app, /if \(!isOwn\) return;\s*if \(isCurrentRound && !state\.roundSubmitted\[pi\] && finalLapClosedSeats\(\)\.has\(pi\)\) return;/,
+  'an owned blank current-round cell must open for entry while final-lap-closed seats remain locked');
+assert.match(app, /const isUnsubmittedCurrentCell = ri === state\.rounds\.length - 1 && !state\.roundSubmitted\[pi\];[\s\S]*?type: 'submit-scores-for'/,
+  'a blank current-round cell must submit its first score instead of sending a correction the Worker rejects');
 assert.match(worker, /roundSubmitted\[index\] \|\| Number\.isFinite\(values\[index\]\)/,
   'blank host-scoring entries must remain unsubmitted');
 assert.match(worker, /REJOIN_RESERVATION_MS = 10 \* 60 \* 1000/,
@@ -250,8 +278,8 @@ assert.match(app, /if \(finalLapClosedSeats\(\)\.has\(state\.players\.indexOf\(p
   'the your-turn card must not announce a seat the final lap has closed - the Worker still cycles the turn onto it');
 assert.match(app, /function finalLapClosedSeats\(\)[\s\S]*?if \(state\.rounds\.length - 1 <= trigger\.round\) return closed;[\s\S]*?for \(let i = crosserPos; i < order\.length; i\+\+\) closed\.add\(order\[i\]\)/,
   'once the extra round opens, every seat from the crosser onward in turn order is done - the Worker still offers them the turn, so the client must refuse');
-assert.match(app, /if \(state\.roundSubmitted\[pi\] \|\| player\.connected === false \|\| closed\.has\(pi\)\) continue;/,
-  'a device holding several seats must not be offered a score for one the final lap has closed - this is the bug where a host owning 1-3 was still asked for the crosser');
+assert.match(app, /function mpOpenEntryTargets\(\)[\s\S]*?!state\.roundSubmitted\[pi\] && player\.connected !== false && !closed\.has\(pi\)/,
+  'a device holding several seats must not be offered a score for one the final lap has closed');
 assert.match(app, /const hostPending = mpEach \|\| solo\s*\?\s*\[\]\s*:\s*state\.players\.filter\(\(_, pi\) => !hostClosed\.has\(pi\)\)/,
   'host-scoring rooms (and non-turn-ordered solo games) enter the whole round at once, so the final-lap exclusion must be applied to the list they are shown too');
 
@@ -386,14 +414,10 @@ assert.match(worker, /this\.room\.roundStarts = \[\];/,
   'an in-place reset must clear the recorded turn order with the scores');
 assert.match(app, /function mpTurnOrder\(ri\)[\s\S]*?order\.slice\(start\)\.concat\(order\.slice\(0, start\)\)/,
   'the client must read a round as rotating from its starting seat, not from column one');
-assert.match(app, /function mpTurnEntryRun\(\)[\s\S]*?if \(!player \|\| !mpEntersScoresFor\(player\)\) break;/,
-  'the Enter Score run must stop at the first seat another device plays');
-assert.match(app, /mpEachPending = mpTurnEntryRun\(\);/,
-  'Enter Score must offer the seat whose turn it is, not every seat this device holds');
-assert.match(app, /It's \$\{up\.name\}'s turn right now\./,
-  'tapping Enter Score off-turn must say whose turn it actually is');
-assert.match(app, /const nothingLeft = targets\.length === 0 \|\| mpTurnEntryRun\(\)\.length === 0;/,
-  'the Enter Score button must read as locked while the turn sits on another device');
+assert.match(app, /mpEachPending = mpOpenEntryTargets\(\);/,
+  'Enter Score must offer every open seat this device scores for');
+assert.match(app, /const nothingLeft = targets\.length === 0 \|\| mpOpenEntryTargets\(\)\.length === 0;/,
+  'the Enter Score button must lock only after every owned seat has a score');
 assert.match(app, /function mpApplyCurrentTurn\(playerId, \{ announce = true, roundStarts \} = \{\}\)[\s\S]*?mpUpdateEnterScoreButtonState\(\)/,
   'a turn change must re-evaluate whether this device may enter a score');
 assert.match(app, /if \(Array\.isArray\(roundStarts\)\) state\.roundStarts = roundStarts;/,

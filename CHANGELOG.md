@@ -2,6 +2,15 @@
 
 Newest entries first. Version scheme: flat decimal starting at 0.01, incrementing by 0.01 per release (0.01, 0.02 … 0.09, 0.10 …). Version 1.0 is not assigned without explicit approval. Minor additions increment by 0.01; significant grouped releases may skip ahead by more at the author's discretion.
 
+## `Codex:` 0.32 - 2026-09-06
+
+### Fixed
+- `Codex:` **Skyjo multi-device entry.** A device can now tap an empty score cell it owns and record the first score. The action uses score submission, not correction, so the multiplayer Worker accepts it.
+- `Codex:` **Full-round group entry.** Enter Score now lists every still-open player this device is authorized to score for, allowing a group or nominated scorer to enter its whole round in one sheet.
+
+### Testing
+- `Codex:` Added an executable multi-seat score-target test and regression guards for blank-cell submission and full-round entry. Full regression checks pass.
+
 ## 0.31 - 2026-09-06
 
 PiP gets a short shareable Workers URL, and desktop ambient color fields no longer render as cropped dotted rectangles.

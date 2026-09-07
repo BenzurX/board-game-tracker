@@ -63,8 +63,13 @@ Pipzee replaces Yahtzee with a true category scorecard, now protected by client 
 `deployment` `ui` `codex` `shipped`
 The static app now has the compact `pip.benzur.workers.dev` address; the former long Workers URL remains live for existing users. On desktop, the ambient background uses only inset soft radial color fields. The full-viewport masked dot fields that WebKit rendered as visibly cropped rectangles are deliberately hidden above the mobile breakpoint; the normal global grain remains. Pipzee no longer forces every mobile scorecard to 760px: it fits one player and grows only when more score columns exist. Tracker scrolling no longer keeps reopening its bars; a small bottom-right Pip `☰` tab restores them on demand.
 
+## `Codex:` Skyjo Multi-Seat Round Entry (built 2026-09-06, shipped in v0.32)
+`skyjo` `multiplayer` `bug-fix` `shipped`
+Owned blank current-round cells now submit their first score instead of being trapped behind the correction-only Worker route. In each-player rooms, Enter Score lists every still-open seat the device is authorized to score for, so group leaders and nominated scorers can complete a full round in one sheet. The Worker already supports these authorized batch submissions; no Worker deployment is required.
+
 ## Next Session
 
+1. Test Skyjo on two real devices, with one device representing 2+ seats. Enter Score should show every still-open owned seat in one sheet. Tap an empty owned score cell and confirm it saves the first score; other devices' cells must stay unavailable.
 1. Test the short v0.31 URL on desktop and mobile: `https://pip.benzur.workers.dev`. Create and join a multi-device room from the short address and verify invite links retain it. Check that the former long address still opens.
 1. Test tracker chrome on a phone and desktop. Let the bars collapse, then scroll: they must stay hidden. Tap the bottom-right edge tab: header and footer should return, stay long enough to use, then idle-collapse again.
 1. Inspect the desktop ambient background in Chromium, Safari, and Firefox. The color fields should be smooth with no rectangular dotted top or bottom edge.
