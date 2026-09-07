@@ -303,7 +303,10 @@ Card values: 2-10 = face value, J/Q/K = 10 pts, Ace = 15 pts, that hand's wild r
     // does not grant anybody a further score round.
     finishRoundOnWin: true,
     defaultPlayers: 4,
-    soloTurnOrder: true,
+    // A physical Skyjo round is scored after all hands are revealed, so one
+    // device enters every player's result together. Multiplayer keeps its
+    // per-device authorization path independently of this flag.
+    soloTurnOrder: false,
     intro: `Each player starts with a 3x4 grid of face-down cards and flips 2 to start. On your turn, draw from the deck or discard pile, then either swap it into your grid (discarding the card it replaces face-up) or discard it and flip one face-down card instead. The goal is the lowest total - low and negative cards are good, high cards are bad.
 
 Once someone flips their last card, everyone else gets exactly one more turn, then all hands are revealed and scored. If the round-ender doesn't have the lowest total that round, their score for the round is doubled.

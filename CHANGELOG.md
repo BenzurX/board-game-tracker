@@ -7,6 +7,7 @@ Newest entries first. Version scheme: flat decimal starting at 0.01, incrementin
 ### Fixed
 - `Codex:` **Skyjo multi-device entry.** A device can now tap an empty score cell it owns and record the first score. The action uses score submission, not correction, so the multiplayer Worker accepts it.
 - `Codex:` **Full-round group entry.** Enter Score now lists every still-open player this device is authorized to score for, allowing a group or nominated scorer to enter its whole round in one sheet.
+- `Codex:` **Single-device Skyjo.** Skyjo now uses one full-round score sheet on a shared device, matching its end-of-round scoring.
 
 ### Testing
 - `Codex:` Added an executable multi-seat score-target test and regression guards for blank-cell submission and full-round entry. Full regression checks pass.

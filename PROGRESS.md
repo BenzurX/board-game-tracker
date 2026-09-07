@@ -65,7 +65,7 @@ The static app now has the compact `pip.benzur.workers.dev` address; the former 
 
 ## `Codex:` Skyjo Multi-Seat Round Entry (built 2026-09-06, shipped in v0.32)
 `skyjo` `multiplayer` `bug-fix` `shipped`
-Owned blank current-round cells now submit their first score instead of being trapped behind the correction-only Worker route. In each-player rooms, Enter Score lists every still-open seat the device is authorized to score for, so group leaders and nominated scorers can complete a full round in one sheet. The Worker already supports these authorized batch submissions; no Worker deployment is required.
+Owned blank current-round cells now submit their first score instead of being trapped behind the correction-only Worker route. In each-player rooms, Enter Score lists every still-open seat the device is authorized to score for, so group leaders and nominated scorers can complete a full round in one sheet. Single-device Skyjo uses the same whole-round sheet. The Worker already supports the authorized batch submissions; no Worker deployment is required.
 
 ## Next Session
 

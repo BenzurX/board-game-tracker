@@ -288,11 +288,14 @@ assert.match(app, /const hostPending = mpEach \|\| solo\s*\?\s*\[\]\s*:\s*state\
 // "complete" just because a row exists, only because every eligible seat in
 // it actually submitted - closing the bug where scoring one seat during
 // Farkle's final round wrongly ended the game before the others played.
-for (const key of ['farkle', 'cribbage', 'qwirkle', 'pipzee', 'skyjo']) {
+for (const key of ['farkle', 'cribbage', 'qwirkle', 'pipzee']) {
   const gameBlock = app.slice(app.indexOf(`  ${key}: {`), app.indexOf(`  ${key}: {`) + 1300);
   assert.match(gameBlock, /soloTurnOrder: true/,
     `${key} must enter solo scores one seat at a time, in turn order`);
 }
+const skyjoBlock = app.slice(app.indexOf('  skyjo: {'), app.indexOf('  skyjo: {') + 1300);
+assert.match(skyjoBlock, /soloTurnOrder: false/,
+  'single-device Skyjo must enter the whole revealed round together');
 assert.match(app, /roundSubmitted: \[\],\s*\/\/ parallel to players/,
   'turn-submission tracking must live on state, not a bare module var, so it survives a solo reload mid-round');
 assert.match(app, /roundStarts: \[\],\s*\/\/ parallel to rounds/,
