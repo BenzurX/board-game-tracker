@@ -686,6 +686,12 @@ assert.doesNotMatch(index, /data-game="qwirkle"/,
 assert.doesNotMatch(index, /<span>Tile Games<\/span>/,
   'the home screen must not show an empty Tile Games category');
 
+// Desktop ambient fields are decorative objects, not cropped edge effects.
+// WebKit clips the full-viewport dot-mask overlays into rectangular fields, so
+// desktop uses the soft radial orbs and the global grain only.
+assert.match(style, /@media \(min-width: 640px\) \{[\s\S]*?\.ambient \{\s*overflow: visible;[\s\S]*?\.ambient i:nth-child\(1\) \{\s*top: clamp\(72px, 10vh, 120px\);\s*left: clamp\(56px, 6vw, 96px\);[\s\S]*?\.ambient i:nth-child\(2\) \{\s*right: clamp\(56px, 6vw, 96px\);\s*bottom: clamp\(72px, 10vh, 120px\);[\s\S]*?\.ambient b \{\s*display: none;/,
+  'desktop ambient orbs must be inset and must not use clipped dot-mask overlays');
+
 // Tabbing down a list of names should land on the next name, not on a swatch.
 assert.match(app, /class="player-color-dot" tabindex="-1"/,
   'the colour dot stays out of the tab order between name fields');

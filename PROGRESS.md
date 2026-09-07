@@ -59,9 +59,15 @@ Single-device play now enters scores one seat at a time in turn order (Farkle, C
 `pipzee` `rules` `multiplayer` `ui` `codex` `shipped`
 Pipzee replaces Yahtzee with a true category scorecard, now protected by client and Worker validation. Setup uses real tracker variants: Euchre is one to three teams, Gin Rummy and Three Thirteen run with one or two scorekeepers, and Three Thirteen ends after 11 completed rounds. Skyjo is multi-device, permits negatives, and ends at the completed target-crossing row; Qwirkle is hidden pending a proper bag-empty ending. Every game now supports a clear shared victory presentation. Turn haptics have Off, Short, Normal, and Strong choices. The Worker must be redeployed with this release.
 
+## Short URL and Desktop Ambient Fix (built and shipped 2026-09-06 in v0.31)
+`deployment` `ui` `codex` `shipped`
+The static app now has the compact `pip.benzur.workers.dev` address; the former long Workers URL remains live for existing users. On desktop, the ambient background uses only inset soft radial color fields. The full-viewport masked dot fields that WebKit rendered as visibly cropped rectangles are deliberately hidden above the mobile breakpoint; the normal global grain remains.
+
 ## Next Session
 
-1. Test v0.30 on real devices. Play Pipzee through a completed scorecard in a multi-device room; attempt an off-turn, invalid, and post-game write to ensure the Worker rejects each. Test all four haptic choices on Android and iPhone.
+1. Test the short v0.31 URL on desktop and mobile: `https://pip.benzur.workers.dev`. Create and join a multi-device room from the short address and verify invite links retain it. Check that the former long address still opens.
+1. Inspect the desktop ambient background in Chromium, Safari, and Firefox. The color fields should be smooth with no rectangular dotted top or bottom edge.
+1. Test v0.30 game behavior on real devices. Play Pipzee through a completed scorecard in a multi-device room; attempt an off-turn, invalid, and post-game write to ensure the Worker rejects each. Test all four haptic choices on Android and iPhone.
 1. Test tied endings in a high-score game, a golf game, and Pipzee. All tied players should share the winner card and the same placement, with the next placing skipped correctly.
 1. Test Skyjo multi-device scoring across 100 points. It should end as soon as every active player has submitted the target-crossing score row, with no extra round.
 1. Test Euchre setup at one, two, and three teams. The count and names should say Team, never Player. Check one- and two-player tracking in Gin Rummy and Three Thirteen.

@@ -2,7 +2,7 @@
 
 A lightweight score-tracking web app for board games and dice games. No install, no accounts - just open and play.
 
-**Live:** https://board-game-tracker.benzur.workers.dev
+**Live:** https://pip.benzur.workers.dev
 
 ---
 

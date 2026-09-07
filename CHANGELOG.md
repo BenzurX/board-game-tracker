@@ -2,6 +2,17 @@
 
 Newest entries first. Version scheme: flat decimal starting at 0.01, incrementing by 0.01 per release (0.01, 0.02 … 0.09, 0.10 …). Version 1.0 is not assigned without explicit approval. Minor additions increment by 0.01; significant grouped releases may skip ahead by more at the author's discretion.
 
+## 0.31 - 2026-09-06
+
+PiP gets a short shareable Workers URL, and desktop ambient color fields no longer render as cropped dotted rectangles.
+
+### Changed
+- `Codex:` **Short URL.** The static app now publishes at `https://pip.benzur.workers.dev`. The former long URL remains available for existing links.
+- `Codex:` **Desktop ambient background.** Large-screen color orbs now use smooth inset radial fields. The WebKit-clipped dot-mask overlay is removed on desktop, while the normal grain remains.
+
+### Testing
+- `Codex:` Added a regression guard preventing the desktop dot-mask layer from returning. Full regression checks pass.
+
 ## 0.30 - 2026-09-06
 
 Rules pass for the new games, more reliable Pipzee multiplayer scoring, tied victories, and configurable turn haptics.
